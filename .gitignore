@@ -1,0 +1,14 @@
+*.suo
+*.user
+*.cachefile
+*.xnb
+*.sln.docstates
+*.cache
+*.ncrunchproject
+TestResults
+MumbleClient/bin
+MumbleClient/obj
+MumbleSharp/bin
+MumbleSharp/obj
+MumbleSharpTest/bin
+MumbleSharpTest/obj
