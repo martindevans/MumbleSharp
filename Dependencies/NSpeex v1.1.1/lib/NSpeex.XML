@@ -1,0 +1,2131 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NSpeex</name>
+    </assembly>
+    <members>
+        <member name="T:NSpeex.SubMode">
+            <summary>
+            Speex SubMode
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.LbrPitch">
+            <summary>
+            Set to -1 for "normal" modes, otherwise encode pitch using a global pitch
+            and allowing a +- lbr_pitch variation (for low not-rates)
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.ForcedPitchGain">
+            <summary>
+            Use the same (forced) pitch gain for all sub-frames
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.HaveSubframeGain">
+            <summary>
+            Number of bits to use as sub-frame innovation gain
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.DoubleCodebook">
+            <summary>
+            Apply innovation quantization twice for higher quality (and higher
+            bit-rate)
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.LsqQuant">
+            <summary>
+            LSP quantization/unquantization function
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.Ltp">
+            <summary>
+            Long-term predictor (pitch) un-quantizer
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.Innovation">
+            <summary>
+            Codebook Search un-quantizer
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.LpcEnhK1">
+            <summary>
+            Enhancer constant
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.LpcEnhK2">
+            <summary>
+            Enhancer constant
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.CombGain">
+            <summary>
+            Gain of enhancer comb filter
+            </summary>
+        </member>
+        <member name="P:NSpeex.SubMode.BitsPerFrame">
+            <summary>
+            Number of bits per frame after encoding
+            </summary>
+        </member>
+        <member name="T:NSpeex.SpeexEncoder">
+            <summary>
+            NSpeex Encoder class. This class encodes the given PCM 16bit samples into speex
+            frames.
+            </summary>
+        </member>
+        <member name="F:NSpeex.SpeexEncoder.Version">
+            <summary>
+            Version of the Speex Encoder
+            </summary>
+        </member>
+        <member name="M:NSpeex.SpeexEncoder.#ctor(NSpeex.BandMode)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="mode">the mode of the encoder (0=NB, 1=WB, 2=UWB).</param>
+            <returns>true if initialisation successful.</returns>
+        </member>
+        <member name="M:NSpeex.SpeexEncoder.Encode(System.Int16[],System.Int32,System.Int32,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Encodes the given sample data.
+            </summary>
+            <param name="inData">Array of samples.</param>
+            <param name="inOffset">Start offset for the inData.</param>
+            <param name="inCount">Number of samples to encode. Must be a multiple of <see cref="P:NSpeex.SpeexEncoder.FrameSize"/>.</param>
+            <param name="outData">The encoded data.</param>
+            <param name="outOffset">Start offset when writing to outData</param>
+            <param name="outCount">The length of the outData array (maximum number of bytes writting after encoding).</param>
+            <returns>The bytes encoded.</returns>
+        </member>
+        <member name="P:NSpeex.SpeexEncoder.SampleRate">
+            <summary>
+            The sampling rate in samples per second
+            </summary>
+        </member>
+        <member name="P:NSpeex.SpeexEncoder.Quality">
+            <summary>
+            The encoder quality within the range [0-10].
+            </summary>
+        </member>
+        <member name="P:NSpeex.SpeexEncoder.VBR">
+            <summary>
+            Turns encoding in variable bit rate on or off.
+            </summary>
+        </member>
+        <member name="P:NSpeex.SpeexEncoder.FrameSize">
+            <summary>
+            The frame size indicates the samples which are packed in a single Speex frame.
+            </summary>
+        </member>
+        <member name="T:NSpeex.PcmWaveWriter">
+            <summary>
+            Writes basic PCM wave files from binary audio data.
+            
+            Here's an example that writes 2 seconds of silence
+            
+            PcmWaveWriter s_wsw = new PcmWaveWriter(2, 44100);
+            byte[] silence = new byte[16/// 2/// 44100];
+            wsw.Open(&quot;C:\\out.wav&quot;);
+            wsw.WriteHeader();
+            wsw.WriteData(silence, 0, silence.length);
+            wsw.WriteData(silence, 0, silence.length);
+            wsw.Close();
+            </summary>
+        </member>
+        <member name="T:NSpeex.AudioFileWriter">
+            <summary>
+            Abstract Class that defines an Audio File Writer.
+            </summary>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.Close">
+            <summary>
+            Closes the output file.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.Open(System.IO.Stream)">
+            <summary>
+            Open the output file.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.Open(System.String)">
+            <summary>
+            Open the output file.
+            </summary>
+            <param name="filename"> -</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.WriteHeader(System.String)">
+            <summary>
+            Writes the header pages that start the Ogg Speex file. Prepares file for
+            data to be written.
+            </summary>
+            <param name="comment">description to be included in the header.</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.WritePacket(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes a packet of audio.
+            </summary>
+            <param name="data">audio data</param>
+            <param name="offset">the offset from which to start reading the data.</param>
+            <param name="len">the length of data to read.</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.WriteSpeexHeader(System.IO.BinaryWriter,System.Int32,System.Int32,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Writes a Speex Header to the given byte array.
+            </summary>
+            <param name="buf">the buffer to write to.</param>
+            <param name="offset">the from which to start writing.</param>
+            <returns>the amount of data written to the buffer.</returns>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.BuildSpeexHeader(System.Int32,System.Int32,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Builds a Speex Header.
+            </summary>
+            <returns>a Speex Header.</returns>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.WriteSpeexComment(System.IO.BinaryWriter,System.String)">
+            <summary>
+            Writes a Speex Comment to the given byte array.
+            </summary>
+            <param name="buf">the buffer to write to.</param>
+            <param name="offset">the from which to start writing.</param>
+            <param name="comment">the comment.</param>
+            <returns>the amount of data written to the buffer.</returns>
+        </member>
+        <member name="M:NSpeex.AudioFileWriter.BuildSpeexComment(System.String)">
+            <summary>
+            Builds and returns a Speex Comment.
+            </summary>
+            <param name="comment">the comment.</param>
+            <returns>a Speex Comment.</returns>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.WAVE_FORMAT_PCM">
+            <summary>
+            Wave type code of PCM
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.WAVE_FORMAT_SPEEX">
+            <summary>
+            Wave type code of Speex
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.WAVE_FRAME_SIZES">
+            <summary>
+            Table describing the number of frames per packet in a Speex Wave file,
+            depending on its mode (0=NB, 1=WB, 3=UWB), channels-1 (1=mono,
+            2=stereo) and the quality setting (0 to 10). See end of file for exerpt
+            from SpeexACM code for more explanations.
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.WAVE_BITS_PER_FRAME">
+            <summary>
+            Table describing the number of bit per Speex frame, depending on its
+            mode (0=NB, 1=WB, 2=UWB), channels-1 (1=mono, 2=stereo) and the quality
+            setting (0 to 10). See end of file for exerpt from SpeexACM code for more
+            explanations.
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.mode">
+            <summary>
+            Defines the encoder mode (0=NB, 1=WB and 2-UWB).
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.sampleRate">
+            <summary>
+            Defines the sampling rate of the audio input.
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.channels">
+            <summary>
+            Defines the number of channels of the audio input (1=mono, 2=stereo).
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.nframes">
+            <summary>
+            Defines the number of frames per speex packet.
+            </summary>
+        </member>
+        <member name="F:NSpeex.PcmWaveWriter.vbr">
+            <summary>
+            Defines whether or not to use VBR (Variable Bit Rate).
+            </summary>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Constructor for PCM Wave file.
+            </summary>
+            <param name="sampleRate">the number of samples per second.</param>
+            <param name="channels">the number of audio channels (1=mono, 2=stereo, ...).</param>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Constructor for a Speex Wave file.
+            </summary>
+            <param name="mode">the mode of the encoder (0=NB, 1=WB, 2=UWB).</param>
+            <param name="quality"></param>
+            <param name="sampleRate">the number of samples per second.</param>
+            <param name="channels">the number of audio channels (1=mono, 2=stereo, ...).</param>
+            <param name="nframes">the number of frames per speex packet.</param>
+            <param name="vbr"></param>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.Close">
+            <summary>
+            Closes the output file. MUST be called to have a correct stream.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.Open(System.IO.Stream)">
+            <summary>
+            Open the output file.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.WriteHeader(System.String)">
+            <summary>
+            Writes the initial data chunks that start the wave file. Prepares file
+            for data samples to written.
+            </summary>
+            <param name="comment">ignored by the WAV header.</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.WritePacket(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes a packet of audio.
+            </summary>
+            <param name="data">audio data</param>
+            <param name="offset">the offset from which to start reading the data.</param>
+            <param name="len">the length of data to read.</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.CalculateEffectiveBitrate(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Calculates effective bitrate (considering padding). See end of file for
+            exerpt from SpeexACM code for more explanations.
+            </summary>
+            <returns>effective bitrate (considering padding).</returns>
+        </member>
+        <member name="M:NSpeex.PcmWaveWriter.CalculateBlockSize(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Calculates block size (considering padding). See end of file for exerpt
+            from SpeexACM code for more explanations.
+            </summary>
+            <returns>block size (considering padding).</returns>
+        </member>
+        <member name="T:NSpeex.Lpc">
+            <summary>
+            LPC - and Reflection Coefficients.
+            
+            The next two functions calculate linear prediction coefficients and/or the
+            related reflection coefficients from the first P_MAX+1 values of the
+            autocorrelation function.
+            
+            Invented by N. Levinson in 1947, modified by J. Durbin in 1959.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Lpc.Wld(System.Single[],System.Single[],System.Single[],System.Int32)">
+            <summary>
+            Returns minimum mean square error.
+            </summary>
+            <returns>minimum mean square error.</returns>
+        </member>
+        <member name="M:NSpeex.Lpc.Autocorr(System.Single[],System.Single[],System.Int32,System.Int32)">
+            <summary>
+            Compute the autocorrelation ,--, ac(i) = > x(n)/// x(n-i) for all n `--'
+            for lags between 0 and lag-1, and x == 0 outside 0...n-1
+            </summary>
+        </member>
+        <member name="T:NSpeex.LbrLspQuant">
+            <summary>
+            LSP Quantisation and Unquantisation (Lbr)
+            </summary>
+        </member>
+        <member name="T:NSpeex.LspQuant">
+            <summary>
+            Abstract class that is the base for the various LSP Quantisation and
+            Unquantisation methods.
+            </summary>
+        </member>
+        <member name="M:NSpeex.LspQuant.Quant(System.Single[],System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Quantification.
+            </summary>
+        </member>
+        <member name="M:NSpeex.LspQuant.Unquant(System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Unquantification.
+            </summary>
+        </member>
+        <member name="M:NSpeex.LspQuant.UnpackPlus(System.Single[],System.Int32[],NSpeex.Bits,System.Single,System.Int32,System.Int32)">
+            <summary>
+            Read the next 6 bits from the buffer, and using the value read and the
+            given codebook, rebuild LSP table.
+            </summary>
+        </member>
+        <member name="M:NSpeex.LspQuant.Lsp_quant(System.Single[],System.Int32,System.Int32[],System.Int32,System.Int32)">
+            <summary>
+            LSP quantification Note: x is modified
+            </summary>
+            <returns>the index of the best match in the codebook (NB x is also</returns>
+        </member>
+        <member name="M:NSpeex.LspQuant.Lsp_weight_quant(System.Single[],System.Int32,System.Single[],System.Int32,System.Int32[],System.Int32,System.Int32)">
+            <summary>
+            LSP weighted quantification Note: x is modified
+            </summary>
+            <returns>the index of the best match in the codebook (NB x is also</returns>
+        </member>
+        <member name="M:NSpeex.LbrLspQuant.Quant(System.Single[],System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Quantification (Lbr).
+            </summary>
+        </member>
+        <member name="M:NSpeex.LbrLspQuant.Unquant(System.Single[],System.Int32,NSpeex.Bits)">
+             <summary>
+             Line Spectral Pair Unquantification (Lbr).
+             </summary>
+            
+             <param name="lsp"> -</param>
+             <param name="order"></param>
+             <param name="bits"> -</param>
+        </member>
+        <member name="T:NSpeex.CodebookSearch">
+            <summary>
+            Abstract class that is the base for the various Codebook search methods.
+            </summary>
+        </member>
+        <member name="M:NSpeex.CodebookSearch.Quantify(System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Single[],System.Int32,System.Single[],NSpeex.Bits,System.Int32)">
+            <summary>
+            Codebook Search Quantification.
+            </summary>
+            <param name="target">target vector</param>
+            <param name="ak">LPCs for this subframe</param>
+            <param name="awk1">Weighted LPCs for this subframe</param>
+            <param name="awk2">Weighted LPCs for this subframe</param>
+            <param name="p">number of LPC coeffs</param>
+            <param name="nsf">number of samples in subframe</param>
+            <param name="exc">excitation array.</param>
+            <param name="es">position in excitation array.</param>
+            <param name="r"></param>
+            <param name="bits">Speex bits buffer.</param>
+            <param name="complexity"></param>
+        </member>
+        <member name="M:NSpeex.CodebookSearch.Unquantify(System.Single[],System.Int32,System.Int32,NSpeex.Bits)">
+            <summary>
+            Codebook Search Unquantification.
+            </summary>
+        </member>
+        <member name="T:NSpeex.InvalidFormatException">
+            <summary>
+            Indicates a mal-formed speex stream.
+            </summary>
+        </member>
+        <member name="M:NSpeex.InvalidFormatException.#ctor(System.String)">
+            <summary>
+            Creates a new instance.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:NSpeex.SbCodec">
+            <summary>
+            Sideband Codec. This class contains all the basic structures needed by the
+            Sideband encoder and decoder.
+            </summary>
+        </member>
+        <member name="T:NSpeex.NbCodec">
+            <summary>
+            Narrowband Codec. This class contains all the basic structures needed by the
+            Narrowband encoder and decoder.
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.VERY_SMALL">
+            <summary>
+            Very small initial value for some of the buffers.
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.NB_SUBMODES">
+            <summary>
+            The Narrowband Submodes gives the number of submodes possible for the
+            Narrowband codec.
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.NB_SUBMODE_BITS">
+            <summary>
+            The Narrowband Submodes Bits gives the number bits used to encode the
+            Narrowband Submode
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.NB_FRAME_SIZE">
+            <summary>
+            The Narrowband Frame Size gives the size in bits of a Narrowband frame
+            for a given narrowband submode.
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.submodes">
+            <summary>
+            Sub-mode data
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.submodeID">
+            <summary>
+            Activated sub-mode
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.first">
+            <summary>
+            Is this the first frame?
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.frameSize">
+            <summary>
+            Size of frames
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.subframeSize">
+            <summary>
+            Size of sub-frames
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.nbSubframes">
+            <summary>
+            Number of sub-frames
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.windowSize">
+            <summary>
+            Analysis (LPC) window length
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.lpcSize">
+            <summary>
+            LPC order
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.bufSize">
+            <summary>
+            Buffer size
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.min_pitch">
+            <summary>
+            Minimum pitch value allowed
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.max_pitch">
+            <summary>
+            Maximum pitch value allowed
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.gamma1">
+            <summary>
+            Perceptual filter: A(z/gamma1)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.gamma2">
+            <summary>
+            Perceptual filter: A(z/gamma2)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.lag_factor">
+            <summary>
+            Lag windowing Gaussian width
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.lpc_floor">
+            <summary>
+            Noise floor multiplier for A[0] in LPC analysis
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.preemph">
+            <summary>
+            Pre-emphasis: P(z) = 1 - a*z^-1
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.pre_mem">
+            <summary>
+            1-element memory for pre-emphasis
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.frmBuf">
+            <summary>
+            Input buffer (original signal)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.excBuf">
+            <summary>
+            Excitation buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.excIdx">
+            <summary>
+            Start of excitation frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.innov">
+            <summary>
+            Innovation for the frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.lpc">
+            <summary>
+            LPCs for current frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.qlsp">
+            <summary>
+            Quantized LSPs for current frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.old_qlsp">
+            <summary>
+            Quantized LSPs for previous frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.interp_qlsp">
+            <summary>
+            Interpolated quantized LSPs
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.interp_qlpc">
+            <summary>
+            Interpolated quantized LPCs
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.mem_sp">
+            <summary>
+            Filter memory for synthesis signal
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.pi_gain">
+            <summary>
+            Gain of LPC filter at theta=pi (fe/2)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbCodec.dtx_enabled">
+            1 for enabling DTX, 0 otherwise 
+        </member>
+        <member name="M:NSpeex.NbCodec.Nbinit">
+            <summary>
+            Narrowband initialisation.
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbCodec.Init(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialisation.
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbCodec.BuildNbSubModes">
+            <summary>
+            Build narrowband submodes
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbCodec.SB_SUBMODES">
+            <summary>
+            The Sideband Submodes gives the number of submodes possible for the
+            Sideband codec.
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbCodec.SB_SUBMODE_BITS">
+            <summary>
+            The Sideband Submodes Bits gives the number bits used to encode the
+            Sideband Submode
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbCodec.QMF_ORDER">
+            <summary>
+            Quadratic Mirror Filter Order
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbCodec.SB_FRAME_SIZE">
+            <summary>
+            The Sideband Frame Size gives the size in bits of a Sideband frame for a
+            given sideband submode.
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbCodec.BuildWbSubModes">
+            <summary>
+            Build wideband submodes.
+            </summary>
+            <returns>the wideband submodes.</returns>
+        </member>
+        <member name="M:NSpeex.SbCodec.BuildUwbSubModes">
+            <summary>
+            Build ultra-wideband submodes.
+            </summary>
+            <returns>the ultra-wideband submodes.</returns>
+        </member>
+        <member name="T:NSpeex.Filters">
+             <summary>
+             Filters
+             </summary>
+            
+             @author Jim Lawrence, helloNetwork.com
+             @author Marc Gimpel, Wimba S.A. (mgimpel@horizonwimba.com)
+             @version $Revision: 1.2 $
+        </member>
+        <member name="M:NSpeex.Filters.Comb_filter(System.Single[],System.Int32,System.Single[],System.Int32,System.Int32,System.Int32,System.Single[],System.Single)">
+            <summary>
+            Comb Filter
+            </summary>
+        </member>
+        <member name="M:NSpeex.Filters.Qmf_decomp(System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Single[])">
+            <summary>
+            Quadrature Mirror Filter to Split the band in two. A 16kHz signal is thus
+            divided into two 8kHz signals representing the low and high bands. (used
+            by wideband encoder)
+            </summary>
+        </member>
+        <member name="T:NSpeex.BandMode">
+            <summary>
+            Indicates the mode in which the encoder/decoder is working.
+            </summary>
+        </member>
+        <member name="F:NSpeex.BandMode.Narrow">
+            <summary>
+            Narrow band. Is equal to 8kHz sample rate.
+            </summary>
+        </member>
+        <member name="F:NSpeex.BandMode.Wide">
+            <summary>
+            Wide band. Is equal to 16kHzs sample rate.
+            </summary>
+        </member>
+        <member name="F:NSpeex.BandMode.UltraWide">
+            <summary>
+            Ultra-wide band. Is equal to 32kHz sample rate.
+            </summary>
+        </member>
+        <member name="T:NSpeex.IDecoder">
+            <summary>
+            Speex Decoder inteface, used as a base for the Narrowband and sideband
+            decoders.
+            </summary>
+        </member>
+        <member name="M:NSpeex.IDecoder.Decode(NSpeex.Bits,System.Single[])">
+            <summary>
+            Decode the given input bits.
+            </summary>
+            <returns>1 if a terminator was found, 0 if not.</returns>
+            <exception cref="T:NSpeex.InvalidFormatException">If there is an error detected in the data stream.</exception>
+        </member>
+        <member name="M:NSpeex.IDecoder.DecodeStereo(System.Single[],System.Int32)">
+            <summary>
+            Decode the given bits to stereo.
+            </summary>
+        </member>
+        <member name="T:NSpeex.HighLspQuant">
+            <summary>
+            LSP Quantisation and Unquantisation (high)
+            </summary>
+        </member>
+        <member name="M:NSpeex.HighLspQuant.Quant(System.Single[],System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Quantification (high).
+            </summary>
+        </member>
+        <member name="M:NSpeex.HighLspQuant.Unquant(System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Unquantification (high).
+            </summary>
+        </member>
+        <member name="T:NSpeex.SbDecoder">
+            <summary>
+            Sideband Speex Decoder
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbDecoder.#ctor(System.Boolean)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbDecoder.Wbinit">
+            <summary>
+            Wideband initialisation
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbDecoder.Uwbinit">
+            <summary>
+            Ultra-wideband initialisation
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbDecoder.Decode(NSpeex.Bits,System.Single[])">
+            <summary>
+            Decode the given input bits.
+            </summary>
+            <returns>1 if a terminator was found, 0 if not.</returns>
+        </member>
+        <member name="M:NSpeex.SbDecoder.DecodeLost(System.Single[],System.Boolean)">
+            <summary>
+            Decode when packets are lost.
+            </summary>
+            <returns>0 if successful.</returns>
+        </member>
+        <member name="M:NSpeex.SbDecoder.DecodeStereo(System.Single[],System.Int32)">
+            <summary>
+            Decode the given bits to stereo.
+            </summary>
+        </member>
+        <member name="T:NSpeex.OggCrc">
+            <summary>
+            Calculates the CRC checksum for Ogg packets.
+            
+            Ogg uses the same generator polynomial as ethernet, although with an
+            unreflected alg and an init/final of 0, not 0xffffffff.
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggCrc.lookupTable">
+            <summary>
+            CRC checksum lookup table.
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggCrc.hash">
+            <summary>
+            Current value of the CRC checksum.
+            </summary>
+        </member>
+        <member name="M:NSpeex.OggCrc.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Calculates the checksum on the given data, from the give offset and for
+            the given length, using the given initial value. This allows on to
+            calculate the checksum iteratively, by reinjecting the last returned
+            value as the initial value when the function is called for the next data
+            chunk. The initial value should be 0 for the first iteration.
+            </summary>
+        </member>
+        <member name="T:NSpeex.NbEncoder">
+            <summary>
+            Narrowband Speex Encoder
+            </summary>
+        </member>
+        <member name="T:NSpeex.IEncoder">
+            <summary>
+            Speex Encoder interface, used as a base for the Narrowband and sideband
+            encoders.
+            </summary>
+        </member>
+        <member name="M:NSpeex.IEncoder.Encode(NSpeex.Bits,System.Single[])">
+            <summary>
+            Encode the given input signal.
+            </summary>
+            <returns>1 if successful.</returns>
+        </member>
+        <member name="F:NSpeex.NbEncoder.NB_QUALITY_MAP">
+            <summary>
+            The Narrowband Quality map indicates which narrowband submode to use for
+            the given narrowband quality setting
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.bounded_pitch">
+            <summary>
+            Next frame should not rely on previous frames for pitch
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.pre_mem2">
+            <summary>
+            1-element memory for pre-emphasis
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.exc2Buf">
+            <summary>
+            "Pitch enhanced" excitation
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.exc2Idx">
+            <summary>
+            "Pitch enhanced" excitation
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.swBuf">
+            <summary>
+            Weighted signal buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.swIdx">
+            <summary>
+            Start of weighted signal frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.window">
+            <summary>
+            Temporary (Hanning) window
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.buf2">
+            <summary>
+            2nd temporary buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.autocorr">
+            <summary>
+            auto-correlation
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.lagWindow">
+            <summary>
+            Window applied to auto-correlation
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.lsp">
+            <summary>
+            LSPs for current frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.old_lsp">
+            <summary>
+            LSPs for previous frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.interp_lsp">
+            <summary>
+            Interpolated LSPs
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.interp_lpc">
+            <summary>
+            Interpolated LPCs
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.bw_lpc1">
+            <summary>
+            LPCs after bandwidth expansion by gamma1 for perceptual weighting
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.bw_lpc2">
+            <summary>
+            LPCs after bandwidth expansion by gamma2 for perceptual weighting
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.rc">
+            <summary>
+            Reflection coefficients
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.mem_sw">
+            <summary>
+            Filter memory for perceptually-weighted signal
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.mem_sw_whole">
+            <summary>
+            Filter memory for perceptually-weighted signal (whole frame)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.mem_exc">
+            <summary>
+            Filter memory for excitation (whole frame)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.vbr">
+            <summary>
+            State of the VBR data
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.dtx_count">
+            <summary>
+            Number of consecutive DTX frames
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.complexity">
+            <summary>
+            Complexity setting (0-10 from least complex to most complex)
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.vbr_enabled">
+            <summary>
+            1 for enabling VBR, 0 otherwise
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.vad_enabled">
+            <summary>
+            1 for enabling VAD, 0 otherwise
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.abr_enabled">
+            <summary>
+            ABR setting (in bps), 0 if off
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.vbr_quality">
+            <summary>
+            Quality setting for VBR encoding
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.relative_quality">
+            <summary>
+            Relative quality that will be needed by VBR
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbEncoder.submodeSelect">
+            <summary>
+            Mode chosen by the user (may differ from submodeID if VAD is on)
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbEncoder.Init(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialisation
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbEncoder.Encode(NSpeex.Bits,System.Single[])">
+            <summary>
+            Encode the given input signal.
+            </summary>
+            <returns>return 1 if successful.</returns>
+        </member>
+        <member name="T:NSpeex.Lsp">
+            <summary>
+            Line Spectral Pair
+            </summary>
+        </member>
+        <member name="M:NSpeex.Lsp.#ctor">
+             <summary>
+             Constructor
+             </summary>
+            
+        </member>
+        <member name="M:NSpeex.Lsp.Cheb_poly_eva(System.Single[],System.Single,System.Int32)">
+            <summary>
+            This function evaluates a series of Chebyshev polynomials.
+            </summary>
+            <returns>the value of the polynomial at point x.</returns>
+        </member>
+        <member name="M:NSpeex.Lsp.Lpc2lsp(System.Single[],System.Int32,System.Single[],System.Int32,System.Single)">
+            <summary>
+            This function converts LPC coefficients to LSP coefficients.
+            </summary>
+            <returns>the number of roots (the LSP coefs are returned in the array).</returns>
+        </member>
+        <member name="M:NSpeex.Lsp.Lsp2lpc(System.Single[],System.Single[],System.Int32)">
+            <summary>
+            Line Spectral Pair to Linear Prediction Coefficients
+            </summary>
+        </member>
+        <member name="M:NSpeex.Lsp.Enforce_margin(System.Single[],System.Int32,System.Single)">
+            <summary>
+            Makes sure the LSPs are stable.
+            </summary>
+        </member>
+        <member name="T:NSpeex.SplitShapeSearch">
+            <summary>
+            Split shape codebook search
+            </summary>
+        </member>
+        <member name="M:NSpeex.SplitShapeSearch.#ctor(System.Int32,System.Int32,System.Int32,System.Int32[],System.Int32,System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:NSpeex.SplitShapeSearch.Quantify(System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Single[],System.Int32,System.Single[],NSpeex.Bits,System.Int32)">
+            <summary>
+            Codebook Search Quantification (Split Shape).
+            </summary>
+            <param name="target">target vector</param>
+            <param name="ak">LPCs for this subframe</param>
+            <param name="awk1">Weighted LPCs for this subframe</param>
+            <param name="awk2">Weighted LPCs for this subframe</param>
+            <param name="p">number of LPC coeffs</param>
+            <param name="nsf">number of samples in subframe</param>
+            <param name="exc">excitation array.</param>
+            <param name="es">position in excitation array.</param>
+            <param name="r"></param>
+            <param name="bits">Speex bits buffer.</param>
+            <param name="complexity"></param>
+        </member>
+        <member name="M:NSpeex.SplitShapeSearch.Unquantify(System.Single[],System.Int32,System.Int32,NSpeex.Bits)">
+            <summary>
+            Codebook Search Unquantification (Split Shape).
+            </summary>
+        </member>
+        <member name="T:NSpeex.RawWriter">
+            <summary>
+            Raw Audio File Writer.
+            </summary>
+        </member>
+        <member name="M:NSpeex.RawWriter.Close">
+            <summary>
+            Closes the output file.
+            </summary>
+        </member>
+        <member name="M:NSpeex.RawWriter.Open(System.IO.Stream)">
+            <summary>
+            Open the output file.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.RawWriter.WriteHeader(System.String)">
+            <summary>
+            Writes the header pages that start the Ogg Speex file. Prepares file for
+            data to be written.
+            </summary>
+            <param name="comment">description to be included in the header.</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.RawWriter.WritePacket(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes a packet of audio.
+            </summary>
+            <param name="data">audio data</param>
+            <param name="offset">the offset from which to start reading the data.</param>
+            <param name="len">the length of data to read.</param>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="T:NSpeex.Ltp">
+            <summary>
+            Abstract class that is the base for the various LTP (Long Term Prediction)
+            Quantisation and Unquantisation methods.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Ltp.Quant(System.Single[],System.Single[],System.Int32,System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Int32,System.Single,System.Int32,System.Int32,NSpeex.Bits,System.Single[],System.Int32,System.Single[],System.Int32)">
+            <summary>
+            Long Term Prediction Quantification.
+            </summary>
+            <returns>pitch</returns>
+        </member>
+        <member name="M:NSpeex.Ltp.Unquant(System.Single[],System.Int32,System.Int32,System.Single,System.Int32,System.Single[],NSpeex.Bits,System.Int32,System.Int32,System.Single)">
+            <summary>
+            Long Term Prediction Unquantification.
+            </summary>
+            <returns>pitch</returns>
+        </member>
+        <member name="M:NSpeex.Ltp.Inner_prod(System.Single[],System.Int32,System.Single[],System.Int32,System.Int32)">
+            <summary>
+            Calculates the inner product of the given vectors.
+            </summary>>
+            <returns>the inner product of the given vectors.</returns>
+        </member>
+        <member name="M:NSpeex.Ltp.Open_loop_nbest_pitch(System.Single[],System.Int32,System.Int32,System.Int32,System.Int32,System.Int32[],System.Single[],System.Int32)">
+            <summary>
+            Find the n-best pitch in Open Loop.
+            </summary>
+        </member>
+        <member name="T:NSpeex.SpeexDecoder">
+            <summary>
+            NSpeex Decoder class. This class decodes the given speex frames into
+            PCM 16bit samples.
+            </summary>
+        </member>
+        <member name="M:NSpeex.SpeexDecoder.#ctor(NSpeex.BandMode,System.Boolean)">
+            <summary>
+            Constructor
+            <param name="mode">The mode of the decoder.</param>
+            <param name="enhanced">Whether to enable perceptual enhancement or not.</param>
+            </summary>
+        </member>
+        <member name="M:NSpeex.SpeexDecoder.Decode(System.Byte[],System.Int32,System.Int32,System.Int16[],System.Int32,System.Boolean)">
+            <summary>
+            Decodes the given encoded data.
+            </summary>
+            <param name="inData">The encoded data. Can be multiple frames.</param>
+            <param name="inOffset">Start offset where to read the encoded data from.</param>
+            <param name="inCount">The number of bytes to decode.</param>
+            <param name="outData">The output of the decoded data in samples.</param>
+            <param name="outOffset">Start offset where to start writing the decoded samples from.</param>
+            <param name="lostFrame">Indicates if we are decoding a lost frame. Alternatively the <paramref name="inData"/> parameter can be <value>null</value>.</param>
+            <returns>The number of samples decoded.</returns>
+        </member>
+        <member name="P:NSpeex.SpeexDecoder.FrameSize">
+            <summary>
+            The frame size indicates the samples which are packed in a single Speex frame.
+            </summary>
+        </member>
+        <member name="P:NSpeex.SpeexDecoder.SampleRate">
+            <summary>
+            The sampling rate in samples per second
+            </summary>
+        </member>
+        <member name="T:NSpeex.Bits">
+            <summary>
+            Speex bit packing and unpacking class.
+            </summary>
+        </member>
+        <member name="F:NSpeex.Bits.DefaultBufferSize">
+             <summary>
+             Default buffer size
+             </summary>
+            
+        </member>
+        <member name="F:NSpeex.Bits.bytes">
+            <summary>
+            "raw" data
+            </summary>
+        </member>
+        <member name="F:NSpeex.Bits.bytePtr">
+            <summary>
+            Position of the byte "cursor"
+            </summary>
+        </member>
+        <member name="F:NSpeex.Bits.bitPtr">
+            <summary>
+            Position of the bit "cursor" within the current byte
+            </summary>
+        </member>
+        <member name="M:NSpeex.Bits.#ctor">
+            <summary>
+            Initialise the bit packing variables.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Bits.Advance(System.Int32)">
+            <summary>
+            Advance n bits.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Bits.Peek">
+            <summary>
+            Take a peek at the next bit.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Bits.ReadFrom(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read the given array into the buffer.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Bits.Unpack(System.Int32)">
+            <summary>
+            Read the next N bits from the buffer.
+            </summary>
+            <returns>the next N bits from the buffer.</returns>
+        </member>
+        <member name="M:NSpeex.Bits.Pack(System.Int32,System.Int32)">
+            <summary>
+            Write N bits of the given data to the buffer.
+            </summary>
+        </member>
+        <member name="T:NSpeex.LtpForcedPitch">
+            <summary>
+            Long Term Prediction Quantisation and Unquantisation (Forced Pitch)
+            </summary>
+        </member>
+        <member name="M:NSpeex.LtpForcedPitch.Quant(System.Single[],System.Single[],System.Int32,System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Int32,System.Single,System.Int32,System.Int32,NSpeex.Bits,System.Single[],System.Int32,System.Single[],System.Int32)">
+            <summary>
+            Long Term Prediction Quantification (Forced Pitch).
+            </summary>
+            <returns>pitch</returns>
+        </member>
+        <member name="M:NSpeex.LtpForcedPitch.Unquant(System.Single[],System.Int32,System.Int32,System.Single,System.Int32,System.Single[],NSpeex.Bits,System.Int32,System.Int32,System.Single)">
+            <summary>
+            Long Term Prediction Unquantification (Forced Pitch).
+            </summary>
+            <returns>pitch</returns>
+        </member>
+        <member name="T:NSpeex.Ltp3Tap">
+            <summary>
+            Long Term Prediction Quantisation and Unquantisation (3Tap)
+            </summary>
+        </member>
+        <member name="M:NSpeex.Ltp3Tap.Quant(System.Single[],System.Single[],System.Int32,System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Int32,System.Single,System.Int32,System.Int32,NSpeex.Bits,System.Single[],System.Int32,System.Single[],System.Int32)">
+            <summary>
+            Long Term Prediction Quantification (3Tap).
+            </summary>
+            <returns>pitch</returns>
+        </member>
+        <member name="M:NSpeex.Ltp3Tap.Unquant(System.Single[],System.Int32,System.Int32,System.Single,System.Int32,System.Single[],NSpeex.Bits,System.Int32,System.Int32,System.Single)">
+            <summary>
+            Long Term Prediction Unquantification (3Tap).
+            </summary>
+            <returns>pitch</returns>
+        </member>
+        <member name="M:NSpeex.Ltp3Tap.Pitch_gain_search_3tap(System.Single[],System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Int32,System.Int32,NSpeex.Bits,System.Single[],System.Int32,System.Single[],System.Int32[])">
+            <summary>
+            Finds the best quantized 3-tap pitch predictor by analysis by synthesis.
+            </summary>
+            <param name="target">Target vector</param>
+            <param name="ak">LPCs for this subframe</param>
+            <param name="awk1">Weighted LPCs #1 for this subframe</param>
+            <param name="awk2">Weighted LPCs #2 for this subframe</param>
+            <param name="exc">Excitation</param>
+            <param name="es"></param>
+            <param name="pitch">Pitch value</param>
+            <param name="p">Number of LPC coeffs</param>
+            <param name="nsf">Number of samples in subframe</param>
+            <param name="bits"></param>
+            <param name="exc2"></param>
+            <param name="e2s"></param>
+            <param name="r"></param>
+            <param name="cdbk_index"></param>
+            <returns>the best quantized 3-tap pitch predictor by analysis by</returns>
+        </member>
+        <member name="T:NSpeex.Vbr">
+            <summary>
+            This class analyses the signal to help determine what bitrate to use when the
+            Varible BitRate option has been selected.
+            </summary>
+        </member>
+        <member name="F:NSpeex.Vbr.nb_thresh">
+            <summary>
+            Narrowband threshhold table.
+            </summary>
+        </member>
+        <member name="F:NSpeex.Vbr.hb_thresh">
+            <summary>
+            Wideband threshhold table.
+            </summary>
+        </member>
+        <member name="F:NSpeex.Vbr.uhb_thresh">
+            <summary>
+            Ultra-wideband threshhold table.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Vbr.#ctor">
+             <summary>
+             Constructor
+             </summary>
+            
+        </member>
+        <member name="M:NSpeex.Vbr.Analysis(System.Single[],System.Int32,System.Int32,System.Single)">
+             <summary>
+             This function should analyse the signal and decide how critical the
+             coding error will be perceptually. The following factors should be taken
+             into account:
+             <ul>
+             <li>Attacks (positive energy derivative) should be coded with more bits</li>
+             <li>Stationary voiced segments should receive more bits</li>
+             <li>Segments with (very) low absolute energy should receive less bits
+             (maybe only shaped noise?)</li>
+             <li>DTX for near-zero energy?</li>
+             <li>Stationary fricative segments should have less bits</li>
+             <li>Temporal masking: when energy slope is decreasing, decrease the
+             bit-rate</li>
+             <li>Decrease bit-rate for males (low pitch)?</li>
+             <li>(wideband only) less bits in the high-band when signal is very
+             non-stationary (harder to notice high-frequency noise)???</li>
+             </ul>
+             </summary>
+            
+             <param name="sig"></param>
+             <param name="len"></param>
+             <param name="pitch"></param>
+             <param name="pitch_coef"></param>
+             <returns>quality</returns>
+        </member>
+        <member name="T:NSpeex.OggSpeexWriter">
+            <summary>
+            Ogg Speex Writer
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.PACKETS_PER_OGG_PAGE">
+            <summary>
+            Number of packets in an Ogg page (must be less than 255)
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.xout">
+            <summary>
+            The OutputStream
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.mode">
+            <summary>
+            Defines the encoder mode (0=NB, 1=WB and 2-UWB).
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.sampleRate">
+            <summary>
+            Defines the sampling rate of the audio input.
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.channels">
+            <summary>
+            Defines the number of channels of the audio input (1=mono, 2=stereo).
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.nframes">
+            <summary>
+            Defines the number of frames per speex packet.
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.vbr">
+            <summary>
+            Defines whether or not to use VBR (Variable Bit Rate).
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.streamSerialNumber">
+            <summary>
+            Ogg Stream Serial Number
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.dataBuffer">
+            <summary>
+            Data buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.dataBufferPtr">
+            <summary>
+            Pointer within the Data buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.headerBuffer">
+            <summary>
+            Header buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.headerBufferPtr">
+            <summary>
+            Pointer within the Header buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.pageCount">
+            <summary>
+            Ogg Page count
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.packetCount">
+            <summary>
+            Speex packet count within an Ogg Page
+            </summary>
+        </member>
+        <member name="F:NSpeex.OggSpeexWriter.granulepos">
+            <summary>
+            Absolute granule position (the number of audio samples from beginning of
+            file to end of Ogg Packet).
+            </summary>
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Builds an Ogg Speex Writer.
+            </summary>
+            <param name="mode">the mode of the encoder (0=NB, 1=WB, 2=UWB).</param>
+            <param name="sampleRate">the number of samples per second.</param>
+            <param name="channels">the number of audio channels (1=mono, 2=stereo, ...).</param>
+            <param name="nframes">the number of frames per speex packet.</param>
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.Close">
+            <summary>
+            Closes the output file.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.Open(System.IO.Stream)">
+            <summary>
+            Open the output file.
+            </summary>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.WriteOggPageHeader(System.IO.BinaryWriter,System.Int32,System.Int64,System.Int32,System.Int32,System.Int32,System.Byte[])">
+             <summary>
+             Writes an Ogg Page Header to the given byte array.
+             </summary>
+            
+             <param name="buf">the buffer to write to.</param>
+             <param name="offset">the from which to start writing.</param>
+             <param name="headerType">the header type flag (0=normal, 2=bos: beginning of stream,</param>
+             <param name="granulepos">the absolute granule position.</param>
+             <param name="streamSerialNumber"></param>
+             <param name="pageCount"></param>
+             <param name="packetCount"></param>
+             <param name="packetSizes"></param>
+             <returns>the amount of data written to the buffer.</returns>
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.BuildOggPageHeader(System.Int32,System.Int64,System.Int32,System.Int32,System.Int32,System.Byte[])">
+             <summary>
+             Builds and returns an Ogg Page Header.
+             </summary>
+            
+             <param name="headerType">the header type flag (0=normal, 2=bos: beginning of stream,</param>
+             <param name="granulepos">the absolute granule position.</param>
+             <param name="streamSerialNumber"></param>
+             <param name="pageCount"></param>
+             <param name="packetCount"></param>
+             <param name="packetSizes"></param>
+             <returns>an Ogg Page Header.</returns>
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.WriteHeader(System.String)">
+             <summary>
+             Writes the header pages that start the Ogg Speex file. Prepares file for
+             data to be written.
+             </summary>
+            
+             <param name="comment">description to be included in the header.</param>
+             @exception IOException
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.WritePacket(System.Byte[],System.Int32,System.Int32)">
+             <summary>
+             Writes a packet of audio.
+             </summary>
+            
+             <param name="data"> -</param>
+             <param name="offset"> -</param>
+             <param name="len"> -</param>
+             @exception IOException
+        </member>
+        <member name="M:NSpeex.OggSpeexWriter.Flush(System.Boolean)">
+             <summary>
+             Flush the Ogg page out of the buffers into the file.
+             </summary>
+            
+             <param name="eos"> -</param>
+             @exception IOException
+        </member>
+        <member name="T:NSpeex.Inband">
+            <summary>
+            Speex in-band and User in-band controls.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Inband.SpeexInbandRequest(NSpeex.Bits)">
+            <summary>
+            Speex in-band request (submode=14).
+            </summary>
+        </member>
+        <member name="M:NSpeex.Inband.UserInbandRequest(NSpeex.Bits)">
+            <summary>
+            User in-band request (submode=13).
+            </summary>
+        </member>
+        <member name="F:NSpeex.Stereo.SPEEX_INBAND_STEREO">
+             <summary>
+             Inband code number for Stereo
+             </summary>
+            
+        </member>
+        <member name="F:NSpeex.Stereo.balance">
+            <summary>
+            Left/right balance info
+            </summary>
+        </member>
+        <member name="F:NSpeex.Stereo.e_ratio">
+            <summary>
+            Ratio of energies: E(left+right)/[E(left)+E(right)]
+            </summary>
+        </member>
+        <member name="F:NSpeex.Stereo.smooth_left">
+            <summary>
+            Smoothed left channel gain
+            </summary>
+        </member>
+        <member name="F:NSpeex.Stereo.smooth_right">
+            <summary>
+            Smoothed right channel gain
+            </summary>
+        </member>
+        <member name="M:NSpeex.Stereo.Encode(NSpeex.Bits,System.Single[],System.Int32)">
+            <summary>
+            Transforms a stereo frame into a mono frame and stores intensity stereo
+            info in 'bits'.
+            </summary>
+        </member>
+        <member name="M:NSpeex.Stereo.Decode(System.Single[],System.Int32)">
+             <summary>
+             Transforms a mono frame into a stereo frame using intensity stereo info.
+             </summary>
+            
+             <param name="data"> -</param>
+             <param name="frameSize"> -</param>
+        </member>
+        <member name="M:NSpeex.Stereo.Init(NSpeex.Bits)">
+            <summary>
+            Callback handler for intensity stereo info
+            </summary>
+        </member>
+        <member name="T:NSpeex.SbEncoder">
+            <summary>
+            Wideband Speex Encoder
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.NB_QUALITY_MAP">
+            <summary>
+            The Narrowband Quality map indicates which narrowband submode to use for
+            the given wideband/ultra-wideband quality setting
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.WB_QUALITY_MAP">
+            <summary>
+            The Wideband Quality map indicates which sideband submode to use for the
+            given wideband/ultra-wideband quality setting
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.UWB_QUALITY_MAP">
+             <summary>
+             The Ultra-wideband Quality map indicates which sideband submode to use
+             for the given ultra-wideband quality setting
+             </summary>
+            
+        </member>
+        <member name="F:NSpeex.SbEncoder.lowenc">
+            <summary>
+            The encoder for the lower half of the Spectrum.
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.res">
+             <summary>
+             Weighted signal buffer
+             </summary>
+            
+        </member>
+        <member name="F:NSpeex.SbEncoder.autocorr">
+            <summary>
+            Reflection coefficients
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.lsp">
+            <summary>
+            auto-correlation
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.old_lsp">
+            <summary>
+            LSPs for current frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.interp_lsp">
+            <summary>
+            LSPs for previous frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.interp_lpc">
+            <summary>
+            Interpolated LSPs
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.bw_lpc1">
+            <summary>
+            Interpolated LPCs
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.bw_lpc2">
+            <summary>
+            LPCs after bandwidth expansion by gamma1 for perceptual weighting
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.mem_sp2">
+            <summary>
+            LPCs after bandwidth expansion by gamma2 for perceptual weighting
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.nb_modes">
+            Filter memory for perceptually-weighted signal 
+        </member>
+        <member name="F:NSpeex.SbEncoder.vbr_enabled">
+            <summary>
+            Complexity setting (0-10 from least complex to most complex)
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.vad_enabled">
+            <summary>
+            1 for enabling VBR, 0 otherwise
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.abr_enabled">
+            <summary>
+            1 for enabling VAD, 0 otherwise
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.vbr_quality">
+            <summary>
+            ABR setting (in bps), 0 if off
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.relative_quality">
+            <summary>
+            Quality setting for VBR encoding
+            </summary>
+        </member>
+        <member name="F:NSpeex.SbEncoder.abr_drift">
+            <summary>
+            Relative quality that will be needed by VBR
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbEncoder.#ctor(System.Boolean)">
+            Mode chosen by the user (may differ from submodeID if VAD is on) 
+        </member>
+        <member name="M:NSpeex.SbEncoder.Wbinit">
+            <summary>
+            Wideband initialisation
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbEncoder.Uwbinit">
+            <summary>
+            Ultra-wideband initialisation
+            </summary>
+        </member>
+        <member name="M:NSpeex.SbEncoder.Encode(NSpeex.Bits,System.Single[])">
+            <summary>
+            Encode the given input signal.
+            </summary>
+            <returns>1 if successful.</returns>
+        </member>
+        <member name="T:NSpeex.NoiseSearch">
+            <summary>
+            Noise codebook search
+            </summary>
+        </member>
+        <member name="M:NSpeex.NoiseSearch.Quantify(System.Single[],System.Single[],System.Single[],System.Single[],System.Int32,System.Int32,System.Single[],System.Int32,System.Single[],NSpeex.Bits,System.Int32)">
+            <summary>
+            Codebook Search Quantification (Noise).
+            </summary>
+            <param name="target">target vector</param>
+            <param name="ak">LPCs for this subframe</param>
+            <param name="awk1">Weighted LPCs for this subframe</param>
+            <param name="awk2">Weighted LPCs for this subframe</param>
+            <param name="p">number of LPC coeffs</param>
+            <param name="nsf">number of samples in subframe</param>
+            <param name="exc">excitation array.</param>
+            <param name="es">position in excitation array.</param>
+            <param name="r"></param>
+            <param name="bits">Speex bits buffer.</param>
+            <param name="complexity"></param>
+        </member>
+        <member name="M:NSpeex.NoiseSearch.Unquantify(System.Single[],System.Int32,System.Int32,NSpeex.Bits)">
+             <summary>
+             Codebook Search Unquantification (Noise).
+             </summary>
+            
+             <param name="exc"> -</param>
+             <param name="es"> -</param>
+             <param name="nsf"> -</param>
+             <param name="bits"> -</param>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.exc_20_32_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.exc_10_16_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.exc_10_32_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.exc_5_256_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.exc_5_64_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.exc_8_128_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.gain_cdbk_nb">
+            <summary>
+            Gain Codebook (narrowband)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.gain_cdbk_lbr">
+            <summary>
+            Gain Codebook (LBR)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.hexc_10_32_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.hexc_table">
+            <summary>
+            Excitation Codebook
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.high_lsp_cdbk">
+            <summary>
+            LSP Codebook (high)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.high_lsp_cdbk2">
+            <summary>
+            LSP Codebook (high)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.cdbk_nb">
+            <summary>
+            Codebook (narrowband)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.cdbk_nb_low1">
+            <summary>
+            Codebook (narrowband)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.cdbk_nb_low2">
+            <summary>
+            Codebook (narrowband)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.cdbk_nb_high1">
+            <summary>
+            Codebook (narrowband)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.cdbk_nb_high2">
+            <summary>
+            Codebook (narrowband)
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.h0">
+            <summary>
+            QMF (Quadratic Mirror Filter) table
+            </summary>
+        </member>
+        <member name="F:NSpeex.Codebook_Constants.h1">
+            <summary>
+            QMF (Quadratic Mirror Filter) table
+            </summary>
+        </member>
+        <member name="T:NSpeex.Misc">
+            <summary>
+            Miscellaneous functions
+            </summary>
+        </member>
+        <member name="M:NSpeex.Misc.Window(System.Int32,System.Int32)">
+            <summary>
+            Builds an Asymmetric "pseudo-Hamming" window.
+            </summary>
+            <returns>an Asymmetric "pseudo-Hamming" window.</returns>
+        </member>
+        <member name="M:NSpeex.Misc.LagWindow(System.Int32,System.Single)">
+            <summary>
+            Create the window for autocorrelation (lag-windowing).
+            </summary>
+            <returns>the window for autocorrelation.</returns>
+        </member>
+        <member name="T:NSpeex.JitterBuffer">
+            <summary>
+            Jitter buffer implemenation.
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JITTER_BUFFER_OK">
+            <summary>
+            Packet has been retrieved
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JITTER_BUFFER_MISSING">
+            <summary>
+            Packet is lost or is late
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JITTER_BUFFER_INSERTION">
+            <summary>
+            A "fake" packet is meant to be inserted here to increase buffering
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JITTER_BUFFER_INTERNAL_ERROR">
+            <summary>
+            There was an error in the jitter buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JITTER_BUFFER_BAD_ARGUMENT">
+            <summary>
+            Invalid argument
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.pointer_timestamp">
+            <summary>
+            Timestamp of what we will *get* next
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.last_returned_timestamp">
+            <summary>
+            Useful for getting the next packet with the same timestamp (for fragmented media)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.next_stop">
+            <summary>
+            Estimated time the next get() will be called
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.buffered">
+            <summary>
+            Amount of data we think is still buffered by the application (timestamp units)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.packets">
+            <summary>
+            Packets stored in the buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.arrival">
+            <summary>
+            Packet arrival time (0 means it was late, even though it's a valid timestamp)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.DestroyBufferCallback">
+            <summary>
+            Callback for destroying a packet
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.delay_step">
+            <summary>
+            Size of the steps when adjusting buffering (timestamp units)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.concealment_size">
+            <summary>
+            Size of the packet loss concealment "units"
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.reset_state">
+            <summary>
+            True if state was just reset
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.buffer_margin">
+            <summary>
+            How many frames we want to keep in the buffer (lower bound)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.late_cutoff">
+            <summary>
+            How late must a packet be for it not to be considered at all
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.interp_requested">
+            <summary>
+            An interpolation is requested by <see cref="M:NSpeex.JitterBuffer.UpdateDelay"/>
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.auto_adjust">
+            <summary>
+            Whether to automatically adjust the delay at any time
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer._tb">
+            <summary>
+            Don't use those directly
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.timeBuffers">
+            <summary>
+            Storing arrival time of latest frames so we can compute some stats
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.window_size">
+            <summary>
+            Total window over which the late frames are counted
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.subwindow_size">
+            <summary>
+            Sub-window size for faster computation
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.max_late_rate">
+            <summary>
+            Absolute maximum amount of late packets tolerable (in percent)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.latency_tradeoff">
+            <summary>
+            Latency equivalent of losing one percent of packets
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.auto_tradeoff">
+            <summary>
+            Latency equivalent of losing one percent of packets (automatic default)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.lost_count">
+            <summary>
+            Number of consecutive lost packets
+            </summary>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.Init(System.Int32)">
+            <summary>
+            Initializes the jitterbuffer with a given <paramref name="step_size"/>.
+            </summary>
+            <param name="step_size"></param>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.ComputeOptDelay">
+            <summary>
+            Based on available data, this computes the optimal delay for the jitter buffer. 
+            The optimised function is in timestamp units and is:
+            cost = delay + late_factor*[number of frames that would be late if we used that delay]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.UpdateTimings(System.Int32)">
+            <summary>
+            Take the following timing into consideration for future calculations
+            </summary>
+            <param name="timing"></param>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.Put(NSpeex.JitterBuffer.JitterBufferPacket)">
+            <summary>
+            Put one packet into the jitter buffer
+            </summary>
+            <param name="packet"></param>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.Get(NSpeex.JitterBuffer.JitterBufferPacket@,System.Int32,System.Int32@)">
+            <summary>
+            Get one packet from the jitter buffer
+            </summary>
+            <param name="packet"></param>
+            <param name="desired_span"></param>
+            <param name="start_offset"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.ShiftTimings(System.Int16)">
+            Compensate all timings when we do an adjustment of the buffering 
+        </member>
+        <member name="M:NSpeex.JitterBuffer.UpdateDelay">
+            <summary>
+            Let the jitter buffer know it's the right time to adjust the buffering delay to the network conditions
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NSpeex.JitterBuffer.Tick">
+            <summary>
+            Call this method to indicate one step in time (one tick).
+            </summary>
+        </member>
+        <member name="T:NSpeex.JitterBuffer.JitterBufferPacket">
+            <summary>
+            Represents the container for one packte in the buffer.
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JitterBufferPacket.data">
+            <summary>
+            Data bytes contained in the packet
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JitterBufferPacket.len">
+            <summary>
+            Length of the packet in bytes
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JitterBufferPacket.timestamp">
+            <summary>
+            Timestamp for the packet
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JitterBufferPacket.span">
+            <summary>
+            Time covered by the packet (same units as timestamp)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JitterBufferPacket.sequence">
+            <summary>
+            RTP Sequence number if available (0 otherwise)
+            </summary>
+        </member>
+        <member name="F:NSpeex.JitterBuffer.JitterBufferPacket.user_data">
+            <summary>
+            Put whatever data you like here (it's ignored by the jitter buffer)
+            </summary>
+        </member>
+        <member name="T:NSpeex.SpeexJitterBuffer">
+            <summary>
+            Jitter buffer designed for a speex decoder.
+            </summary>
+        </member>
+        <member name="M:NSpeex.SpeexJitterBuffer.#ctor(NSpeex.SpeexDecoder)">
+            <summary>
+            Creates a new instance using the given <paramref name="decoder"/>
+            </summary>
+            <param name="decoder"></param>
+        </member>
+        <member name="M:NSpeex.SpeexJitterBuffer.Get(System.Int16[])">
+            <summary>
+            Returns the next decoded frame from the buffer.
+            </summary>
+            <param name="decodedFrame"></param>
+        </member>
+        <member name="M:NSpeex.SpeexJitterBuffer.Put(System.Byte[])">
+            <summary>
+            Puts the <paramref name="frameData"/> into the buffer. Note that the given byte array
+            is not copied so you transfer ownership to the buffer.
+            </summary>
+            <param name="frameData"></param>
+        </member>
+        <member name="T:NSpeex.VQ">
+            <summary>
+            Vector Quantization.
+            </summary>
+        </member>
+        <member name="M:NSpeex.VQ.Index(System.Single,System.Single[],System.Int32)">
+            <summary>
+            Finds the index of the entry in a codebook that best matches the input.
+            </summary>
+            <returns>the index of the entry in a codebook that best matches the input.</returns>
+        </member>
+        <member name="M:NSpeex.VQ.Index(System.Single[],System.Single[],System.Int32,System.Int32)">
+            <summary>
+            Finds the index of the entry in a codebook that best matches the input.
+            </summary>
+            <returns>the index of the entry in a codebook that best matches the input.</returns>
+        </member>
+        <member name="M:NSpeex.VQ.Nbest(System.Single[],System.Int32,System.Single[],System.Int32,System.Int32,System.Single[],System.Int32,System.Int32[],System.Single[])">
+            <summary>
+            Finds the indices of the n-best entries in a codebook
+            </summary>
+        </member>
+        <member name="M:NSpeex.VQ.Nbest_sign(System.Single[],System.Int32,System.Single[],System.Int32,System.Int32,System.Single[],System.Int32,System.Int32[],System.Single[])">
+            <summary>
+            Finds the indices of the n-best entries in a codebook with sign
+            </summary>
+        </member>
+        <member name="T:NSpeex.NbLspQuant">
+            <summary>
+            LSP Quantisation and Unquantisation (narrowband)
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbLspQuant.Quant(System.Single[],System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Quantification (narrowband).
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbLspQuant.Unquant(System.Single[],System.Int32,NSpeex.Bits)">
+            <summary>
+            Line Spectral Pair Unquantification (narrowband).
+            </summary>
+        </member>
+        <member name="T:NSpeex.NbDecoder">
+            <summary>
+            Narrowband Speex Decoder
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbDecoder.count_lost">
+            <summary>
+            Packet loss
+            </summary> 
+        </member>
+        <member name="F:NSpeex.NbDecoder.last_pitch">
+            <summary>
+            Pitch of last correctly decoded frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbDecoder.last_pitch_gain">
+            <summary>
+            Pitch gain of last correctly decoded frame
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbDecoder.pitch_gain_buf">
+            <summary>
+            Pitch gain of last decoded frames
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbDecoder.pitch_gain_buf_idx">
+            <summary>
+            Tail of the buffer
+            </summary>
+        </member>
+        <member name="F:NSpeex.NbDecoder.last_ol_gain">
+            <summary>
+            Open-loop gain for previous frame
+            </summary>
+        </member>
+        <member name="M:NSpeex.NbDecoder.Decode(NSpeex.Bits,System.Single[])">
+            <summary>
+            Decode the given input bits.
+            </summary>
+            <returns>1 if a terminator was found, 0 if not.</returns>
+            <exception cref="T:NSpeex.InvalidFormatException">If there is an error detected in the data stream.</exception>
+        </member>
+        <member name="M:NSpeex.NbDecoder.DecodeLost(System.Single[])">
+            <summary>
+            Decode when packets are lost.
+            </summary>
+            <returns>0 if successful.</returns>
+        </member>
+        <member name="M:NSpeex.NbDecoder.DecodeStereo(System.Single[],System.Int32)">
+            <summary>
+            Decode the given bits to stereo.
+            </summary>
+        </member>
+    </members>
+</doc>

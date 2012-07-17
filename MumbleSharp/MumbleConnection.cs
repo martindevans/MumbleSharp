@@ -1,24 +1,26 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using MumbleSharp.Packets;
-using System;
-using ProtoBuf;
+﻿using System;
 using System.IO;
+using System.Net;
 using System.Net.Security;
-using System.Security.Authentication;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MumbleSharp.Model;
+using MumbleSharp.Packets;
+using ProtoBuf;
 
 namespace MumbleSharp
 {
+    /// <summary>
+    /// Handles the low level details of connecting to a mumble server. Once connection is established decoded packets are passed off to the MumbleProtocol for proccesing
+    /// </summary>
     public class MumbleConnection
     {
-        public ConnectionState State;
+        public ConnectionStates State { get; private set; }
 
-        TcpSocket tcp;
-        UdpSocket udp;
+        TcpSocket _tcp;
+        UdpSocket _udp;
 
-        DateTime lastSentPing = DateTime.MinValue;
+        DateTime _lastSentPing = DateTime.MinValue;
 
         public IMumbleProtocol Protocol { get; private set; }
 
@@ -28,10 +30,12 @@ namespace MumbleSharp
             private set;
         }
 
+        readonly CryptState _cryptState = new CryptState();
+
         public MumbleConnection(IPEndPoint host)
         {
             Host = host;
-            State = ConnectionState.Connecting;
+            State = ConnectionStates.Connecting;
         }
 
         public void Connect<P>(string username, string password, string serverName) where P : IMumbleProtocol, new()
@@ -39,87 +43,120 @@ namespace MumbleSharp
             Protocol = new P();
             Protocol.Initialise(this);
 
-            tcp = new TcpSocket(Host, Protocol);
-            tcp.Connect(username, password, serverName);
+            _tcp = new TcpSocket(Host, Protocol, this);
+            _tcp.Connect(username, password, serverName);
 
-            udp = new UdpSocket(Host, Protocol);
-            udp.Connect();
+            _udp = new UdpSocket(Host, Protocol, this);
+            _udp.Connect();
 
-            State = ConnectionState.Connected;
+            State = ConnectionStates.Connected;
         }
 
         public void Process()
         {
-            if ((DateTime.Now - lastSentPing).TotalSeconds > 20)
+            if ((DateTime.Now - _lastSentPing).TotalSeconds > 15)
             {
-                tcp.SendPing();
-                udp.SendPing();
-                lastSentPing = DateTime.Now;
+                _tcp.SendPing();
+                _udp.SendPing();
+                _lastSentPing = DateTime.Now;
             }
 
-            tcp.Process();
-            udp.Process();
+            _tcp.Process();
+            _udp.Process();
         }
 
         public void SendTextMessage(string message, Channel channel = null)
         {
-            tcp.Send<TextMessage>(PacketType.TextMessage, new TextMessage() { Session = new[] { Protocol.LocalUser.Id }, Message = new[] { message }, ChannelId = new uint[] { channel == null ? 0 : channel.Id } });
+            _tcp.Send<TextMessage>(PacketType.TextMessage, new TextMessage() { Session = new[] { Protocol.LocalUser.Id }, Message = new[] { message }, ChannelId = new uint[] { channel == null ? 0 : channel.Id } });
         }
 
         internal void SendControl<T>(PacketType type, T packet)
         {
-            tcp.Send<T>(type, packet);
+            _tcp.Send<T>(type, packet);
+        }
+
+        internal void ReceivedEncryptedUdp(byte[] packet)
+        {
+            byte[] plaintext = _cryptState.Decrypt(packet, packet.Length);
+            Protocol.Udp(plaintext);
+
+            //TODO:: We should really decoded the data in this packet and then pass the decoded data to the IMumbleProtocol
+        }
+
+        internal void ProcessCryptState(CryptSetup cryptSetup)
+        {
+            if (cryptSetup.Key != null && cryptSetup.ClientNonce != null && cryptSetup.ServerNonce != null) // Full key setup
+            {
+                _cryptState.SetKeys(cryptSetup.Key, cryptSetup.ClientNonce, cryptSetup.ServerNonce);
+            }
+            else if (cryptSetup.ServerNonce != null) // Server syncing its nonce to us.
+            {
+                _cryptState.ServerNonce = cryptSetup.ServerNonce;
+            }
+            else // Server wants our nonce.
+            {
+                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup() { ClientNonce = _cryptState.ClientNonce });
+            }
         }
 
         private class TcpSocket
         {
-            TcpClient client;
-            IPEndPoint host;
+            readonly TcpClient _client;
+            readonly IPEndPoint _host;
 
-            NetworkStream netStream;
-            SslStream ssl;
-            BinaryReader reader;
-            BinaryWriter writer;
+            NetworkStream _netStream;
+            SslStream _ssl;
+            BinaryReader _reader;
+            BinaryWriter _writer;
 
-            IMumbleProtocol protocol;
+            readonly IMumbleProtocol _protocol;
+            readonly MumbleConnection _connection;
 
-            public TcpSocket(IPEndPoint host, IMumbleProtocol protocol)
+            public TcpSocket(IPEndPoint host, IMumbleProtocol protocol, MumbleConnection connection)
             {
-                this.host = host;
-                this.protocol = protocol;
-                client = new TcpClient();
+                _host = host;
+                _protocol = protocol;
+                _connection = connection;
+                _client = new TcpClient();
             }
 
             private bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
             {
-                return true;
+                return _protocol.ValidateCertificate(sender, certificate, chain, errors);
             }
 
             public void Connect(string username, string password, string serverName)
             {
-                client.Connect(host);
+                _client.Connect(_host);
 
-                netStream = client.GetStream();
-                ssl = new SslStream(netStream, false, ValidateCertificate);
-                ssl.AuthenticateAsClient(serverName);
-                reader = new BinaryReader(ssl);
-                writer = new BinaryWriter(ssl);
+                _netStream = _client.GetStream();
+                _ssl = new SslStream(_netStream, false, ValidateCertificate);
+                _ssl.AuthenticateAsClient(serverName);
+                _reader = new BinaryReader(_ssl);
+                _writer = new BinaryWriter(_ssl);
+
+                DateTime startWait = DateTime.Now;
+                while (!_ssl.IsAuthenticated)
+                {
+                    if (DateTime.Now - startWait > TimeSpan.FromSeconds(2))
+                        throw new TimeoutException("Timed out waiting for ssl authentication");
+                }
 
                 Handshake(username, password);
             }
 
             private void Handshake(string username, string password)
             {
-                MumbleSharp.Packets.Version version = new MumbleSharp.Packets.Version()
+                Packets.Version version = new Packets.Version
                 {
                     Release = "MumbleSharp",
-                    ReleaseVersion = (0 << 16) | (0 << 8) | (1 & 0xFF),
-                    os = "Windows",
-                    os_version = "7",
+                    ReleaseVersion = (1 << 16) | (2 << 8) | (0 & 0xFF),
+                    os = Environment.OSVersion.ToString(),
+                    os_version = Environment.OSVersion.VersionString,
                 };
-                Send<MumbleSharp.Packets.Version>(PacketType.Version, version);
+                Send<Packets.Version>(PacketType.Version, version);
 
-                Authenticate auth = new Authenticate()
+                Authenticate auth = new Authenticate
                 {
                     Username = username,
                     Password = password,
@@ -131,92 +168,96 @@ namespace MumbleSharp
 
             public void Send<T>(PacketType type, T packet)
             {
-                lock (ssl)
+                lock (_ssl)
                 {
-                    writer.Write(IPAddress.HostToNetworkOrder((short)type));
-                    writer.Flush();
+                    _writer.Write(IPAddress.HostToNetworkOrder((short)type));
+                    _writer.Flush();
 
-                    Serializer.SerializeWithLengthPrefix<T>(ssl, packet, PrefixStyle.Fixed32BigEndian);
-                    ssl.Flush();
-                    netStream.Flush();
+                    Serializer.SerializeWithLengthPrefix<T>(_ssl, packet, PrefixStyle.Fixed32BigEndian);
+                    _ssl.Flush();
+                    _netStream.Flush();
                 }
             }
 
             public void SendPing()
             {
-                lock (ssl)
+                lock (_ssl)
                     Send<Ping>(PacketType.Ping, new Ping());
             }
 
             public void Process()
             {
-                if (!client.Connected)
+                if (!_client.Connected)
                     throw new InvalidOperationException("Not connected");
 
-                if (!netStream.DataAvailable)
+                if (!_netStream.DataAvailable)
                     return;
 
-                lock (ssl)
+                lock (_ssl)
                 {
-                    PacketType type = (PacketType)IPAddress.NetworkToHostOrder(reader.ReadInt16());
+                    PacketType type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
 
                     switch (type)
                     {
                         case PacketType.Version:
-                            protocol.Version(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.Version>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.Version(Serializer.DeserializeWithLengthPrefix<Packets.Version>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.CryptSetup:
-                            protocol.CryptSetup(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.CryptSetup>(ssl, PrefixStyle.Fixed32BigEndian));
+                            var cryptSetup = Serializer.DeserializeWithLengthPrefix<CryptSetup>(_ssl, PrefixStyle.Fixed32BigEndian);
+                            _connection.ProcessCryptState(cryptSetup);
+                            SendPing();
                             break;
                         case PacketType.ChannelState:
-                            protocol.ChannelState(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.ChannelState>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.ChannelState(Serializer.DeserializeWithLengthPrefix<ChannelState>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.UserState:
-                            protocol.UserState(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.UserState>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.UserState(Serializer.DeserializeWithLengthPrefix<UserState>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.CodecVersion:
-                            protocol.CodecVersion(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.CodecVersion>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.CodecVersion(Serializer.DeserializeWithLengthPrefix<CodecVersion>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.ContextAction:
-                            protocol.ContextAction(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.ContextAction>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.ContextAction(Serializer.DeserializeWithLengthPrefix<ContextAction>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.ContextActionAdd:
-                            protocol.ContextActionAdd(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.ContextActionAdd>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.ContextActionAdd(Serializer.DeserializeWithLengthPrefix<ContextActionAdd>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.PermissionQuery:
-                            protocol.PermissionQuery(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.PermissionQuery>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.PermissionQuery(Serializer.DeserializeWithLengthPrefix<PermissionQuery>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.ServerSync:
-                            protocol.ServerSync(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.ServerSync>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.ServerSync(Serializer.DeserializeWithLengthPrefix<ServerSync>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.ServerConfig:
-                            protocol.ServerConfig(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.ServerConfig>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.ServerConfig(Serializer.DeserializeWithLengthPrefix<ServerConfig>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.UDPTunnel:
-                            var length = IPAddress.NetworkToHostOrder(reader.ReadInt32());
-                            protocol.UdpTunnel(new UdpTunnel() { Packet = reader.ReadBytes(length) });
+                            var length = IPAddress.NetworkToHostOrder(_reader.ReadInt32());
+                            _connection.ReceivedEncryptedUdp(_reader.ReadBytes(length));
                             break;
                         case PacketType.Ping:
-                            protocol.Ping(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.Ping>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.Ping(Serializer.DeserializeWithLengthPrefix<Ping>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.UserRemove:
-                            protocol.UserRemove(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.UserRemove>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.UserRemove(Serializer.DeserializeWithLengthPrefix<UserRemove>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.ChannelRemove:
-                            protocol.ChannelRemove(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.ChannelRemove>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.ChannelRemove(Serializer.DeserializeWithLengthPrefix<ChannelRemove>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.TextMessage:
-                            protocol.TextMessage(Serializer.DeserializeWithLengthPrefix<MumbleSharp.Packets.TextMessage>(ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.TextMessage(Serializer.DeserializeWithLengthPrefix<TextMessage>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
 
                         case PacketType.Reject:
                             throw new NotImplementedException();
 
+                        case PacketType.UserList:
+                            _protocol.UserList(Serializer.DeserializeWithLengthPrefix<UserList>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            break;
                         case PacketType.Authenticate:
                         case PacketType.PermissionDenied:
                         case PacketType.ACL:
                         case PacketType.QueryUsers:
-                        case PacketType.UserList:
                         case PacketType.VoiceTarget:
                         case PacketType.UserStats:
                         case PacketType.RequestBlob:
@@ -230,20 +271,22 @@ namespace MumbleSharp
 
         private class UdpSocket
         {
-            UdpClient client;
-            IPEndPoint host;
-            IMumbleProtocol protocol;
+            readonly UdpClient _client;
+            readonly IPEndPoint _host;
+            readonly IMumbleProtocol _protocol;
+            readonly MumbleConnection _connection;
 
-            public UdpSocket(IPEndPoint host, IMumbleProtocol protocol)
+            public UdpSocket(IPEndPoint host, IMumbleProtocol protocol, MumbleConnection connection)
             {
-                this.host = host;
-                this.protocol = protocol;
-                client = new UdpClient();
+                _host = host;
+                _protocol = protocol;
+                _connection = connection;
+                _client = new UdpClient();
             }
 
             public void Connect()
             {
-                client.Connect(host);
+                _client.Connect(_host);
             }
 
             public void SendPing()
@@ -261,18 +304,18 @@ namespace MumbleSharp
                 buffer[7] = (byte)((timestamp >> 8) & 0xFF);
                 buffer[8] = (byte)((timestamp) & 0xFF);
 
-                client.Send(buffer, buffer.Length);
+                _client.Send(buffer, buffer.Length);
             }
 
             public void Process()
             {
-                if (client.Available == 0)
+                if (_client.Available == 0)
                     return;
 
-                IPEndPoint sender = host;
-                byte[] data = client.Receive(ref sender);
+                IPEndPoint sender = _host;
+                byte[] data = _client.Receive(ref sender);
 
-                protocol.Udp(data);
+                _connection.ReceivedEncryptedUdp(data);
             }
         }
     }

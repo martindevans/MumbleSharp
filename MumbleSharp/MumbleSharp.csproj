@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NSpeex">
+      <HintPath>..\Dependencies\NSpeex v1.1.1\lib\NSpeex.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,14 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectionState.cs" />
+    <Compile Include="ConnectionStates.cs" />
     <Compile Include="CryptState.cs" />
     <Compile Include="Endian.cs" />
     <Compile Include="Model\Channel.cs" />
     <Compile Include="Model\User.cs" />
     <Compile Include="MumbleConnection.cs" />
     <Compile Include="IMumbleProtocol.cs" />
-    <Compile Include="MumbleProtocol.cs" />
     <Compile Include="OcbAes.cs" />
     <Compile Include="Packets\Authenticate.cs" />
     <Compile Include="Packets\ChannelRemove.cs" />
@@ -63,10 +65,13 @@
     <Compile Include="Packets\ServerSync.cs" />
     <Compile Include="Packets\TextMessage.cs" />
     <Compile Include="Packets\UdpTunnel.cs" />
+    <Compile Include="Packets\UserList.cs" />
     <Compile Include="Packets\UserRemove.cs" />
     <Compile Include="Packets\UserState.cs" />
     <Compile Include="Packets\Version.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpeechCodecs.cs" />
+    <Compile Include="UdpPacketReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Protobuf-v2\protobuf-net\protobuf-net.csproj">
