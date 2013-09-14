@@ -32,6 +32,7 @@ namespace MumbleSharp.Packets
         CodecVersion    = 21,
         UserStats       = 22,
         RequestBlob     = 23,
-        ServerConfig    = 24
+        ServerConfig    = 24,
+        Empty = 32767
     }
 }
