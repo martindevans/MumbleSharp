@@ -1,96 +1,93 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace MumbleSharp
 {
     class CryptState
     {
-        private ReaderWriterLockSlim aesLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        readonly ReaderWriterLockSlim _aesLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        OcbAes _aes;
 
-        OcbAes aes;
+        byte[] _serverNonce;
 
-        private byte[] _serverNonce;
         public byte[] ServerNonce
         {
             get
             {
                 try
                 {
-                    aesLock.EnterReadLock();
+                    _aesLock.EnterReadLock();
                     return (byte[])_serverNonce.Clone();
                 }
                 finally
                 {
-                    aesLock.ExitReadLock();
+                    _aesLock.ExitReadLock();
                 }
             }
             set
             {
                 try
                 {
-                    aesLock.EnterWriteLock();
+                    _aesLock.EnterWriteLock();
                     _serverNonce = value;
                 }
                 finally
                 {
-                    aesLock.ExitWriteLock();
+                    _aesLock.ExitWriteLock();
                 }
             }
         }
 
-        private byte[] _clientNonce;
+        byte[] _clientNonce;
         public byte[] ClientNonce
         {
             get
             {
                 try
                 {
-                    aesLock.EnterReadLock();
+                    _aesLock.EnterReadLock();
                     return _clientNonce;
                 }
                 finally
                 {
-                    aesLock.ExitReadLock();
+                    _aesLock.ExitReadLock();
                 }
             }
             private set
             {
                 try
                 {
-                    aesLock.EnterWriteLock();
+                    _aesLock.EnterWriteLock();
                     _clientNonce = value;
                 }
                 finally
                 {
-                    aesLock.ExitWriteLock();
+                    _aesLock.ExitWriteLock();
                 }
             }
         }
 
-        private byte[] decryptHistory = new byte[256];
+        readonly byte[] _decryptHistory = new byte[256];
 
-        private int good;
-        private int late;
-        private int lost;
+        public int Good { get; private set; }
+        public int Late { get; private set; }
+        public int Lost { get; private set; }
 
         public void SetKeys(byte[] key, byte[] clientNonce, byte[] serverNonce)
         {
             try
             {
-                aesLock.EnterWriteLock();
+                _aesLock.EnterWriteLock();
 
-                aes = new OcbAes();
-                aes.Initialise(key);
+                _aes = new OcbAes();
+                _aes.Initialise(key);
 
                 ServerNonce = serverNonce;
                 ClientNonce = clientNonce;
             }
             finally
             {
-                aesLock.ExitWriteLock();
+                _aesLock.ExitWriteLock();
             }
         }
 
@@ -98,13 +95,12 @@ namespace MumbleSharp
         {
             try
             {
-                aesLock.EnterReadLock();
+                _aesLock.EnterReadLock();
 
                 if (length < 4)
                     return null;
 
-                int plain_length = length - 4;
-                byte[] dst = new byte[plain_length];
+                int plainLength = length - 4;
 
                 byte[] saveiv = new byte[OcbAes.BLOCK_SIZE];
                 short ivbyte = (short)(source[0] & 0xFF);
@@ -200,36 +196,36 @@ namespace MumbleSharp
                         return null;
                     }
 
-                    if (decryptHistory[ServerNonce[0]] == ClientNonce[0])
+                    if (_decryptHistory[ServerNonce[0]] == ClientNonce[0])
                     {
                         Array.ConstrainedCopy(saveiv, 0, ServerNonce, 0, OcbAes.BLOCK_SIZE);
                         return null;
                     }
                 }
 
-                dst = aes.Decrypt(source, 4, plain_length, ServerNonce, 0, source, 0);
+                byte[] dst = _aes.Decrypt(source, 4, plainLength, ServerNonce, 0, source, 0);
 
                 if (tag[0] != source[1] || tag[1] != source[2] || tag[2] != source[3])
                 {
                     Array.ConstrainedCopy(saveiv, 0, ServerNonce, 0, OcbAes.BLOCK_SIZE);
                     return null;
                 }
-                decryptHistory[ServerNonce[0]] = ServerNonce[1];
+                _decryptHistory[ServerNonce[0]] = ServerNonce[1];
 
                 if (restore)
                 {
                     Array.ConstrainedCopy(saveiv, 0, ServerNonce, 0, OcbAes.BLOCK_SIZE);
                 }
 
-                good++;
-                this.late += late;
-                this.lost += lost;
+                Good++;
+                Late += late;
+                Lost += lost;
 
                 return dst;
             }
             finally
             {
-                aesLock.ExitReadLock();
+                _aesLock.ExitReadLock();
             }
         }
     }
