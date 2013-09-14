@@ -56,7 +56,7 @@ namespace MumbleClient
 
         private static void UpdateLoop(MumbleConnection connection)
         {
-            while (true)
+            while (connection.State != ConnectionStates.Disconnected)
             {
                 connection.Process();
             }

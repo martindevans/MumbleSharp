@@ -98,6 +98,11 @@ namespace MumbleClient
             User user;
             if (_users.TryRemove(userRemove.Session, out user))
                 user.Dispose();
+			if (user.Equals(LocalUser))
+			{
+				//Console.WriteLine(((userRemove.Ban) ? "Banned" : "Kicked") + " from server. Reason: " + userRemove.Reason);
+				_connection.Close();
+			}
         }
         #endregion
 

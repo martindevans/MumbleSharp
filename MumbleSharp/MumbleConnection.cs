@@ -52,6 +52,14 @@ namespace MumbleSharp
             State = ConnectionStates.Connected;
         }
 
+        public void Close()
+        {
+            State = ConnectionStates.Disconnected;
+
+            _udp.Close();
+            _tcp.Close();
+        }
+
         public void Process()
         {
             if ((DateTime.Now - _lastSentPing).TotalSeconds > 15)
@@ -60,7 +68,6 @@ namespace MumbleSharp
                 _udp.SendPing();
                 _lastSentPing = DateTime.Now;
             }
-
             _tcp.Process();
             _udp.Process();
         }
@@ -145,6 +152,15 @@ namespace MumbleSharp
                 Handshake(username, password);
             }
 
+            public void Close()
+            {
+                _reader.Close();
+                _writer.Close();
+                _ssl = null;
+                _netStream.Close();
+                _client.Close();
+            }
+
             private void Handshake(string username, string password)
             {
                 Packets.Version version = new Packets.Version
@@ -195,8 +211,17 @@ namespace MumbleSharp
 
                 lock (_ssl)
                 {
-                    PacketType type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
-
+                    PacketType type = PacketType.Empty;
+                    try
+                    {
+                         type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
+                         Console.WriteLine(type.ToString());
+                    }
+                    catch (Exception exc)
+                    {
+                        Console.WriteLine("breakpoint me");
+                        throw exc;
+                    }
                     switch (type)
                     {
                         case PacketType.Version:
@@ -289,6 +314,11 @@ namespace MumbleSharp
                 _client.Connect(_host);
             }
 
+            public void Close()
+            {
+                _client.Close();
+            }
+
             public void SendPing()
             {
                 long timestamp = DateTime.Now.Ticks;
@@ -309,6 +339,8 @@ namespace MumbleSharp
 
             public void Process()
             {
+                if (_client.Client == null)
+                    return;
                 if (_client.Available == 0)
                     return;
 
