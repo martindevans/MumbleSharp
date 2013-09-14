@@ -81,6 +81,11 @@ namespace MumbleSharp
             User user;
             if (users.TryRemove(userRemove.Session, out user))
                 user.Dispose();
+            if (user.Equals(LocalUser))
+            {
+                //Console.WriteLine(((userRemove.Ban) ? "Banned" : "Kicked") + " from server. Reason: " + userRemove.Reason);
+                connection.Close();
+            }
         }
         #endregion
 
@@ -171,6 +176,9 @@ namespace MumbleSharp
 
         public virtual void TextMessage(Packets.TextMessage textMessage)
         {
+            var _channels = textMessage.ChannelId.ToList();
+            var _messages = textMessage.Message.ToList();
+            Console.WriteLine("(" + channels[_channels[0]] + ") " + users[textMessage.Actor] + ": " + _messages[0]);
         }
     }
 }
