@@ -16,7 +16,7 @@ namespace MumbleClient
         static void Main(string[] args)
         {
             //MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses("mumble.placeholder-software.co.uk").First(), 64738));
-            MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses("andimiller.net").First(), 25565));
+            MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses("mumble.bt3k.com").First(), 36172));
             //MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses("localhost").First(a => a.AddressFamily == AddressFamily.InterNetwork), 64738));
             connection.Connect<MumbleProtocol>("MumbleSharpClient", "", "");
 
@@ -24,7 +24,7 @@ namespace MumbleClient
             t.Start();
 
             while (connection.Protocol.LocalUser == null) { }
-
+            Console.WriteLine("Ready to write!");
             while (true)
             {
                 string msg = Console.ReadLine();
@@ -34,7 +34,7 @@ namespace MumbleClient
 
         private static void UpdateLoop(MumbleConnection connection)
         {
-            while (true)
+            while (connection.State != ConnectionState.Disconnected)
                 connection.Process();
         }
     }
