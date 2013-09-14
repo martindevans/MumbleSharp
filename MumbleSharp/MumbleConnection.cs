@@ -48,6 +48,14 @@ namespace MumbleSharp
             State = ConnectionState.Connected;
         }
 
+        public void Close()
+        {
+            State = ConnectionState.Disconnected;
+
+            udp.Close();
+            tcp.Close();
+        }
+
         public void Process()
         {
             if ((DateTime.Now - lastSentPing).TotalSeconds > 20)
@@ -56,7 +64,7 @@ namespace MumbleSharp
                 udp.SendPing();
                 lastSentPing = DateTime.Now;
             }
-
+            
             tcp.Process();
             udp.Process();
         }
@@ -106,6 +114,15 @@ namespace MumbleSharp
                 writer = new BinaryWriter(ssl);
 
                 Handshake(username, password);
+            }
+
+            public void Close()
+            {
+                reader.Close();
+                writer.Close();
+                ssl = null;
+                netStream.Close();
+                client.Close();
             }
 
             private void Handshake(string username, string password)
@@ -158,8 +175,16 @@ namespace MumbleSharp
 
                 lock (ssl)
                 {
-                    PacketType type = (PacketType)IPAddress.NetworkToHostOrder(reader.ReadInt16());
-
+                    PacketType type = PacketType.Empty;
+                    try
+                    {
+                         type = (PacketType)IPAddress.NetworkToHostOrder(reader.ReadInt16());
+                         Console.WriteLine(type.ToString());
+                    }
+                    catch (Exception exc)
+                    {
+                        Console.WriteLine("shit");
+                    }
                     switch (type)
                     {
                         case PacketType.Version:
@@ -246,6 +271,11 @@ namespace MumbleSharp
                 client.Connect(host);
             }
 
+            public void Close()
+            {
+                client.Close();
+            }
+
             public void SendPing()
             {
                 long timestamp = DateTime.Now.Ticks;
@@ -266,6 +296,8 @@ namespace MumbleSharp
 
             public void Process()
             {
+                if (client.Client == null)
+                    return;
                 if (client.Available == 0)
                     return;
 
