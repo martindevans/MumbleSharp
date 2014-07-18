@@ -39,6 +39,8 @@ namespace MumbleSharp
 
         bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors);
 
+        X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers);
+
         void Version(Packets.Version version);
 
         void ChannelState(ChannelState channelState);

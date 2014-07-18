@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -212,6 +213,12 @@ namespace MumbleClient
 
         public void UserList(MumbleSharp.Packets.UserList userList)
         {
+        }
+
+
+        public X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        {
+            return null;
         }
     }
 }

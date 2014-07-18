@@ -13,3 +13,4 @@ MumbleSharp/obj
 MumbleSharpTest/bin
 MumbleSharpTest/obj
 _Resharper.*
+/*.ncrunchsolution

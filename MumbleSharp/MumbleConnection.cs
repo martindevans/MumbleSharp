@@ -86,8 +86,6 @@ namespace MumbleSharp
         {
             byte[] plaintext = _cryptState.Decrypt(packet, packet.Length);
             Protocol.Udp(plaintext);
-
-            //TODO:: We should really decoded the data in this packet and then pass the decoded data to the IMumbleProtocol
         }
 
         internal void ProcessCryptState(CryptSetup cryptSetup)
@@ -102,7 +100,7 @@ namespace MumbleSharp
             }
             else // Server wants our nonce.
             {
-                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup() { ClientNonce = _cryptState.ClientNonce });
+                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup { ClientNonce = _cryptState.ClientNonce });
             }
         }
 
@@ -132,12 +130,17 @@ namespace MumbleSharp
                 return _protocol.ValidateCertificate(sender, certificate, chain, errors);
             }
 
+            private X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+            {
+                return _protocol.SelectCertificate(sender, targetHost, localCertificates, remoteCertificate, acceptableIssuers);
+            }
+
             public void Connect(string username, string password, string serverName)
             {
                 _client.Connect(_host);
 
                 _netStream = _client.GetStream();
-                _ssl = new SslStream(_netStream, false, ValidateCertificate);
+                _ssl = new SslStream(_netStream, false, ValidateCertificate, SelectCertificate);
                 _ssl.AuthenticateAsClient(serverName);
                 _reader = new BinaryReader(_ssl);
                 _writer = new BinaryWriter(_ssl);
@@ -211,17 +214,7 @@ namespace MumbleSharp
 
                 lock (_ssl)
                 {
-                    PacketType type = PacketType.Empty;
-                    try
-                    {
-                         type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
-                         Console.WriteLine(type.ToString());
-                    }
-                    catch (Exception exc)
-                    {
-                        Console.WriteLine("breakpoint me");
-                        throw exc;
-                    }
+                    PacketType type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
                     switch (type)
                     {
                         case PacketType.Version:

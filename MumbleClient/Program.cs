@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -14,11 +15,11 @@ namespace MumbleClient
         private static void Main(string[] args)
         {
             Console.WriteLine("Enter server address:");
-            var addr = Console.ReadLine();
+            var addr = "mumble.placeholder-software.co.uk";//Console.ReadLine();
             Console.WriteLine("Enter server port:");
-            var port = int.Parse(Console.ReadLine());
+            var port = 64738;//int.Parse(Console.ReadLine());
             Console.WriteLine("Enter name:");
-            var name = Console.ReadLine();
+            var name = "KuroKy";//Console.ReadLine();
             Console.WriteLine("Enter password:");
             var pass = Console.ReadLine();
 
@@ -36,10 +37,41 @@ namespace MumbleClient
 
             DrawChannel("", connection.Protocol.Channels.ToArray(), connection.Protocol.Users.ToArray(), connection.Protocol.RootChannel);
 
+
+            const int min = 100;
+            const int max = 300;
+            DateTime time = DateTime.Now;
+            TimeSpan duration = TimeSpan.FromSeconds(3);
+            Random r = new Random();
+
+            string[] strings = new string[]
+            {
+                //"We Need Wards",
+                //"Be Adaptable",
+                //"Consider Smoke Ganking",
+                //"Do Roshan?",
+                //"Why Aren't You Carrying A Teleport Scroll?",
+                "Mordred, Stop Farming The Jungle",
+                //"Group Up",
+                "Matt, Why Are You So Overextended?!",
+                //"I mean YOLO, Right?",
+                //"Split Push!",
+                "Use Your Wand",
+            };
+
             while (true)
             {
-                string msg = Console.ReadLine();
-                connection.SendTextMessage(msg);
+                var secs = (DateTime.Now - time);
+                if (secs > duration)
+                {
+                    duration = TimeSpan.FromSeconds(r.Next(min, max));
+                    connection.SendTextMessage(strings[r.Next(strings.Length)]);
+                    time = DateTime.Now;
+                }
+
+                Console.Title = (duration - (DateTime.Now - time)).TotalSeconds.ToString(CultureInfo.InvariantCulture);
+
+                Thread.Sleep(900);
             }
         }
 
