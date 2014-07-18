@@ -104,7 +104,34 @@ namespace MumbleSharp
             if (type == 1)
                 Protocol.UdpPing(packet);
             else
-                Protocol.Voice(packet);
+            {
+                int vType = packet[0] >> 5 & 0x7;
+                int flags = packet[0] & 0x1f;
+
+                if (vType != (int)SpeechCodecs.CeltAlpha && vType != (int)SpeechCodecs.CeltBeta && vType != (int)SpeechCodecs.Speex)
+                    return;
+
+                using (var reader = new UdpPacketReader(new MemoryStream(packet, 1, packet.Length - 1)))
+                {
+                    Int64 session = reader.ReadVarInt64();
+
+                    Int64 sequence = reader.ReadVarInt64();
+
+                    byte header = 0;
+                    do
+                    {
+                        header = reader.ReadByte();
+                        int length = header & 127;
+                        byte[] data = reader.ReadBytes(length);
+
+                        //TODO: Use correct codec to decode this voice data
+                        byte[] decodedPcmData = null;
+
+                        Protocol.Voice(decodedPcmData, session);
+
+                    } while ((header & 128) == 0);
+                }
+            }
         }
 
         internal void ProcessCryptState(CryptSetup cryptSetup)

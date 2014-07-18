@@ -45,33 +45,42 @@ namespace MumbleSharp
                     return b & 127;
                 case 1:
                     //10xxxxxx + 1 byte
-                    break;
+                    return ((b & 63) << 8) | ReadByte();
                 case 2:
                     //110xxxxx + 2 bytes
-                    break;
+                    return ((b & 31) << 16) | ReadByte() << 8 | ReadByte();
                 case 3:
                     //1110xxxx + 3 bytes
-                    break;
+                    return ((b & 15) << 24) | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
                 case 4:
-                    //111100 + int (4 bytes)
-                    //111101 + long (8 bytes)
-                    break;
+                    // Either:
+                    //  > 111100__ + int (4 bytes)
+                    //  > 111101__ + long (8 bytes)
+                    if ((b & 4) == 4)
+                    {
+                        //111101__ + long (8 bytes)
+                        return ReadByte() << 56 | ReadByte() << 48 | ReadByte() << 40 | ReadByte() << 32 | ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
+                    }
+                    else
+                    {
+                        //111100__ + int (4 bytes)
+                        return ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
+                    }
                 case 5:
                     //111110 + varint (negative)
-                    break;
+                    return -ReadVarInt64();
                 case 6:
-                    //111111xx Negative two byte number (-xx)
-                    break;
+                    //111111xx Byte-inverted negative two byte number (~xx)
+                    return ~(ReadByte() << 8 | ReadByte());
+                default:
+                    throw new InvalidDataException("Invalid varint encoding");
             }
-
-            throw new NotImplementedException();
         }
 
-        private const int LEADING1 = 1 << 8;    //0b10000000
-        private static int LeadingOnes(byte value)
+        public static int LeadingOnes(byte value)
         {
             int counter = 0;
-            while ((value & LEADING1) == 1)
+            while ((value & 128) == 128)
             {
                 value <<= 1;
                 counter++;

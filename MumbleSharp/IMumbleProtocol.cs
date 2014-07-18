@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 
@@ -59,7 +55,7 @@ namespace MumbleSharp
 
         void ServerConfig(ServerConfig serverConfig);
 
-        void Voice(byte[] packet);
+        void Voice(byte[] packet, long userSession);
 
         void UdpPing(byte[] packet);
 

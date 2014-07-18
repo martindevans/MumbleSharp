@@ -141,38 +141,11 @@ namespace MumbleClient
         {
         }
 
-        public void Voice(byte[] packet)
+        public void Voice(byte[] pcm, long userId)
         {
-            // Todo: Move PCM decoding into MumbleConnection
-            // MumbleConnection (Line 99) passes in the entire voice packet to this method.
-            // Instead it should break the packet up into PCM blocks and pass those blocks in here.
-
-            int type = packet[0] >> 5 & 0x7;
-            int flags = packet[0] & 0x1f;
-
-            if (type != (int)SpeechCodecs.CeltAlpha && type != (int)SpeechCodecs.CeltBeta && type != (int)SpeechCodecs.Speex)
-                return;
-
-            using (var reader = new UdpPacketReader(new MemoryStream(packet, 1, packet.Length - 1)))
-            {
-                Int64 session = reader.ReadVarInt64();
-                User user;
-                if (!_users.TryGetValue((uint)session, out user))   //If we don't know the user for this packet, just ignore the packet
-                    return;
-
-                Int64 sequence = reader.ReadVarInt64();
-
-                byte header = 0;
-                do
-                {
-                    header = reader.ReadByte();
-                    int length = header & 127;
-                    byte[] data = reader.ReadBytes(length);
-
-                    //TODO:: We have a voice packet for this user (data)... do something with it!
-
-                } while ((header & 128) == 0);
-            }
+            User user;
+            if (_users.TryGetValue((uint)userId, out user))
+                Console.WriteLine(user.Name + " is speaking");
         }
         #endregion
 
