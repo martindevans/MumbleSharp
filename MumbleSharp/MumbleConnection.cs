@@ -47,7 +47,7 @@ namespace MumbleSharp
             _tcp.Connect(username, password, serverName);
 
             _udp = new UdpSocket(Host, Protocol, this);
-            _udp.Connect();
+            //_udp.Connect();
 
             State = ConnectionStates.Connected;
         }
@@ -65,7 +65,10 @@ namespace MumbleSharp
             if ((DateTime.Now - _lastSentPing).TotalSeconds > 15)
             {
                 _tcp.SendPing();
-                _udp.SendPing();
+
+                if (_udp.IsConnected)
+                    _udp.SendPing();
+
                 _lastSentPing = DateTime.Now;
             }
             _tcp.Process();
@@ -77,15 +80,31 @@ namespace MumbleSharp
             _tcp.Send<TextMessage>(PacketType.TextMessage, new TextMessage() { Session = new[] { Protocol.LocalUser.Id }, Message = new[] { message }, ChannelId = new uint[] { channel == null ? 0 : channel.Id } });
         }
 
-        internal void SendControl<T>(PacketType type, T packet)
+        private void SendControl<T>(PacketType type, T packet)
         {
             _tcp.Send<T>(type, packet);
         }
 
-        internal void ReceivedEncryptedUdp(byte[] packet)
+        private void ReceivedEncryptedUdp(byte[] packet)
         {
             byte[] plaintext = _cryptState.Decrypt(packet, packet.Length);
-            Protocol.Udp(plaintext);
+
+            if (plaintext == null)
+            {
+                Console.WriteLine("Decryption failed");
+                return;
+            }
+
+            ReceiveDecryptedUdp(plaintext);
+        }
+
+        private void ReceiveDecryptedUdp(byte[] packet)
+        {
+            int type = packet[0] >> 5 & 0x7;
+            if (type == 1)
+                Protocol.UdpPing(packet);
+            else
+                Protocol.Voice(packet);
         }
 
         internal void ProcessCryptState(CryptSetup cryptSetup)
@@ -251,7 +270,7 @@ namespace MumbleSharp
                             break;
                         case PacketType.UDPTunnel:
                             var length = IPAddress.NetworkToHostOrder(_reader.ReadInt32());
-                            _connection.ReceivedEncryptedUdp(_reader.ReadBytes(length));
+                            _connection.ReceiveDecryptedUdp(_reader.ReadBytes(length));
                             break;
                         case PacketType.Ping:
                             _protocol.Ping(Serializer.DeserializeWithLengthPrefix<Ping>(_ssl, PrefixStyle.Fixed32BigEndian));
@@ -294,6 +313,8 @@ namespace MumbleSharp
             readonly IMumbleProtocol _protocol;
             readonly MumbleConnection _connection;
 
+            public bool IsConnected { get; private set; }
+
             public UdpSocket(IPEndPoint host, IMumbleProtocol protocol, MumbleConnection connection)
             {
                 _host = host;
@@ -305,10 +326,12 @@ namespace MumbleSharp
             public void Connect()
             {
                 _client.Connect(_host);
+                IsConnected = true;
             }
 
             public void Close()
             {
+                IsConnected = false;
                 _client.Close();
             }
 

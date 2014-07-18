@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -138,31 +137,15 @@ namespace MumbleClient
         {
         }
 
-        public void Udp(byte[] packet)
-        {
-            if (packet != null)
-                ProcessUdpPacket(packet);
-        }
-
-        private void ProcessUdpPacket(byte[] packet)
-        {
-            int type = packet[0] >> 5 & 0x7;
-
-            if (type == 1)
-                UdpPing(packet);
-            else
-                Voice(packet);
-        }
-
-        private void UdpPing(byte[] packet)
+        public void UdpPing(byte[] packet)
         {
         }
 
-        private void Voice(byte[] packet)
+        public void Voice(byte[] packet)
         {
-            //This is all horrible!
-            //TODO: Move all the decoding related rubbish to within the MumbleConnection (internal void ReceivedEncryptedUdp(byte[] packet) Line 78)
-            //This should just receive ordered blocks of decoded PCM data 
+            // Todo: Move PCM decoding into MumbleConnection
+            // MumbleConnection (Line 99) passes in the entire voice packet to this method.
+            // Instead it should break the packet up into PCM blocks and pass those blocks in here.
 
             int type = packet[0] >> 5 & 0x7;
             int flags = packet[0] & 0x1f;
@@ -193,8 +176,11 @@ namespace MumbleClient
         }
         #endregion
 
+        public float TcpPing { get; private set; }
+
         public void Ping(MumbleSharp.Packets.Ping ping)
         {
+            TcpPing = ping.TcpPingAvg;
         }
 
         public void TextMessage(MumbleSharp.Packets.TextMessage textMessage)

@@ -19,7 +19,7 @@ namespace MumbleClient
             Console.WriteLine("Enter server port:");
             var port = 64738;//int.Parse(Console.ReadLine());
             Console.WriteLine("Enter name:");
-            var name = "KuroKy";//Console.ReadLine();
+            var name = ".AI";//Console.ReadLine();
             Console.WriteLine("Enter password:");
             var pass = Console.ReadLine();
 
@@ -65,11 +65,12 @@ namespace MumbleClient
                 if (secs > duration)
                 {
                     duration = TimeSpan.FromSeconds(r.Next(min, max));
-                    connection.SendTextMessage(strings[r.Next(strings.Length)]);
+                    //connection.SendTextMessage(strings[r.Next(strings.Length)]);
                     time = DateTime.Now;
                 }
 
-                Console.Title = (duration - (DateTime.Now - time)).TotalSeconds.ToString(CultureInfo.InvariantCulture);
+                //Console.Title = (duration - (DateTime.Now - time)).TotalSeconds.ToString(CultureInfo.InvariantCulture);
+                Console.Title = ((MumbleProtocol) connection.Protocol).TcpPing.ToString() + "ms";
 
                 Thread.Sleep(900);
             }
