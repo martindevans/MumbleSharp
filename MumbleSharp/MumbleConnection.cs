@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+using MumbleSharp.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 using ProtoBuf;
@@ -108,26 +109,22 @@ namespace MumbleSharp
                 int vType = packet[0] >> 5 & 0x7;
                 int flags = packet[0] & 0x1f;
 
-                if (vType != (int)SpeechCodecs.CeltAlpha && vType != (int)SpeechCodecs.CeltBeta && vType != (int)SpeechCodecs.Speex)
-                    return;
+                IVoiceCodec codec = ((SpeechCodecs)vType).GetCodec();
 
                 using (var reader = new UdpPacketReader(new MemoryStream(packet, 1, packet.Length - 1)))
                 {
                     Int64 session = reader.ReadVarInt64();
-
                     Int64 sequence = reader.ReadVarInt64();
 
-                    byte header = 0;
+                    byte header;
                     do
                     {
                         header = reader.ReadByte();
                         int length = header & 127;
                         byte[] data = reader.ReadBytes(length);
+                        byte[] decodedPcmData = codec.Decode(data);
 
-                        //TODO: Use correct codec to decode this voice data
-                        byte[] decodedPcmData = null;
-
-                        Protocol.Voice(decodedPcmData, session);
+                        Protocol.Voice(decodedPcmData, session, sequence);
 
                     } while ((header & 128) == 0);
                 }

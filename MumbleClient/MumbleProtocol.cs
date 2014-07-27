@@ -141,11 +141,11 @@ namespace MumbleClient
         {
         }
 
-        public void Voice(byte[] pcm, long userId)
+        public void Voice(byte[] pcm, long userId, long sequence)
         {
             User user;
             if (_users.TryGetValue((uint)userId, out user))
-                Console.WriteLine(user.Name + " is speaking");
+                Console.WriteLine(user.Name + " is speaking. Seq" + sequence);
         }
         #endregion
 

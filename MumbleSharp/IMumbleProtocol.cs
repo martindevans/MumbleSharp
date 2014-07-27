@@ -55,7 +55,7 @@ namespace MumbleSharp
 
         void ServerConfig(ServerConfig serverConfig);
 
-        void Voice(byte[] packet, long userSession);
+        void Voice(byte[] packet, long userSession, long sequence);
 
         void UdpPing(byte[] packet);
 

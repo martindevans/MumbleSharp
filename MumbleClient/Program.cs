@@ -46,16 +46,14 @@ namespace MumbleClient
 
             string[] strings = new string[]
             {
-                //"We Need Wards",
-                //"Be Adaptable",
-                //"Consider Smoke Ganking",
-                //"Do Roshan?",
-                //"Why Aren't You Carrying A Teleport Scroll?",
-                "Mordred, Stop Farming The Jungle",
-                //"Group Up",
-                "Matt, Why Are You So Overextended?!",
-                //"I mean YOLO, Right?",
-                //"Split Push!",
+                "We Need Wards",
+                "Be Adaptable",
+                "Consider Smoke Ganking",
+                "Do Roshan?",
+                "Why Aren't You Carrying A Teleport Scroll?",
+                "Group Up",
+                "I mean YOLO, Right?",
+                "Split Push!",
                 "Use Your Wand",
             };
 
