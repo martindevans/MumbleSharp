@@ -32,8 +32,8 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tbLog = new System.Windows.Forms.RichTextBox();
             this.tbSendMessage = new System.Windows.Forms.TextBox();
-            this.tvUsers = new System.Windows.Forms.TreeView();
             this.btnSend = new System.Windows.Forms.Button();
+            this.tvUsers = new System.Windows.Forms.TreeView();
             this.mumbleUpdater = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -56,8 +56,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tvUsers);
-            this.splitContainer1.Size = new System.Drawing.Size(503, 350);
-            this.splitContainer1.SplitterDistance = 258;
+            this.splitContainer1.Size = new System.Drawing.Size(1043, 547);
+            this.splitContainer1.SplitterDistance = 534;
             this.splitContainer1.TabIndex = 0;
             // 
             // tbLog
@@ -65,25 +65,17 @@
             this.tbLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbLog.Location = new System.Drawing.Point(0, 0);
             this.tbLog.Name = "tbLog";
-            this.tbLog.Size = new System.Drawing.Size(258, 330);
+            this.tbLog.Size = new System.Drawing.Size(534, 527);
             this.tbLog.TabIndex = 0;
             this.tbLog.Text = "";
             // 
             // tbSendMessage
             // 
             this.tbSendMessage.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tbSendMessage.Location = new System.Drawing.Point(0, 330);
+            this.tbSendMessage.Location = new System.Drawing.Point(0, 527);
             this.tbSendMessage.Name = "tbSendMessage";
-            this.tbSendMessage.Size = new System.Drawing.Size(258, 20);
+            this.tbSendMessage.Size = new System.Drawing.Size(534, 20);
             this.tbSendMessage.TabIndex = 1;
-            // 
-            // tvUsers
-            // 
-            this.tvUsers.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tvUsers.Location = new System.Drawing.Point(0, 0);
-            this.tvUsers.Name = "tvUsers";
-            this.tvUsers.Size = new System.Drawing.Size(241, 350);
-            this.tvUsers.TabIndex = 0;
             // 
             // btnSend
             // 
@@ -94,6 +86,14 @@
             this.btnSend.Text = "you should not see this; click to send";
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
+            // 
+            // tvUsers
+            // 
+            this.tvUsers.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvUsers.Location = new System.Drawing.Point(0, 0);
+            this.tvUsers.Name = "tvUsers";
+            this.tvUsers.Size = new System.Drawing.Size(505, 547);
+            this.tvUsers.TabIndex = 0;
             // 
             // mumbleUpdater
             // 
@@ -106,7 +106,7 @@
             this.AcceptButton = this.btnSend;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(503, 350);
+            this.ClientSize = new System.Drawing.Size(1043, 547);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
             this.Text = "MumbleSharp Server - GUI version";

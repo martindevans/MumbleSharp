@@ -57,18 +57,18 @@ namespace MumbleClient
             }
 
             MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses(addr).First(a => a.AddressFamily == AddressFamily.InterNetwork), port));
-            connection.Connect<MumbleProtocol>(name, pass, addr);
+            MumbleProtocol protocol = connection.Connect<MumbleProtocol>(name, pass, addr);
 
             Thread t = new Thread(a => UpdateLoop(connection)) {IsBackground = true};
             t.Start();
 
-            while (connection.Protocol.LocalUser == null)
+            while (protocol.LocalUser == null)
             {
             }
 
-            Console.WriteLine("Connected as " + connection.Protocol.LocalUser.Id);
+            Console.WriteLine("Connected as " + protocol.LocalUser.Id);
 
-            DrawChannel("", connection.Protocol.Channels.ToArray(), connection.Protocol.Users.ToArray(), connection.Protocol.RootChannel);
+            DrawChannel("", protocol.Channels.ToArray(), protocol.Users.ToArray(), protocol.RootChannel);
 
 
             const int min = 100;
@@ -101,7 +101,7 @@ namespace MumbleClient
                 }
 
                 //Console.Title = (duration - (DateTime.Now - time)).TotalSeconds.ToString(CultureInfo.InvariantCulture);
-                Console.Title = ((MumbleProtocol) connection.Protocol).TcpPing.ToString() + "ms";
+                Console.Title = protocol.TcpPing.ToString() + "ms";
 
                 Thread.Sleep(900);
             }
