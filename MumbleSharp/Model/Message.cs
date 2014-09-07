@@ -1,7 +1,6 @@
 using System;
-using MumbleSharp.Model;
 
-namespace MumbleGuiClient
+namespace MumbleSharp.Model
 {
     public abstract class Message
     {
