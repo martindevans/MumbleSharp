@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -33,13 +34,22 @@ namespace MumbleSharp
 
         readonly CryptState _cryptState = new CryptState();
 
+        /// <summary>
+        /// Creates a connection to the server using the given address and port.
+        /// </summary>
+        /// <param name="server">The server adress or IP.</param>
+        /// <param name="port">The port the server listens to.</param>
+        public MumbleConnection(string server, int port)
+            : this(new IPEndPoint(Dns.GetHostAddresses(server).First(a => a.AddressFamily == AddressFamily.InterNetwork), port))
+        { }
+
         public MumbleConnection(IPEndPoint host)
         {
             Host = host;
             State = ConnectionStates.Connecting;
         }
 
-        public void Connect<P>(string username, string password, string serverName) where P : IMumbleProtocol, new()
+        public P Connect<P>(string username, string password, string serverName) where P : IMumbleProtocol, new()
         {
             Protocol = new P();
             Protocol.Initialise(this);
@@ -51,6 +61,8 @@ namespace MumbleSharp
             //_udp.Connect();
 
             State = ConnectionStates.Connected;
+
+            return (P)Protocol;
         }
 
         public void Close()
