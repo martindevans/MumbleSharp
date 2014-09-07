@@ -162,6 +162,22 @@ namespace MumbleClient
             if (!_users.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
                 return;
 
+            if (textMessage.ChannelId == null)
+            {
+                if (textMessage.TreeId == null)
+                {
+                    //personal message: no channel, no tree
+                    for (int i = 0; i < textMessage.Message.Length; i++)
+                        Console.WriteLine(user.Name + " (only for you): " + textMessage.Message[i]);
+                }
+                else
+                {
+                    //recursive message: sent to multiple channels
+                    for (int i = 0; i < textMessage.Message.Length; i++)
+                        Console.WriteLine(user.Name + " (for tree " + textMessage.TreeId[0] + "): " + textMessage.Message[i]);
+                }
+                return;
+            }
             Channel c;
             if (!_channels.TryGetValue(textMessage.ChannelId[0], out c))    //If we don't know the channel for this packet, just ignore it
                 return;
