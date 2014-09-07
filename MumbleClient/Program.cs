@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -14,14 +15,46 @@ namespace MumbleClient
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Enter server address:");
-            var addr = "mumble.placeholder-software.co.uk";//Console.ReadLine();
-            Console.WriteLine("Enter server port:");
-            var port = 64738;//int.Parse(Console.ReadLine());
-            Console.WriteLine("Enter name:");
-            var name = ".AI";//Console.ReadLine();
-            Console.WriteLine("Enter password:");
-            var pass = Console.ReadLine();
+            string addr, name, pass;
+            int port;
+            FileInfo serverConfigFile = new FileInfo(Environment.CurrentDirectory + "\\server.txt");
+            if (serverConfigFile.Exists)
+            {
+                using (StreamReader reader = new StreamReader(serverConfigFile.OpenRead()))
+                {
+                    addr = reader.ReadLine();
+                    port = int.Parse(reader.ReadLine());
+                    name = reader.ReadLine();
+                    pass = reader.ReadLine();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Enter server address:");
+                addr = Console.ReadLine();
+                Console.WriteLine("Enter server port (leave blank for default (64738)):");
+                string line = Console.ReadLine();
+                if (line == "")
+                {
+                    port = 64738;
+                }
+                else
+                {
+                    port = int.Parse(line);
+                }
+                Console.WriteLine("Enter name:");
+                name = Console.ReadLine();
+                Console.WriteLine("Enter password:");
+                pass = Console.ReadLine();
+
+                using (StreamWriter writer = new StreamWriter(serverConfigFile.OpenWrite()))
+                {
+                    writer.WriteLine(addr);
+                    writer.WriteLine(port);
+                    writer.WriteLine(name);
+                    writer.WriteLine(pass);
+                }
+            }
 
             MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses(addr).First(a => a.AddressFamily == AddressFamily.InterNetwork), port));
             connection.Connect<MumbleProtocol>(name, pass, addr);
