@@ -91,8 +91,10 @@ namespace MumbleGuiClient
                     user.Muted = userState.Suppress.Value;
                 if (userState.Name != null)
                     user.Name = userState.Name;
+
                 if (userState.ChannelId.HasValue)
                     user.Channel = _channels[userState.ChannelId.Value];
+                else user.Channel = RootChannel;
             }
         }
 

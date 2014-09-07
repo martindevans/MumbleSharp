@@ -22,6 +22,7 @@ namespace MumbleGuiClient
             public ChannelTree Parent;
             public Channel Channel;
             public List<ChannelTree> Children = new List<ChannelTree>();
+            public List<User> Users = new List<User>();
             public ChannelTree(Channel channel)
             {
                 Channel = channel;
@@ -31,8 +32,10 @@ namespace MumbleGuiClient
         {
             InitializeComponent();
 
-            connection = new MumbleConnection("mumble.placeholder-software.co.uk", 64738);
-            protocol = connection.Connect<EventBasedProtocol>("testuser", "", "mumble.placeholder-software.co.uk");
+            //connection = new MumbleConnection("mumble.placeholder-software.co.uk", 64738);
+            //protocol = connection.Connect<EventBasedProtocol>("testuser", "", "mumble.placeholder-software.co.uk");
+            connection = new MumbleConnection("georch.selfhost.eu", 64738);
+            protocol = connection.Connect<EventBasedProtocol>("testuser", "", "georch.selfhost.eu");
             protocol.MessageRecieved += Protocol_MessageRecieved;
             while (connection.Protocol.LocalUser == null)
             {
@@ -52,6 +55,10 @@ namespace MumbleGuiClient
                     channelTree.Parent.Children.Add(channelTree);
                 }
             }
+            foreach (var user in protocol.Users)
+            {
+                channels[user.Channel.Id].Users.Add(user);
+            }
             ChannelTree RootChannel = channels[0];
 
             tvUsers.Nodes.Add(MakeNode(RootChannel));
@@ -65,6 +72,10 @@ namespace MumbleGuiClient
             foreach (var child in tree.Children)
             {
                 result.Nodes.Add(MakeNode(child));
+            }
+            foreach (var user in tree.Users)
+            {
+                result.Nodes.Add(user.Name).BackColor = Color.Green;
             }
             return result;
         }
