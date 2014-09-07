@@ -28,14 +28,16 @@ namespace MumbleGuiClient
                 Channel = channel;
             }
         }
+        class TreeNode<T> : TreeNode
+        {
+            public T Value;
+        }
         public Form1()
         {
             InitializeComponent();
 
-            //connection = new MumbleConnection("mumble.placeholder-software.co.uk", 64738);
-            //protocol = connection.Connect<EventBasedProtocol>("testuser", "", "mumble.placeholder-software.co.uk");
-            connection = new MumbleConnection("georch.selfhost.eu", 64738);
-            protocol = connection.Connect<EventBasedProtocol>("testuser", "", "georch.selfhost.eu");
+            connection = new MumbleConnection("mumble.placeholder-software.co.uk", 64738);
+            protocol = connection.Connect<EventBasedProtocol>("testuser", "", "mumble.placeholder-software.co.uk");
             protocol.MessageRecieved += Protocol_MessageRecieved;
             while (connection.Protocol.LocalUser == null)
             {
@@ -62,20 +64,28 @@ namespace MumbleGuiClient
             ChannelTree RootChannel = channels[0];
 
             tvUsers.Nodes.Add(MakeNode(RootChannel));
+            tvUsers.ExpandAll();
 
             //MessageBox.Show("Connected as " + connection.Protocol.LocalUser.Id);
         }
 
         TreeNode MakeNode(ChannelTree tree)
         {
-            TreeNode result = new TreeNode(tree.Channel.Name);
+            TreeNode<Channel> result = new TreeNode<Channel>();
+            result.Text = tree.Channel.Name;
+            result.BackColor = Color.LightBlue; //the colors might be quite ugly
+            result.Value = tree.Channel;
             foreach (var child in tree.Children)
             {
                 result.Nodes.Add(MakeNode(child));
             }
             foreach (var user in tree.Users)
             {
-                result.Nodes.Add(user.Name).BackColor = Color.Green;
+                TreeNode<User> newNode = new TreeNode<User>();
+                newNode.Text = user.Name;
+                newNode.BackColor = Color.LightGreen;
+                newNode.Value = user;
+                result.Nodes.Add(newNode);
             }
             return result;
         }
@@ -87,13 +97,28 @@ namespace MumbleGuiClient
 
         private void btnSend_Click(object sender, EventArgs e)
         {
+            Channel target = protocol.LocalUser.Channel;
+            if (tvUsers.SelectedNode != null && tvUsers.SelectedNode is TreeNode<Channel>)
+            {
+                target = ((TreeNode<Channel>)tvUsers.SelectedNode).Value; //This does not seem to work.
+            }
             connection.SendTextMessage(tbSendMessage.Text, protocol.LocalUser.Channel);
+            tbLog.Text += string.Format("{0} {1}: {2}\n", protocol.LocalUser.Name, target.Name, tbSendMessage.Text); //TODO: Unify, avoid doubled code
             tbSendMessage.Text = "";
         }
 
         private void mumbleUpdater_Tick(object sender, EventArgs e)
         {
             connection.Process();
+        }
+
+        private void tvUsers_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (tvUsers.SelectedNode is TreeNode<Channel>)
+            {
+                Channel channel = ((TreeNode<Channel>)tvUsers.SelectedNode).Value;
+                //Enter that channel, needs the functionality in connection or protocol.
+            }
         }
     }
 }

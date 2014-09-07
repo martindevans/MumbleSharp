@@ -94,6 +94,7 @@
             this.tvUsers.Name = "tvUsers";
             this.tvUsers.Size = new System.Drawing.Size(505, 547);
             this.tvUsers.TabIndex = 0;
+            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
             // 
             // mumbleUpdater
             // 
