@@ -11,12 +11,14 @@ using System.Windows.Forms;
 using MumbleSharp;
 using MumbleSharp.Model;
 
+using Message = MumbleSharp.Model.Message;
+
 namespace MumbleGuiClient
 {
     public partial class Form1 : Form
     {
         MumbleConnection connection;
-        EventBasedProtocol protocol;
+        BasicMumbleProtocol protocol;
         class ChannelTree
         {
             public ChannelTree Parent;
@@ -37,7 +39,7 @@ namespace MumbleGuiClient
             InitializeComponent();
 
             connection = new MumbleConnection("mumble.placeholder-software.co.uk", 64738);
-            protocol = connection.Connect<EventBasedProtocol>("testuser", "", "mumble.placeholder-software.co.uk");
+            protocol = connection.Connect<BasicMumbleProtocol>("testuser", "", "mumble.placeholder-software.co.uk");
             protocol.MessageRecieved += Protocol_MessageRecieved;
             while (connection.Protocol.LocalUser == null)
             {
