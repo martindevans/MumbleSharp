@@ -11,6 +11,8 @@ namespace MumbleSharp
     /// </summary>
     public interface IMumbleProtocol
     {
+        MumbleConnection Connection { get; }
+
         /// <summary>
         /// The user of the local client
         /// </summary>
@@ -30,6 +32,8 @@ namespace MumbleSharp
         /// All users on the server
         /// </summary>
         IEnumerable<User> Users { get; }
+
+        bool ReceivedServerSync { get; }
 
         void Initialise(MumbleConnection connection);
 

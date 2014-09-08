@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using MumbleSharp.Model;
+using MumbleSharp.Packets;
 
 namespace MumbleSharp
 {
     /// <summary>
-    /// An event based protocol for the GUI thing. Pops events when something happens. :-)
+    /// A basic mumble protocol which handles events from the server - override the individual handler methods to replace/extend the default behaviour
     /// </summary>
     public class BasicMumbleProtocol
         : IMumbleProtocol
     {
-        MumbleConnection _connection;
+        public MumbleConnection Connection { get; private set; }
 
         protected readonly ConcurrentDictionary<UInt32, User> UserDictionary = new ConcurrentDictionary<UInt32, User>();
         public IEnumerable<User> Users
@@ -26,32 +27,58 @@ namespace MumbleSharp
         {
             get { return ChannelDictionary.Values; }
         }
+        public Channel RootChannel { get; private set; }
+
+        /// <summary>
+        /// If true, this indicates that the connection was setup and the server accept this client
+        /// </summary>
+        public bool ReceivedServerSync { get; private set; }
 
         public User LocalUser { get; private set; }
-        public Channel RootChannel { get; private set; }
-        /// <summary>
-        /// Occurs when a text message is recieved, and returns it as a message class.
-        /// </summary>
-        public event EventHandler<Message> MessageRecieved;
 
+        /// <summary>
+        /// The current ping time (in seconds) for the TCP connection
+        /// </summary>
+        public virtual float TcpPing { get; private set; }
+
+        /// <summary>
+        /// Associates this protocol with an opening mumble connection
+        /// </summary>
+        /// <param name="connection"></param>
         public virtual void Initialise(MumbleConnection connection)
         {
-            _connection = connection;
+            Connection = connection;
         }
 
-        public virtual void Version(MumbleSharp.Packets.Version version)
+        /// <summary>
+        /// Server has sent a version update
+        /// </summary>
+        /// <param name="version"></param>
+        public virtual void Version(Packets.Version version)
         {
         }
 
+        /// <summary>
+        /// Validate the certificate the server sends for itself. By default this will acept *all* certificates
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="certificate"></param>
+        /// <param name="chain"></param>
+        /// <param name="errors"></param>
+        /// <returns></returns>
         public virtual bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
         {
             return true;
         }
 
         #region Channels
-        public virtual void ChannelState(MumbleSharp.Packets.ChannelState channelState)
+        /// <summary>
+        /// Server has changed some detail of a channel
+        /// </summary>
+        /// <param name="channelState"></param>
+        public virtual void ChannelState(ChannelState channelState)
         {
-            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(channelState.ChannelId, channelState.Name, channelState.Parent) { Temporary = channelState.Temporary },
+            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent) { Temporary = channelState.Temporary },
                 (i, c) =>
                 {
                     c.Name = channelState.Name;
@@ -63,7 +90,11 @@ namespace MumbleSharp
                 RootChannel = channel;
         }
 
-        public virtual void ChannelRemove(MumbleSharp.Packets.ChannelRemove channelRemove)
+        /// <summary>
+        /// Server has removed a channel
+        /// </summary>
+        /// <param name="channelRemove"></param>
+        public virtual void ChannelRemove(ChannelRemove channelRemove)
         {
             Channel c;
             ChannelDictionary.TryRemove(channelRemove.ChannelId, out c);
@@ -71,11 +102,15 @@ namespace MumbleSharp
         #endregion
 
         #region users
-        public virtual void UserState(MumbleSharp.Packets.UserState userState)
+        /// <summary>
+        /// Server has changed some detail of a user
+        /// </summary>
+        /// <param name="userState"></param>
+        public virtual void UserState(UserState userState)
         {
             if (userState.Session.HasValue)
             {
-                User user = UserDictionary.AddOrUpdate(userState.Session.Value, i => new User(userState.Session.Value), (i, u) => u);
+                User user = UserDictionary.AddOrUpdate(userState.Session.Value, i => new User(this, userState.Session.Value), (i, u) => u);
 
                 if (userState.SelfDeaf.HasValue)
                     user.Deaf = userState.SelfDeaf.Value;
@@ -89,81 +124,108 @@ namespace MumbleSharp
                     user.Muted = userState.Suppress.Value;
                 if (userState.Name != null)
                     user.Name = userState.Name;
+                if (userState.Comment != null)
+                    user.Comment = userState.Comment;
 
                 if (userState.ChannelId.HasValue)
                     user.Channel = ChannelDictionary[userState.ChannelId.Value];
                 else user.Channel = RootChannel;
+
+                //user.Comment = userState.Comment;
             }
         }
 
-        public virtual void UserRemove(MumbleSharp.Packets.UserRemove userRemove)
+        /// <summary>
+        /// A user has been removed from the server (left, kicked or banned)
+        /// </summary>
+        /// <param name="userRemove"></param>
+        public virtual void UserRemove(UserRemove userRemove)
         {
             User user;
             if (UserDictionary.TryRemove(userRemove.Session, out user))
-                user.Dispose();
+                user.Channel = null;
+
             if (user.Equals(LocalUser))
-            {
-                //Console.WriteLine(((userRemove.Ban) ? "Banned" : "Kicked") + " from server. Reason: " + userRemove.Reason);
-                _connection.Close();
-            }
+                Connection.Close();
         }
         #endregion
 
-        public virtual void ContextAction(MumbleSharp.Packets.ContextAction contextAction)
+        public virtual void ContextAction(ContextAction contextAction)
         {
         }
 
-        public virtual void ContextActionAdd(MumbleSharp.Packets.ContextActionAdd contextActionAdd)
+        public virtual void ContextActionAdd(ContextActionAdd contextActionAdd)
         {
         }
 
-        public virtual void PermissionQuery(MumbleSharp.Packets.PermissionQuery permissionQuery)
+        public virtual void PermissionQuery(PermissionQuery permissionQuery)
         {
         }
 
         #region server setup
-        public virtual void ServerSync(MumbleSharp.Packets.ServerSync serverSync)
+        /// <summary>
+        /// Initial connection to the server
+        /// </summary>
+        /// <param name="serverSync"></param>
+        public virtual void ServerSync(ServerSync serverSync)
         {
             if (LocalUser != null)
                 throw new InvalidOperationException("Second ServerSync Received");
 
             LocalUser = UserDictionary[serverSync.Session];
+
+            ReceivedServerSync = true;
         }
 
-        public virtual void ServerConfig(MumbleSharp.Packets.ServerConfig serverConfig)
+        /// <summary>
+        /// Some detail of the server configuration has changed
+        /// </summary>
+        /// <param name="serverConfig"></param>
+        public virtual void ServerConfig(ServerConfig serverConfig)
         {
         }
         #endregion
 
         #region voice
-        public virtual void CodecVersion(MumbleSharp.Packets.CodecVersion codecVersion)
+        public virtual void CodecVersion(CodecVersion codecVersion)
         {
         }
 
+        /// <summary>
+        /// Received a UDP ping from the server
+        /// </summary>
+        /// <param name="packet"></param>
         public virtual void UdpPing(byte[] packet)
         {
         }
 
+        /// <summary>
+        /// Received a voice packet from the server
+        /// </summary>
+        /// <param name="pcm"></param>
+        /// <param name="userId"></param>
+        /// <param name="sequence"></param>
         public virtual void Voice(byte[] pcm, long userId, long sequence)
         {
-            //User user;
-            //if (_users.TryGetValue((uint)userId, out user))
-            //    Console.WriteLine(user.Name + " is speaking. Seq" + sequence);
         }
         #endregion
 
-        public virtual float TcpPing { get; private set; }
-
-        public virtual void Ping(MumbleSharp.Packets.Ping ping)
+        /// <summary>
+        /// Received a ping over the TCP connection
+        /// </summary>
+        /// <param name="ping"></param>
+        public virtual void Ping(Ping ping)
         {
             TcpPing = ping.TcpPingAvg;
         }
 
-        public virtual void TextMessage(MumbleSharp.Packets.TextMessage textMessage)
+        #region text messages
+        /// <summary>
+        /// Received a text message from the server
+        /// </summary>
+        /// <param name="textMessage"></param>
+        public virtual void TextMessage(TextMessage textMessage)
         {
-            if (MessageRecieved == null) return;
-            Message result;
-
             User user;
             if (!UserDictionary.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
                 return;
@@ -173,7 +235,7 @@ namespace MumbleSharp
                 if (textMessage.TreeId == null)
                 {
                     //personal message: no channel, no tree
-                    result = new PersonalMessage(user, string.Join("", textMessage.Message));
+                    PersonalMessageReceived(new PersonalMessage(user, string.Join("", textMessage.Message)));
                 }
                 else
                 {
@@ -181,25 +243,37 @@ namespace MumbleSharp
                     Channel channel;
                     if (!ChannelDictionary.TryGetValue(textMessage.TreeId[0], out channel))    //If we don't know the channel for this packet, just ignore it
                         return;
-                    result = new ChannelMessage(user, string.Join("", textMessage.Message), channel, true);
+
+                    //TODO: This is a *tree* message - trace down the entire tree (using IDs in textMessage.TreeId as roots) and call ChannelMessageReceived for every channel
+                    ChannelMessageReceived(new ChannelMessage(user, string.Join("", textMessage.Message), channel, true));
                 }
             }
             else
             {
-                Channel channel;
-                if (!ChannelDictionary.TryGetValue(textMessage.ChannelId[0], out channel))    //If we don't know the channel for this packet, just ignore it
-                    return;
+                foreach (uint channelId in textMessage.ChannelId)
+                {
+                    Channel channel;
+                    if (!ChannelDictionary.TryGetValue(channelId, out channel))
+                        continue;
 
-                result = new ChannelMessage(user, string.Join("", textMessage.Message), channel);
+                    ChannelMessageReceived(new ChannelMessage(user, string.Join("", textMessage.Message), channel));
+                }
+                
             }
-
-            MessageRecieved(this, result);
         }
 
-        public virtual void UserList(MumbleSharp.Packets.UserList userList)
+        protected virtual void PersonalMessageReceived(PersonalMessage message)
         {
         }
 
+        protected virtual void ChannelMessageReceived(ChannelMessage message)
+        {
+        }
+        #endregion
+
+        public virtual void UserList(UserList userList)
+        {
+        }
 
         public virtual X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {

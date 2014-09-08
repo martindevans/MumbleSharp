@@ -6,14 +6,13 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MumbleSharp.Codecs;
-using MumbleSharp.Model;
 using MumbleSharp.Packets;
 using ProtoBuf;
 
 namespace MumbleSharp
 {
     /// <summary>
-    /// Handles the low level details of connecting to a mumble server. Once connection is established decoded packets are passed off to the MumbleProtocol for proccesing
+    /// Handles the low level details of connecting to a mumble server. Once connection is established decoded packets are passed off to the MumbleProtocol for processing
     /// </summary>
     public class MumbleConnection
     {
@@ -39,38 +38,52 @@ namespace MumbleSharp
         /// </summary>
         /// <param name="server">The server adress or IP.</param>
         /// <param name="port">The port the server listens to.</param>
-        public MumbleConnection(string server, int port)
-            : this(new IPEndPoint(Dns.GetHostAddresses(server).First(a => a.AddressFamily == AddressFamily.InterNetwork), port))
-        { }
-
-        public MumbleConnection(IPEndPoint host)
+        /// <param name="protocol">An object which will handle messages from the server</param>
+        public MumbleConnection(string server, int port, IMumbleProtocol protocol)
+            : this(new IPEndPoint(Dns.GetHostAddresses(server).First(a => a.AddressFamily == AddressFamily.InterNetwork), port), protocol)
         {
-            Host = host;
-            State = ConnectionStates.Connecting;
         }
 
-        public P Connect<P>(string username, string password, string serverName) where P : IMumbleProtocol, new()
+        /// <summary>
+        /// Creates a connection to the server
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="protocol"></param>
+        public MumbleConnection(IPEndPoint host, IMumbleProtocol protocol)
         {
-            Protocol = new P();
+            Host = host;
+            State = ConnectionStates.Disconnected;
+            Protocol = protocol;
+        }
+
+        public void Connect(string username, string password, string serverName)
+        {
+            if (State != ConnectionStates.Disconnected)
+                throw new InvalidOperationException(string.Format("Cannot start connecting MumbleConnection when connection state is {0}", State));
+
+            State = ConnectionStates.Connecting;
             Protocol.Initialise(this);
 
             _tcp = new TcpSocket(Host, Protocol, this);
             _tcp.Connect(username, password, serverName);
 
+            // UDP Connection is disabled while decryption is broken
+            // See: https://github.com/martindevans/MumbleSharp/issues/4
+            // UDP being disabled does not reduce functionality, it forces packets to be sent over TCP instead
             _udp = new UdpSocket(Host, Protocol, this);
             //_udp.Connect();
 
             State = ConnectionStates.Connected;
-
-            return (P)Protocol;
         }
 
         public void Close()
         {
-            State = ConnectionStates.Disconnected;
+            State = ConnectionStates.Disconnecting;
 
             _udp.Close();
             _tcp.Close();
+
+            State = ConnectionStates.Disconnected;
         }
 
         public void Process()
@@ -88,12 +101,7 @@ namespace MumbleSharp
             _udp.Process();
         }
 
-        public void SendTextMessage(string message, Channel channel = null)
-        {
-            _tcp.Send<TextMessage>(PacketType.TextMessage, new TextMessage() { Session = new[] { Protocol.LocalUser.Id }, Message = new[] { message }, ChannelId = new uint[] { channel == null ? 0 : channel.Id } });
-        }
-
-        private void SendControl<T>(PacketType type, T packet)
+        public void SendControl<T>(PacketType type, T packet)
         {
             _tcp.Send<T>(type, packet);
         }

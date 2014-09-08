@@ -6,7 +6,9 @@ namespace MumbleSharp
     /// </summary>
     public enum ConnectionStates
     {
+        Disconnecting,
         Disconnected,
+
         Connecting,
         Connected
     }
