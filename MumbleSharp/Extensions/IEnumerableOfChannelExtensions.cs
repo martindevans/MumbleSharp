@@ -7,7 +7,7 @@ namespace MumbleSharp.Extensions
 {
     public static class IEnumerableOfChannelExtensions
     {
-        public static void SendChannelMessage(IEnumerable<Channel> channels, string[] message, bool recursive)
+        public static void SendMessage(this IEnumerable<Channel> channels, string[] message, bool recursive)
         {
             // It's conceivable that this group could include channels from multiple different server connections
             // group by server
