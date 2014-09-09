@@ -7,6 +7,9 @@ namespace MumbleSharp.Codecs
     {
         public byte[] Decode(byte[] encodedData)
         {
+            //THIS IS IN NO WAY GOOD CODE!
+            //Just experimenting!
+
             NSpeex.SpeexDecoder d = new NSpeex.SpeexDecoder(NSpeex.BandMode.Wide, false);
             NSpeex.SpeexJitterBuffer b = new NSpeex.SpeexJitterBuffer(d);
 
