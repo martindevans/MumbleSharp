@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Codecs\CeltAlphaCodec.cs" />
     <Compile Include="Codecs\CeltBetaCodec.cs" />
+    <Compile Include="Codecs\OpusCodec.cs" />
     <Compile Include="Codecs\SpeexCodec.cs" />
     <Compile Include="ConnectionStates.cs" />
     <Compile Include="CryptState.cs" />
@@ -87,7 +88,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Packets\_ Implementation Note.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

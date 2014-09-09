@@ -244,6 +244,7 @@ namespace MumbleSharp
                     Password = password,
                     Tokens = new string[0],
                     CeltVersions = new int[] { unchecked((int)0x8000000b) },
+                    Opus = true,
                 };
                 Send<Authenticate>(PacketType.Authenticate, auth);
             }

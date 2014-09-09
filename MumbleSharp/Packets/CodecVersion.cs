@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ProtoBuf;
 
 namespace MumbleSharp.Packets
@@ -17,5 +14,8 @@ namespace MumbleSharp.Packets
 
         [ProtoMember(3)]
         public bool PreferAlpha;
+
+        [ProtoMember(4)]
+        public bool Opus;
     }
 }

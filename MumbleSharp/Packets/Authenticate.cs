@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ProtoBuf;
-using MumbleSharp.Packets;
 
 namespace MumbleSharp.Packets
 {
@@ -21,5 +17,8 @@ namespace MumbleSharp.Packets
 
         [ProtoMember(4)]
         public Int32[] CeltVersions;
+
+        [ProtoMember(5)]
+        public bool Opus;
     }
 }
