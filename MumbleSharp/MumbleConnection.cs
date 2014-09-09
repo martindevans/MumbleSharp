@@ -56,7 +56,7 @@ namespace MumbleSharp
             Protocol = protocol;
         }
 
-        public void Connect(string username, string password, string serverName)
+        public void Connect(string username, string password, string[] tokens, string serverName)
         {
             if (State != ConnectionStates.Disconnected)
                 throw new InvalidOperationException(string.Format("Cannot start connecting MumbleConnection when connection state is {0}", State));
@@ -65,7 +65,7 @@ namespace MumbleSharp
             Protocol.Initialise(this);
 
             _tcp = new TcpSocket(Host, Protocol, this);
-            _tcp.Connect(username, password, serverName);
+            _tcp.Connect(username, password, tokens, serverName);
 
             // UDP Connection is disabled while decryption is broken
             // See: https://github.com/martindevans/MumbleSharp/issues/4
@@ -198,7 +198,7 @@ namespace MumbleSharp
                 return _protocol.SelectCertificate(sender, targetHost, localCertificates, remoteCertificate, acceptableIssuers);
             }
 
-            public void Connect(string username, string password, string serverName)
+            public void Connect(string username, string password, string[] tokens, string serverName)
             {
                 _client.Connect(_host);
 
@@ -215,7 +215,7 @@ namespace MumbleSharp
                         throw new TimeoutException("Timed out waiting for ssl authentication");
                 }
 
-                Handshake(username, password);
+                Handshake(username, password, tokens);
             }
 
             public void Close()
@@ -227,7 +227,7 @@ namespace MumbleSharp
                 _client.Close();
             }
 
-            private void Handshake(string username, string password)
+            private void Handshake(string username, string password, string[] tokens)
             {
                 Packets.Version version = new Packets.Version
                 {
@@ -242,7 +242,7 @@ namespace MumbleSharp
                 {
                     Username = username,
                     Password = password,
-                    Tokens = new string[0],
+                    Tokens = tokens ?? new string[0],
                     CeltVersions = new int[] { unchecked((int)0x8000000b) },
                     Opus = true,
                 };

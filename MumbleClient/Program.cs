@@ -57,7 +57,7 @@ namespace MumbleClient
 
             ConsoleMumbleProtocol protocol = new ConsoleMumbleProtocol();
             MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses(addr).First(a => a.AddressFamily == AddressFamily.InterNetwork), port), protocol);
-            connection.Connect(name, pass, addr);
+            connection.Connect(name, pass, new string[0], addr);
 
             Thread t = new Thread(a => UpdateLoop(connection)) {IsBackground = true};
             t.Start();
