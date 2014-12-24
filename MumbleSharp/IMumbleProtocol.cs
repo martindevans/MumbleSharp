@@ -72,5 +72,7 @@ namespace MumbleSharp
         void TextMessage(TextMessage textMessage);
 
         void UserList(UserList userList);
+
+        void SuggestConfig(SuggestConfig suggestedConfiguration);
     }
 }

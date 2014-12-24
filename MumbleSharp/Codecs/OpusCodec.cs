@@ -7,7 +7,8 @@ namespace MumbleSharp.Codecs
     {
         public byte[] Decode(byte[] encodedData)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return null;
         }
 
         public byte[] Encode(byte[] pcm)

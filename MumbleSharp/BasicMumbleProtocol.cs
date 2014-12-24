@@ -71,6 +71,11 @@ namespace MumbleSharp
             return true;
         }
 
+        public virtual void SuggestConfig(SuggestConfig config)
+        {
+
+        }
+
         #region Channels
         /// <summary>
         /// Server has changed some detail of a channel

@@ -75,6 +75,7 @@
     <Compile Include="Packets\Ping.cs" />
     <Compile Include="Packets\ServerConfig.cs" />
     <Compile Include="Packets\ServerSync.cs" />
+    <Compile Include="Packets\SuggestConfig.cs" />
     <Compile Include="Packets\TextMessage.cs" />
     <Compile Include="Packets\UdpTunnel.cs" />
     <Compile Include="Packets\UserList.cs" />

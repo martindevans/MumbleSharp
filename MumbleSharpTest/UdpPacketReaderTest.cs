@@ -15,6 +15,15 @@ namespace MumbleSharpTest
     public class UdpPacketReaderTest
     {
         [TestMethod]
+        public void LeadingOnesTestNoneLeading()
+        {
+            const byte value = 0; //0b00000000
+            const int expected = 0;
+            int actual = UdpPacketReader.LeadingOnes(value);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void LeadingOnesTestSingleLeading()
         {
             const byte value = 128; //0b10000000

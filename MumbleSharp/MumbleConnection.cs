@@ -122,12 +122,13 @@ namespace MumbleSharp
         private void ReceiveDecryptedUdp(byte[] packet)
         {
             int type = packet[0] >> 5 & 0x7;
+
             if (type == 1)
                 Protocol.UdpPing(packet);
             else
             {
                 int vType = packet[0] >> 5 & 0x7;
-                int flags = packet[0] & 0x1f;
+                int voiceTarget = packet[0] & 0x1f;
 
                 IVoiceCodec codec = ((SpeechCodecs)vType).GetCodec();
 
@@ -141,12 +142,17 @@ namespace MumbleSharp
                     {
                         header = reader.ReadByte();
                         int length = header & 127;
-                        byte[] data = reader.ReadBytes(length);
-                        byte[] decodedPcmData = codec.Decode(data);
+                        if (length > 0)
+                        {
+                            byte[] data = reader.ReadBytes(length);
+                            if (data == null)
+                                break;
 
-                        Protocol.Voice(decodedPcmData, session, sequence);
+                            byte[] decodedPcmData = codec.Decode(data);
+                            Protocol.Voice(decodedPcmData, session, sequence);
+                        }
 
-                    } while ((header & 128) == 0);
+                    } while ((header & 128) > 0);
                 }
             }
         }
@@ -336,6 +342,11 @@ namespace MumbleSharp
                         case PacketType.UserList:
                             _protocol.UserList(Serializer.DeserializeWithLengthPrefix<UserList>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
+
+                        case PacketType.SuggestConfig:
+                            _protocol.SuggestConfig(Serializer.DeserializeWithLengthPrefix<SuggestConfig>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            break;
+
                         case PacketType.Authenticate:
                         case PacketType.PermissionDenied:
                         case PacketType.ACL:

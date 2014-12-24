@@ -1,0 +1,3 @@
+﻿localhost
+64738
+.AI

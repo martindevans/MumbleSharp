@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace MumbleSharp.Packets
 {
     public enum PacketType
@@ -33,6 +29,7 @@ namespace MumbleSharp.Packets
         UserStats       = 22,
         RequestBlob     = 23,
         ServerConfig    = 24,
+        SuggestConfig   = 25,
         Empty = 32767
     }
 }
