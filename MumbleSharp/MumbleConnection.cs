@@ -1,4 +1,4 @@
-﻿using MumbleSharp.Codecs;
+﻿using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Packets;
 using ProtoBuf;
 using System;
@@ -152,33 +152,31 @@ namespace MumbleSharp
                         if (data == null)
                             return;
 
-                        //TODO: Put *encoded* packets into a queue, then decode the head of the queue
-                        //TODO: This allows packets to come into late and be inserted into the correct place in the queue (if they arrive before decoding handles a later packet)
-                        byte[] decodedPcmData = codec.Decode(data);
-                        if (decodedPcmData != null)
-                            Protocol.Voice(decodedPcmData, session, sequence);
+                        Protocol.EncodedVoice(data, session, sequence, codec);
                     }
                     else
                     {
-                        byte header;
-                        do
-                        {
-                            header = reader.ReadByte();
-                            int length = header & 0x7F;
-                            if (length > 0)
-                            {
-                                byte[] data = reader.ReadBytes(length);
-                                if (data == null)
-                                    break;
+                        throw new NotImplementedException("Codec is not opus");
 
-                                //TODO: Put *encoded* packets into a queue, then decode the head of the queue
-                                //TODO: This allows packets to come into late and be inserted into the correct place in the queue (if they arrive before decoding handles a later packet)
-                                byte[] decodedPcmData = codec.Decode(data);
-                                if (decodedPcmData != null)
-                                    Protocol.Voice(decodedPcmData, session, sequence);
-                            }
+                        //byte header;
+                        //do
+                        //{
+                        //    header = reader.ReadByte();
+                        //    int length = header & 0x7F;
+                        //    if (length > 0)
+                        //    {
+                        //        byte[] data = reader.ReadBytes(length);
+                        //        if (data == null)
+                        //            break;
 
-                        } while ((header & 0x80) > 0);
+                        //        //TODO: Put *encoded* packets into a queue, then decode the head of the queue
+                        //        //TODO: This allows packets to come into late and be inserted into the correct place in the queue (if they arrive before decoding handles a later packet)
+                        //        byte[] decodedPcmData = codec.Decode(data);
+                        //        if (decodedPcmData != null)
+                        //            Protocol.Voice(decodedPcmData, session, sequence);
+                        //    }
+
+                        //} while ((header & 0x80) > 0);
                     }
                 }
             }

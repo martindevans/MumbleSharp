@@ -25,6 +25,7 @@
 
 using System;
 using System.Linq;
+using MumbleSharp.Audio.Codecs.Opus;
 
 namespace MumbleSharp.Codecs.Opus
 {
@@ -70,7 +71,7 @@ namespace MumbleSharp.Codecs.Opus
 
             IntPtr error;
             var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, (int)application, out error);
-            if ((OpusErrors)error != OpusErrors.Ok)
+            if ((NativeMethods.OpusErrors)error != NativeMethods.OpusErrors.Ok)
             {
                 throw new Exception("Exception occured while creating encoder");
             }
@@ -128,7 +129,7 @@ namespace MumbleSharp.Codecs.Opus
                 }
             }
             if (encodedLen < 0)
-                throw new Exception("Encoding failed - " + ((OpusErrors)encodedLen));
+                throw new Exception("Encoding failed - " + ((NativeMethods.OpusErrors)encodedLen));
             return encodedLen;
         }
 
@@ -164,7 +165,7 @@ namespace MumbleSharp.Codecs.Opus
                 int bitrate;
                 var ret = NativeMethods.opus_encoder_ctl_out(_encoder, NativeMethods.Ctl.GetBitrateRequest, out bitrate);
                 if (ret < 0)
-                    throw new Exception("Encoder error - " + ((OpusErrors)ret));
+                    throw new Exception("Encoder error - " + ((NativeMethods.OpusErrors)ret));
                 return bitrate;
             }
             set
@@ -173,7 +174,7 @@ namespace MumbleSharp.Codecs.Opus
                     throw new ObjectDisposedException("OpusEncoder");
                 var ret = NativeMethods.opus_encoder_ctl(_encoder, NativeMethods.Ctl.SetBitrateRequest, value);
                 if (ret < 0)
-                    throw new Exception("Encoder error - " + ((OpusErrors)ret));
+                    throw new Exception("Encoder error - " + ((NativeMethods.OpusErrors)ret));
             }
         }
 
@@ -189,7 +190,7 @@ namespace MumbleSharp.Codecs.Opus
                 int fec;
                 var ret = NativeMethods.opus_encoder_ctl_out(_encoder, NativeMethods.Ctl.GetInbandFecRequest, out fec);
                 if (ret < 0)
-                    throw new Exception("Encoder error - " + ((OpusErrors)ret));
+                    throw new Exception("Encoder error - " + ((NativeMethods.OpusErrors)ret));
                 return fec > 0;
             }
             set
@@ -198,7 +199,7 @@ namespace MumbleSharp.Codecs.Opus
                     throw new ObjectDisposedException("OpusEncoder");
                 var ret = NativeMethods.opus_encoder_ctl(_encoder, NativeMethods.Ctl.SetInbandFecRequest, Convert.ToInt32(value));
                 if (ret < 0)
-                    throw new Exception("Encoder error - " + ((OpusErrors)ret));
+                    throw new Exception("Encoder error - " + ((NativeMethods.OpusErrors)ret));
             }
         }
 

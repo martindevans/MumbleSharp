@@ -1,7 +1,12 @@
-﻿using System;
-using MumbleSharp.Codecs;
-using MumbleSharp.Codecs.Opus;
+﻿using MumbleSharp.Audio;
+using MumbleSharp.Audio.Codecs;
+using MumbleSharp.Audio.Codecs.CeltaAlpha;
+using MumbleSharp.Audio.Codecs.CeltBeta;
+using MumbleSharp.Audio.Codecs.Opus;
+using MumbleSharp.Audio.Codecs.Speex;
 using MumbleSharp.Packets;
+using System;
+using NAudio.Wave;
 
 namespace MumbleSharp.Model
 {
@@ -91,6 +96,20 @@ namespace MumbleSharp.Model
         public bool Equals(User other)
         {
             return other.Id == Id;
+        }
+
+        private readonly AudioBuffer _buffer = new AudioBuffer();
+        public IWaveProvider Voice
+        {
+            get
+            {
+                return _buffer;
+            }
+        }
+
+        public void EncodedVoice(byte[] data, long sequence, IVoiceCodec codec)
+        {
+            _buffer.AddEncodedPacket(sequence, data, codec);
         }
     }
 }

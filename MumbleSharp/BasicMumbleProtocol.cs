@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MumbleSharp.Audio.Codecs;
+using MumbleSharp.Model;
+using MumbleSharp.Packets;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using MumbleSharp.Codecs;
-using MumbleSharp.Model;
-using MumbleSharp.Packets;
 
 namespace MumbleSharp
 {
@@ -108,6 +108,14 @@ namespace MumbleSharp
         #endregion
 
         #region users
+        protected virtual void UserJoined(User user)
+        {
+        }
+
+        protected virtual void UserLeft(User user)
+        {
+        }
+
         /// <summary>
         /// Server has changed some detail of a user
         /// </summary>
@@ -116,7 +124,14 @@ namespace MumbleSharp
         {
             if (userState.Session.HasValue)
             {
-                User user = UserDictionary.AddOrUpdate(userState.Session.Value, i => new User(this, userState.Session.Value), (i, u) => u);
+                bool added = false;
+                User user = UserDictionary.AddOrUpdate(userState.Session.Value, i => {
+                    added = true;
+                    return new User(this, userState.Session.Value);
+                }, (i, u) => u);
+
+                if (added)
+                    UserJoined(user);
 
                 if (userState.SelfDeaf.HasValue)
                     user.Deaf = userState.SelfDeaf.Value;
@@ -137,7 +152,8 @@ namespace MumbleSharp
                     user.Channel = ChannelDictionary[userState.ChannelId.Value];
                 else user.Channel = RootChannel;
 
-                //user.Comment = userState.Comment;
+                if (userState.Comment != null)
+                    user.Comment = userState.Comment;
             }
         }
 
@@ -149,7 +165,11 @@ namespace MumbleSharp
         {
             User user;
             if (UserDictionary.TryRemove(userRemove.Session, out user))
+            {
                 user.Channel = null;
+
+                UserLeft(user);
+            }
 
             if (user.Equals(LocalUser))
                 Connection.Close();
@@ -223,11 +243,17 @@ namespace MumbleSharp
         /// <summary>
         /// Received a voice packet from the server
         /// </summary>
-        /// <param name="pcm"></param>
+        /// <param name="data"></param>
         /// <param name="userId"></param>
         /// <param name="sequence"></param>
-        public virtual void Voice(byte[] pcm, uint userId, long sequence)
+        /// <param name="codec"></param>
+        public virtual void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec)
         {
+            User user;
+            if (!UserDictionary.TryGetValue(userId, out user))
+                return;
+
+            user.EncodedVoice(data, sequence, codec);
         }
         #endregion
 

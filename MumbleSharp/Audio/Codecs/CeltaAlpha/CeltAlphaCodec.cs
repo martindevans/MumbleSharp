@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace MumbleSharp.Codecs
+namespace MumbleSharp.Audio.Codecs.CeltaAlpha
 {
-    public class CeltAlphaCodec
+    public class CeltBetaCodec
         : IVoiceCodec
     {
         public byte[] Decode(byte[] encodedData)

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MumbleSharp;
+using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using NAudio.Wave;
 
@@ -12,15 +14,29 @@ namespace MumbleClient
     public class ConsoleMumbleProtocol
         : BasicMumbleProtocol
     {
-        readonly AudioPlayer _player = new AudioPlayer();
+        readonly Dictionary<User, AudioPlayer> _players = new Dictionary<User, AudioPlayer>(); 
 
-        public override void Voice(byte[] pcm, uint userId, long sequence)
+        public override void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec)
         {
             User user = Users.FirstOrDefault(u => u.Id == userId);
             if (user != null)
                 Console.WriteLine(user.Name + " is speaking. Seq" + sequence);
 
-            _player.Add(pcm);
+            base.EncodedVoice(data, userId, sequence, codec);
+        }
+
+        protected override void UserJoined(User user)
+        {
+            base.UserJoined(user);
+
+            _players.Add(user, new AudioPlayer(user.Voice));
+        }
+
+        protected override void UserLeft(User user)
+        {
+            base.UserLeft(user);
+
+            _players.Remove(user);
         }
 
         protected override void ChannelMessageReceived(ChannelMessage message)
@@ -41,17 +57,13 @@ namespace MumbleClient
         private class AudioPlayer
         {
             private readonly WaveOut _playbackDevice = new WaveOut();
-            private readonly BufferedWaveProvider _source = new BufferedWaveProvider(new WaveFormat(48000, 16, 1));
 
-            public AudioPlayer()
+            public AudioPlayer(IWaveProvider provider)
             {
-                _playbackDevice.Init(_source);
+                _playbackDevice.Init(provider);
                 _playbackDevice.Play();
-            }
 
-            public void Add(byte[] pcm)
-            {
-                _source.AddSamples(pcm, 0, pcm.Length);
+                _playbackDevice.PlaybackStopped += (sender, args) => Console.WriteLine("Playback stopped: " + args.Exception);
             }
         }
     }

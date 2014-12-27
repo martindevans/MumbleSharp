@@ -22,18 +22,24 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-
-namespace MumbleSharp.Codecs.Opus
+namespace MumbleSharp.Audio.Codecs.Opus
 {
-    public enum OpusErrors
+    /// <summary>
+    /// Supported coding modes.
+    /// </summary>
+    public enum Application
     {
-        Ok = 0,
-        BadArgument = -1,
-        BufferToSmall = -2,
-        InternalError = -3,
-        InvalidPacket = -4,
-        NotImplemented = -5,
-        InvalidState = -6,
-        AllocFail = -7
+        /// <summary>
+        /// Best for most VoIP/videoconference applications where listening quality and intelligibility matter most.
+        /// </summary>
+        Voip = 2048,
+        /// <summary>
+        /// Best for broadcast/high-fidelity application where the decoded audio should be as close as possible to input.
+        /// </summary>
+        Audio = 2049,
+        /// <summary>
+        /// Only use when lowest-achievable latency is what matters most. Voice-optimized modes cannot be used.
+        /// </summary>
+        RestrictedLowLatency = 2051
     }
 }

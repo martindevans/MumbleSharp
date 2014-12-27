@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using MumbleSharp.Codecs;
+﻿using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
+using System.Collections.Generic;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MumbleSharp
 {
@@ -60,7 +60,7 @@ namespace MumbleSharp
 
         void ServerConfig(ServerConfig serverConfig);
 
-        void Voice(byte[] packet, uint userSession, long sequence);
+        void EncodedVoice(byte[] packet, uint userSession, long sequence, IVoiceCodec codec);
 
         void UdpPing(byte[] packet);
 
@@ -76,6 +76,6 @@ namespace MumbleSharp
 
         void SuggestConfig(SuggestConfig suggestedConfiguration);
 
-        IVoiceCodec GetCodec(uint session, SpeechCodecs codec);
+        IVoiceCodec GetCodec(uint user, SpeechCodecs codec);
     }
 }

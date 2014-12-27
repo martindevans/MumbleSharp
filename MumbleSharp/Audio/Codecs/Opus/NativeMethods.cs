@@ -28,7 +28,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace MumbleSharp.Codecs.Opus
+namespace MumbleSharp.Audio.Codecs.Opus
 {
     /// <summary>
     /// Wraps the Opus API.
@@ -40,24 +40,24 @@ namespace MumbleSharp.Codecs.Opus
             IntPtr image;
             if (PlatformDetails.IsMac)
             {
-                image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Codecs", "Opus", "Libs", "32bit", "libopus.dylib"));
+                image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio", "Codecs", "Opus", "Libs", "32bit", "libopus.dylib"));
             }
             else if (PlatformDetails.IsWindows)
             {
                 if (!Environment.Is64BitProcess)
                 {
-                    image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Codecs", "Opus", "Libs", "32bit", "opus.dll"));
+                    image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio", "Codecs", "Opus", "Libs", "32bit", "opus.dll"));
                 }
                 else
                 {
-                    image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Codecs", "Opus", "Libs", "64bit", "opus.dll"));
+                    image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio", "Codecs", "Opus", "Libs", "64bit", "opus.dll"));
                 }
             }
             else
             {
                 image = LibraryLoader.Load("libopus.so.0");
 				if (image.Equals(IntPtr.Zero))
-                    image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Codecs", "Opus", "Libs", "libopus.so"));
+                    image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio", "Codecs", "Opus", "Libs", "libopus.so"));
             }
 
             if (image != IntPtr.Zero)
@@ -128,6 +128,18 @@ namespace MumbleSharp.Codecs.Opus
             GetBitrateRequest = 4003,
             SetInbandFecRequest = 4012,
             GetInbandFecRequest = 4013
+        }
+
+        public enum OpusErrors
+        {
+            Ok = 0,
+            BadArgument = -1,
+            BufferToSmall = -2,
+            InternalError = -3,
+            InvalidPacket = -4,
+            NotImplemented = -5,
+            InvalidState = -6,
+            AllocFail = -7
         }
     }
 }

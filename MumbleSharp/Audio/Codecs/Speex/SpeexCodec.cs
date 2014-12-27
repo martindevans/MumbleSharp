@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MumbleSharp.Codecs
+namespace MumbleSharp.Audio.Codecs.Speex
 {
     public class SpeexCodec
         : IVoiceCodec

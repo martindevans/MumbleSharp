@@ -1,5 +1,5 @@
 ﻿
-namespace MumbleSharp.Codecs
+namespace MumbleSharp.Audio.Codecs
 {
     public interface IVoiceCodec
     {

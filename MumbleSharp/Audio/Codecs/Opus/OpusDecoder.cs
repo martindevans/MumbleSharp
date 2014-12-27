@@ -25,7 +25,7 @@
 
 using System;
 
-namespace MumbleSharp.Codecs.Opus
+namespace MumbleSharp.Audio.Codecs.Opus
 {
     /// <summary>
     /// Opus decoder.
@@ -60,8 +60,8 @@ namespace MumbleSharp.Codecs.Opus
 
             IntPtr error;
             _decoder = NativeMethods.opus_decoder_create(outputSampleRate, outputChannelCount, out error);
-            if ((OpusErrors)error != OpusErrors.Ok)
-                throw new Exception(string.Format("Exception occured while creating decoder, {0}", ((OpusErrors)error)));
+            if ((NativeMethods.OpusErrors)error != NativeMethods.OpusErrors.Ok)
+                throw new Exception(string.Format("Exception occured while creating decoder, {0}", ((NativeMethods.OpusErrors)error)));
             _sampleSize = sizeof(ushort) * outputChannelCount;
         }
 
@@ -115,7 +115,7 @@ namespace MumbleSharp.Codecs.Opus
                 }
             }
             if (length < 0)
-                throw new Exception("Decoding failed - " + ((OpusErrors)length));
+                throw new Exception("Decoding failed - " + ((NativeMethods.OpusErrors)length));
             return length * _sampleSize;
         }
 

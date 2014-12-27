@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NAudio">
+      <HintPath>..\packages\NAudio.1.7.2\lib\net35\NAudio.dll</HintPath>
+    </Reference>
     <Reference Include="NSpeex">
       <HintPath>..\Dependencies\NSpeex v1.1.1\lib\NSpeex.dll</HintPath>
     </Reference>
@@ -48,19 +51,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Codecs\CeltAlphaCodec.cs" />
-    <Compile Include="Codecs\CeltBetaCodec.cs" />
-    <Compile Include="Codecs\Opus\OpusCodec.cs" />
-    <Compile Include="Codecs\Opus\NativeMethods.cs" />
-    <Compile Include="Codecs\Opus\Application.cs" />
-    <Compile Include="Codecs\Opus\OpusDecoder.cs" />
-    <Compile Include="Codecs\Opus\OpusEncoder.cs" />
-    <Compile Include="Codecs\Opus\OpusErrors.cs" />
-    <Compile Include="Codecs\SpeexCodec.cs" />
+    <Compile Include="Audio\AudioBuffer.cs" />
+    <Compile Include="Audio\Codecs\CeltaAlpha\CeltAlphaCodec.cs" />
+    <Compile Include="Audio\Codecs\CeltBeta\CeltBetaCodec.cs" />
+    <Compile Include="Audio\Codecs\Opus\OpusCodec.cs" />
+    <Compile Include="Audio\Codecs\Opus\NativeMethods.cs" />
+    <Compile Include="Audio\Codecs\Opus\Application.cs" />
+    <Compile Include="Audio\Codecs\Opus\OpusDecoder.cs" />
+    <Compile Include="Audio\Codecs\Opus\OpusEncoder.cs" />
+    <Compile Include="Audio\Codecs\Speex\SpeexCodec.cs" />
     <Compile Include="ConnectionStates.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="CryptState.cs" />
     <Compile Include="Endian.cs" />
-    <Compile Include="Codecs\IVoiceCodec.cs" />
+    <Compile Include="Audio\Codecs\IVoiceCodec.cs" />
     <Compile Include="BasicMumbleProtocol.cs" />
     <Compile Include="Extensions\IEnumerableOfChannelExtensions.cs" />
     <Compile Include="LibraryLoader.cs" />
@@ -90,17 +94,17 @@
     <Compile Include="Packets\Version.cs" />
     <Compile Include="PlatformDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Codecs\SpeechCodecs.cs" />
+    <Compile Include="Audio\Codecs\SpeechCodecs.cs" />
     <Compile Include="UdpPacketReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Codecs\Opus\Libs\32bit\opus.dll">
+    <None Include="Audio\Codecs\Opus\Libs\32bit\opus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Codecs\Opus\Libs\64bit\opus.dll">
+    <None Include="Audio\Codecs\Opus\Libs\64bit\opus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="Packets\_ Implementation Note.txt" />

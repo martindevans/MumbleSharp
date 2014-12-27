@@ -1,14 +1,20 @@
 ﻿using System;
 
-namespace MumbleSharp.Codecs.Opus
+namespace MumbleSharp.Audio.Codecs.Opus
 {
     public class OpusCodec
         : IVoiceCodec
     {
-        readonly OpusDecoder _decoder = new OpusDecoder(48000, 1) { EnableForwardErrorCorrection = true };
+        readonly OpusDecoder _decoder = new OpusDecoder((int)Constants.SAMPLE_RATE, 1) { EnableForwardErrorCorrection = true };
 
         public byte[] Decode(byte[] encodedData)
         {
+            if (encodedData == null)
+            {
+                _decoder.Decode(null, 0, 0, new byte[Constants.FRAME_SIZE], 0);
+                return null;
+            }
+
             int samples = _decoder.GetSamples(encodedData, 0, encodedData.Length, 48000);
             if (samples < 1)
                 return null;
