@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -49,7 +50,12 @@
   <ItemGroup>
     <Compile Include="Codecs\CeltAlphaCodec.cs" />
     <Compile Include="Codecs\CeltBetaCodec.cs" />
-    <Compile Include="Codecs\OpusCodec.cs" />
+    <Compile Include="Codecs\Opus\OpusCodec.cs" />
+    <Compile Include="Codecs\Opus\NativeMethods.cs" />
+    <Compile Include="Codecs\Opus\Application.cs" />
+    <Compile Include="Codecs\Opus\OpusDecoder.cs" />
+    <Compile Include="Codecs\Opus\OpusEncoder.cs" />
+    <Compile Include="Codecs\Opus\OpusErrors.cs" />
     <Compile Include="Codecs\SpeexCodec.cs" />
     <Compile Include="ConnectionStates.cs" />
     <Compile Include="CryptState.cs" />
@@ -57,6 +63,7 @@
     <Compile Include="Codecs\IVoiceCodec.cs" />
     <Compile Include="BasicMumbleProtocol.cs" />
     <Compile Include="Extensions\IEnumerableOfChannelExtensions.cs" />
+    <Compile Include="LibraryLoader.cs" />
     <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Channel.cs" />
     <Compile Include="Model\User.cs" />
@@ -77,11 +84,11 @@
     <Compile Include="Packets\ServerSync.cs" />
     <Compile Include="Packets\SuggestConfig.cs" />
     <Compile Include="Packets\TextMessage.cs" />
-    <Compile Include="Packets\UdpTunnel.cs" />
     <Compile Include="Packets\UserList.cs" />
     <Compile Include="Packets\UserRemove.cs" />
     <Compile Include="Packets\UserState.cs" />
     <Compile Include="Packets\Version.cs" />
+    <Compile Include="PlatformDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Codecs\SpeechCodecs.cs" />
     <Compile Include="UdpPacketReader.cs" />
@@ -90,8 +97,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Codecs\Opus\Libs\32bit\opus.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Codecs\Opus\Libs\64bit\opus.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Packets\_ Implementation Note.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

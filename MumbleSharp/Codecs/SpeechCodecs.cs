@@ -1,5 +1,6 @@
 ﻿
 using System;
+using MumbleSharp.Codecs.Opus;
 
 namespace MumbleSharp.Codecs
 {

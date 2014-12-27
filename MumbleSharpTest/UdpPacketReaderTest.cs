@@ -1,4 +1,5 @@
-﻿using MumbleSharp;
+﻿using System.Linq;
+using MumbleSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -15,39 +16,20 @@ namespace MumbleSharpTest
     public class UdpPacketReaderTest
     {
         [TestMethod]
-        public void LeadingOnesTestNoneLeading()
+        public void LeadingOnesInAllBytes()
         {
-            const byte value = 0; //0b00000000
-            const int expected = 0;
-            int actual = UdpPacketReader.LeadingOnes(value);
-            Assert.AreEqual(expected, actual);
-        }
+            for (int i = 0; i <= byte.MaxValue; i++)
+            {
+                var digits = Convert.ToString(i, 2);
+                if (digits.Length < 8)
+                    digits = Enumerable.Repeat("0", 8 - digits.Length).Aggregate((a, b) => a + b) + digits;
 
-        [TestMethod]
-        public void LeadingOnesTestSingleLeading()
-        {
-            const byte value = 128; //0b10000000
-            const int expected = 1;
-            int actual = UdpPacketReader.LeadingOnes(value);
-            Assert.AreEqual(expected, actual);
-        }
+                var expected = digits.TakeWhile(a => a == '1').Count();
+                var actual = UdpPacketReader.LeadingOnes((byte)i);
+                Assert.AreEqual(expected, actual);
+            }
 
-        [TestMethod]
-        public void LeadingOnesTestMultipleLeading()
-        {
-            const byte value = 240; //0b11110000
-            const int expected = 4;
-            int actual = UdpPacketReader.LeadingOnes(value);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [TestMethod]
-        public void LeadingOnesTestLeadingOnesAndThenData()
-        {
-            const byte value = 246; //0b11110110
-            const int expected = 4;
-            int actual = UdpPacketReader.LeadingOnes(value);
-            Assert.AreEqual(expected, actual);
+            
         }
     }
 }

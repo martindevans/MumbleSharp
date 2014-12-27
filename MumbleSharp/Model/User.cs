@@ -1,4 +1,6 @@
 ﻿using System;
+using MumbleSharp.Codecs;
+using MumbleSharp.Codecs.Opus;
 using MumbleSharp.Packets;
 
 namespace MumbleSharp.Model
@@ -44,6 +46,27 @@ namespace MumbleSharp.Model
                 Actor = Owner.LocalUser.Id,
                 Message = message,
             });
+        }
+
+        private readonly Lazy<CeltAlphaCodec> _alpha = new Lazy<CeltAlphaCodec>();
+        private readonly Lazy<CeltBetaCodec> _beta = new Lazy<CeltBetaCodec>();
+        private readonly Lazy<SpeexCodec> _speex = new Lazy<SpeexCodec>();
+        private readonly Lazy<OpusCodec> _opus = new Lazy<OpusCodec>();
+        protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
+        {
+            switch (codec)
+            {
+                case SpeechCodecs.CeltAlpha:
+                    return _alpha.Value;
+                case SpeechCodecs.Speex:
+                    return _speex.Value;
+                case SpeechCodecs.CeltBeta:
+                    return _beta.Value;
+                case SpeechCodecs.Opus:
+                    return _opus.Value;
+                default:
+                    throw new ArgumentOutOfRangeException("codec");
+            }
         }
 
         public override string ToString()

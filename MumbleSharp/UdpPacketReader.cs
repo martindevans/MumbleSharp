@@ -75,7 +75,7 @@ namespace MumbleSharp
             //        throw new InvalidDataException("Invalid varint encoding");
             //}
 
-            //Copied from https://github.com/pcgod/mumble-android/blob/master/src/org/pcgod/mumbleclient/service/PacketDataStream.java
+            //From https://github.com/mumble-voip/mumble/blob/master/src/PacketDataStream.h
             long i = 0;
 		    long v = ReadByte();
 
@@ -84,25 +84,24 @@ namespace MumbleSharp
 		    } else if ((v & 0xC0) == 0x80) {
 			    i = (v & 0x3F) << 8 | ReadByte();
 		    } else if ((v & 0xF0) == 0xF0) {
-			    int tmp = (int) (v & 0xFC);
-			    switch (tmp) {
-			    case 0xF0:
-                        i = ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
-				    break;
-			    case 0xF4:
-                    i = ReadByte() << 56 | ReadByte() << 48 | ReadByte() << 40 | ReadByte() << 32 |
-                        ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
-				    break;
-			    case 0xF8:
-				    i = ReadVarInt64();
-				    i = ~i;
-				    break;
-			    case 0xFC:
-				    i = v & 0x03;
-				    i = ~i;
-				    break;
-			    default:
-                    throw new InvalidDataException("Invalid varint encoding");
+                switch (v & 0xFC)
+                {
+			        case 0xF0:
+                            i = ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
+				        break;
+			        case 0xF4:
+                        i = ReadByte() << 56 | ReadByte() << 48 | ReadByte() << 40 | ReadByte() << 32 |
+                            ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
+				        break;
+			        case 0xF8:
+				        i = ~ReadVarInt64();
+				        break;
+			        case 0xFC:
+				        i = v & 0x03;
+				        i = ~i;
+				        break;
+			        default:
+                        throw new InvalidDataException("Invalid varint encoding");
 			    }
 		    } else if ((v & 0xF0) == 0xE0) {
                 i = (v & 0x0F) << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte();
@@ -112,15 +111,28 @@ namespace MumbleSharp
 		    return i;
         }
 
+        private static readonly byte[] _leadingOnesLookup = {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+            4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7, 8,
+        };
+
         public static int LeadingOnes(byte value)
         {
-            int counter = 0;
-            while ((value & 128) == 128)
-            {
-                value <<= 1;
-                counter++;
-            }
-            return counter;
+            return _leadingOnesLookup[value];
         }
     }
 }

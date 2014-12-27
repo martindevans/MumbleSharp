@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using MumbleSharp.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 
@@ -197,6 +198,21 @@ namespace MumbleSharp
         }
 
         /// <summary>
+        /// Get a voice decoder for the specified user/codec combination
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="codec"></param>
+        /// <returns></returns>
+        public virtual IVoiceCodec GetCodec(uint session, SpeechCodecs codec)
+        {
+            User user;
+            if (!UserDictionary.TryGetValue(session, out user))
+                return null;
+
+            return user.GetCodec(codec);
+        }
+
+        /// <summary>
         /// Received a UDP ping from the server
         /// </summary>
         /// <param name="packet"></param>
@@ -210,7 +226,7 @@ namespace MumbleSharp
         /// <param name="pcm"></param>
         /// <param name="userId"></param>
         /// <param name="sequence"></param>
-        public virtual void Voice(byte[] pcm, long userId, long sequence)
+        public virtual void Voice(byte[] pcm, uint userId, long sequence)
         {
         }
         #endregion
