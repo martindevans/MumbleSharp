@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Security.Cryptography;
 
 namespace MumbleSharp
@@ -22,8 +19,7 @@ namespace MumbleSharp
 
         public void Initialise(byte[] key)
         {
-            aes = new RijndaelManaged()
-            {
+            aes = new RijndaelManaged {
                 BlockSize = BLOCK_SIZE * 8,
                 Key = key,
                 Mode = CipherMode.ECB,

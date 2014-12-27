@@ -15,7 +15,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
                 return null;
             }
 
-            int samples = _decoder.GetSamples(encodedData, 0, encodedData.Length, 48000);
+            int samples = OpusDecoder.GetSamples(encodedData, 0, encodedData.Length, 48000);
             if (samples < 1)
                 return null;
 

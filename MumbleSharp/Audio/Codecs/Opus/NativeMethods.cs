@@ -45,13 +45,9 @@ namespace MumbleSharp.Audio.Codecs.Opus
             else if (PlatformDetails.IsWindows)
             {
                 if (!Environment.Is64BitProcess)
-                {
                     image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio", "Codecs", "Opus", "Libs", "32bit", "opus.dll"));
-                }
                 else
-                {
                     image = LibraryLoader.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio", "Codecs", "Opus", "Libs", "64bit", "opus.dll"));
-                }
             }
             else
             {

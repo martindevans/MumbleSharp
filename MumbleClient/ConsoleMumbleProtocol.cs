@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MumbleSharp;
+using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using NAudio.Wave;
@@ -16,13 +17,13 @@ namespace MumbleClient
     {
         readonly Dictionary<User, AudioPlayer> _players = new Dictionary<User, AudioPlayer>(); 
 
-        public override void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec)
+        public override void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec, SpeechTarget target)
         {
             User user = Users.FirstOrDefault(u => u.Id == userId);
             if (user != null)
                 Console.WriteLine(user.Name + " is speaking. Seq" + sequence);
 
-            base.EncodedVoice(data, userId, sequence, codec);
+            base.EncodedVoice(data, userId, sequence, codec, target);
         }
 
         protected override void UserJoined(User user)

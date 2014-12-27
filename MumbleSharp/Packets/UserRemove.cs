@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ProtoBuf;
 
 namespace MumbleSharp.Packets
@@ -9,6 +6,7 @@ namespace MumbleSharp.Packets
     [ProtoContract]
     public class UserRemove
     {
+// ReSharper disable UnassignedField.Global
         [ProtoMember(1)]
         public UInt32 Session;
 
@@ -20,5 +18,6 @@ namespace MumbleSharp.Packets
         
         [ProtoMember(4, IsRequired = false)]
         public bool Ban;
+// ReSharper restore UnassignedField.Global
     }
 }

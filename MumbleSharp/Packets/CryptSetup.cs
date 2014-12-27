@@ -5,6 +5,7 @@ namespace MumbleSharp.Packets
     [ProtoContract]
     public class CryptSetup
     {
+// ReSharper disable UnassignedField.Global
         [ProtoMember(1, IsRequired = false)]
         public byte[] Key;
 
@@ -13,5 +14,6 @@ namespace MumbleSharp.Packets
 
         [ProtoMember(3, IsRequired = false)]
         public byte[] ServerNonce;
+// ReSharper restore UnassignedField.Global
     }
 }

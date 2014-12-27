@@ -1,4 +1,5 @@
-﻿using MumbleSharp.Audio.Codecs;
+﻿using MumbleSharp.Audio;
+using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Packets;
 using ProtoBuf;
 using System;
@@ -128,7 +129,7 @@ namespace MumbleSharp
             else
             {
                 var vType = (SpeechCodecs)(packet[0] >> 5 & 0x7);
-                int voiceTarget = packet[0] & 0x1F;
+                var target = (SpeechTarget)(packet[0] & 0x1F);
 
                 using (var reader = new UdpPacketReader(new MemoryStream(packet, 1, packet.Length - 1)))
                 {
@@ -152,7 +153,7 @@ namespace MumbleSharp
                         if (data == null)
                             return;
 
-                        Protocol.EncodedVoice(data, session, sequence, codec);
+                        Protocol.EncodedVoice(data, session, sequence, codec, target);
                     }
                     else
                     {
@@ -264,8 +265,8 @@ namespace MumbleSharp
                 {
                     Release = "MumbleSharp",
                     ReleaseVersion = (1 << 16) | (2 << 8) | (0 & 0xFF),
-                    os = Environment.OSVersion.ToString(),
-                    os_version = Environment.OSVersion.VersionString,
+                    Os = Environment.OSVersion.ToString(),
+                    OsVersion = Environment.OSVersion.VersionString,
                 };
                 Send<Packets.Version>(PacketType.Version, version);
 

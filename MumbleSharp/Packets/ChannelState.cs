@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ProtoBuf;
 
 namespace MumbleSharp.Packets
@@ -9,6 +6,7 @@ namespace MumbleSharp.Packets
     [ProtoContract]
     public class ChannelState
     {
+// ReSharper disable UnassignedField.Global
         [ProtoMember(1)]
         public UInt32 ChannelId;
 
@@ -35,5 +33,6 @@ namespace MumbleSharp.Packets
 
         [ProtoMember(9, IsRequired = false)]
         public Int32 Position;
+// ReSharper restore UnassignedField.Global
     }
 }

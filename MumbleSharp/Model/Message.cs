@@ -5,24 +5,27 @@ namespace MumbleSharp.Model
     {
         public User Sender { get; protected set; }
         public string Text { get; protected set; }
-        public Message(User sender, string text)
+
+        protected Message(User sender, string text)
         {
             Sender = sender;
             Text = text;
         }
     }
+
     public class PersonalMessage : Message
     {
         public PersonalMessage(User sender, string text)
             :base(sender, text)
         {
-
         }
     }
+
     public class ChannelMessage : Message
     {
         public Channel Channel { get; protected set; }
         public bool IsRecursive { get; protected set; }
+
         public ChannelMessage(User sender, string text, Channel channel, bool isRecursive = false)
             :base(sender, text)
         {

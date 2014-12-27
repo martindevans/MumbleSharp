@@ -13,7 +13,7 @@ namespace MumbleSharp.Model
     public class User
         : IEquatable<User>
     {
-        internal readonly IMumbleProtocol Owner;
+        private readonly IMumbleProtocol _owner;
 
         public UInt32 Id { get; private set; }
         public bool Deaf { get; set; }
@@ -40,15 +40,15 @@ namespace MumbleSharp.Model
 
         public User(IMumbleProtocol owner, uint id)
         {
-            Owner = owner;
+            _owner = owner;
             Id = id;
         }
 
         public void SendMessage(string[] message)
         {
-            Owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, new TextMessage
+            _owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, new TextMessage
             {
-                Actor = Owner.LocalUser.Id,
+                Actor = _owner.LocalUser.Id,
                 Message = message,
             });
         }

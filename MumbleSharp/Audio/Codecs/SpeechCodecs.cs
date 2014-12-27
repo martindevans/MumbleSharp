@@ -1,10 +1,8 @@
-﻿using System;
-using MumbleSharp.Audio.Codecs.CeltaAlpha;
+﻿using MumbleSharp.Audio.Codecs.CeltaAlpha;
 using MumbleSharp.Audio.Codecs.CeltBeta;
 using MumbleSharp.Audio.Codecs.Opus;
 using MumbleSharp.Audio.Codecs.Speex;
-using MumbleSharp.Codecs;
-using MumbleSharp.Codecs.Opus;
+using System;
 
 namespace MumbleSharp.Audio.Codecs
 {

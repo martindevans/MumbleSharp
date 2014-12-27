@@ -13,14 +13,14 @@ namespace MumbleSharp.Packets
         public string Release;
 
         [ProtoMember(3, IsRequired = false)]
-        public string os;
+        public string Os;
 
         [ProtoMember(4, IsRequired = false)]
-        public string os_version;
+        public string OsVersion;
 
         public override string ToString()
         {
-            return "version:" + ReleaseVersion + " release:" + Release + " os:" + os + " os_version:" + os_version;
+            return "version:" + ReleaseVersion + " release:" + Release + " os:" + Os + " os_version:" + OsVersion;
         }
     }
 }

@@ -6,6 +6,7 @@ namespace MumbleSharp.Packets
     [ProtoContract]
     public class Ping
     {
+// ReSharper disable UnassignedField.Global
         [ProtoMember(1, IsRequired = false)]
         public UInt64 TimeStamp;
 
@@ -38,5 +39,6 @@ namespace MumbleSharp.Packets
 
         [ProtoMember(11, IsRequired = false)]
         public float TcpPingVar;
+// ReSharper restore UnassignedField.Global
     }
 }

@@ -31,6 +31,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
     /// Opus decoder.
     /// </summary>
     public class OpusDecoder
+        : IDisposable
     {
         /// <summary>
         /// Opus decoder.
@@ -119,7 +120,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
             return length * _sampleSize;
         }
 
-        public unsafe int GetSamples(byte[] srcEncodedBuffer, int srcOffset, int srcLength, int sampleRate)
+        public static unsafe int GetSamples(byte[] srcEncodedBuffer, int srcOffset, int srcLength, int sampleRate)
         {
             fixed (byte* bsrc = srcEncodedBuffer)
             {
@@ -128,7 +129,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
             }
         }
 
-        public unsafe int GetChannels(byte[] srcEncodedBuffer, int srcOffset)
+        public static unsafe int GetChannels(byte[] srcEncodedBuffer, int srcOffset)
         {
             fixed (byte* bsrc = srcEncodedBuffer)
             {

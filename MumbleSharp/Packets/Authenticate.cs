@@ -6,6 +6,7 @@ namespace MumbleSharp.Packets
     [ProtoContract]
     public class Authenticate
     {
+// ReSharper disable NotAccessedField.Global
         [ProtoMember(1, IsRequired = false)]
         public string Username;
 
@@ -20,5 +21,6 @@ namespace MumbleSharp.Packets
 
         [ProtoMember(5)]
         public bool Opus;
+// ReSharper restore NotAccessedField.Global
     }
 }

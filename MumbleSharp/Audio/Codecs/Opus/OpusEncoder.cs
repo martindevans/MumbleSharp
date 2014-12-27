@@ -25,14 +25,14 @@
 
 using System;
 using System.Linq;
-using MumbleSharp.Audio.Codecs.Opus;
 
-namespace MumbleSharp.Codecs.Opus
+namespace MumbleSharp.Audio.Codecs.Opus
 {
     /// <summary>
     /// Opus encoder.
     /// </summary>
     public class OpusEncoder
+        : IDisposable
     {
         /// <summary>
         /// Opus encoder.
@@ -76,9 +76,6 @@ namespace MumbleSharp.Codecs.Opus
                 throw new Exception("Exception occured while creating encoder");
             }
             _encoder = encoder;
-            SourceSamplingRate = srcSamplingRate;
-            SourceChannelCount = srcChannelCount;
-            Application = application;
 
             const int BIT_DEPTH = 16;
             _sampleSize = SampleSize(BIT_DEPTH, srcChannelCount);
@@ -86,7 +83,6 @@ namespace MumbleSharp.Codecs.Opus
             PermittedFrameSizes = new int[_permittedFrameSizes.Length];
             for (var i = 0; i < _permittedFrameSizes.Length; i++)
                 PermittedFrameSizes[i] = (int)(srcSamplingRate / 1000f * _permittedFrameSizes[i]);
-            DefaultFrameSize = PermittedFrameSizes[2];  // default to 20ms encoding frames
         }
 
         private static int SampleSize(int bitDepth, int channelCount)
@@ -146,12 +142,7 @@ namespace MumbleSharp.Codecs.Opus
         /// <summary>
         /// Permitted frame sizes in samples per channel.
         /// </summary>
-        public int[] PermittedFrameSizes { get; private set; }
-
-        /// <summary>
-        /// Gets the default frame size in samples per channel.
-        /// </summary>
-        public int DefaultFrameSize { get; private set; }
+        private int[] PermittedFrameSizes { get; set; }
 
         /// <summary>
         /// Gets or sets the bitrate setting of the encoding.
@@ -202,21 +193,6 @@ namespace MumbleSharp.Codecs.Opus
                     throw new Exception("Encoder error - " + ((NativeMethods.OpusErrors)ret));
             }
         }
-
-        /// <summary>
-        /// Gets the sampling rate of the source stream.
-        /// </summary>
-        public int SourceSamplingRate { get; private set; }
-
-        /// <summary>
-        /// Gets the number of channels in the source stream.
-        /// </summary>
-        public int SourceChannelCount { get; private set; }
-
-        /// <summary>
-        /// Gets the coding mode of the encoder.
-        /// </summary>
-        public Application Application { get; private set; }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

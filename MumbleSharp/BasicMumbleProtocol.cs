@@ -1,4 +1,5 @@
-﻿using MumbleSharp.Audio.Codecs;
+﻿using MumbleSharp.Audio;
+using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 using System;
@@ -40,7 +41,7 @@ namespace MumbleSharp
         /// <summary>
         /// The current ping time (in seconds) for the TCP connection
         /// </summary>
-        public virtual float TcpPing { get; private set; }
+        public float TcpPing { get; private set; }
 
         /// <summary>
         /// Associates this protocol with an opening mumble connection
@@ -150,7 +151,8 @@ namespace MumbleSharp
 
                 if (userState.ChannelId.HasValue)
                     user.Channel = ChannelDictionary[userState.ChannelId.Value];
-                else user.Channel = RootChannel;
+                else
+                    user.Channel = RootChannel;
 
                 if (userState.Comment != null)
                     user.Comment = userState.Comment;
@@ -247,7 +249,8 @@ namespace MumbleSharp
         /// <param name="userId"></param>
         /// <param name="sequence"></param>
         /// <param name="codec"></param>
-        public virtual void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec)
+        /// <param name="target"></param>
+        public virtual void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec, SpeechTarget target)
         {
             User user;
             if (!UserDictionary.TryGetValue(userId, out user))

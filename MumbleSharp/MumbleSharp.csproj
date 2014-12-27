@@ -60,10 +60,10 @@
     <Compile Include="Audio\Codecs\Opus\OpusDecoder.cs" />
     <Compile Include="Audio\Codecs\Opus\OpusEncoder.cs" />
     <Compile Include="Audio\Codecs\Speex\SpeexCodec.cs" />
+    <Compile Include="Audio\SpeechTarget.cs" />
     <Compile Include="ConnectionStates.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CryptState.cs" />
-    <Compile Include="Endian.cs" />
     <Compile Include="Audio\Codecs\IVoiceCodec.cs" />
     <Compile Include="BasicMumbleProtocol.cs" />
     <Compile Include="Extensions\IEnumerableOfChannelExtensions.cs" />

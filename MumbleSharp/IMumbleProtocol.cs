@@ -1,4 +1,5 @@
-﻿using MumbleSharp.Audio.Codecs;
+﻿using MumbleSharp.Audio;
+using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace MumbleSharp
 
         X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers);
 
-        void Version(Packets.Version version);
+        void Version(Version version);
 
         void ChannelState(ChannelState channelState);
 
@@ -60,7 +61,7 @@ namespace MumbleSharp
 
         void ServerConfig(ServerConfig serverConfig);
 
-        void EncodedVoice(byte[] packet, uint userSession, long sequence, IVoiceCodec codec);
+        void EncodedVoice(byte[] packet, uint userSession, long sequence, IVoiceCodec codec, SpeechTarget target);
 
         void UdpPing(byte[] packet);
 
