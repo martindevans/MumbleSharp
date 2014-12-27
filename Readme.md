@@ -14,8 +14,23 @@ As you can see from the MumbleClient Program.cs creating a new client is very si
 
 ## Work In Progress
  
-This project is currently only partly functional! The client supports almost everything a mumble client can do *except* for voice - voice packets are received but are not currently decoded.
+This project is currently only partly functional! The library fully supports all non voice things that mumble can do but voice support is very work in progress (only *receiving* Opus encoded packets is supported).
 
 ## Contributing
 
-I'm only occasionally working on MumbleSharp in my spare time but I'm very happy to receive contributions. If you're thinking of contributing ping me an email (martindevans@gmail.com) and I'll try to give you any advice I can to achieve whatever you want.
+I'm only occasionally working on MumbleSharp in my spare time but I'm very happy to receive contributions. If you're thinking of contributing ping me an email (martindevans@gmail.com) and I'll try to give you any advice I can to achieve whatever you want. It would be helpful if you open an issue when you start working on something, that's a good way to make sure no one else is duplicating your work as well as being a good place to have discussions.
+
+When contributing it's often useful to reference the [Mumble source code](https://github.com/mumble-voip/mumble).
+
+### Things To Do
+
+ If you want to contribute here's some ideas:
+ 
+#### Jitter Buffer
+There is no jitter buffering at the moment. Port the jitter buffering from mumble or implement your own. AudioBuffer.cs is probably the correct place to start doing this.
+
+#### Other Codecs
+Supporting other codecs should be relatively simple. For CELT you'll need to find the correct version of the DLL (check out the Mumble-Protocol.pdf for the version) and then write a wrapper with P/Invoke. For Speex you should be able to use NSpeex.
+
+#### Talking
+Currently we can receive audio, but not send it!
