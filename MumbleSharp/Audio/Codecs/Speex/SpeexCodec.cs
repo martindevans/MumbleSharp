@@ -7,21 +7,15 @@ namespace MumbleSharp.Audio.Codecs.Speex
     {
         public byte[] Decode(byte[] encodedData)
         {
-            //THIS IS IN NO WAY GOOD CODE!
-            //Just experimenting!
-
-            NSpeex.SpeexDecoder d = new NSpeex.SpeexDecoder(NSpeex.BandMode.Wide, false);
-            NSpeex.SpeexJitterBuffer b = new NSpeex.SpeexJitterBuffer(d);
-
-            b.Put(encodedData);
-
-            short[] decoded = new short[1024];
-            b.Get(decoded);
-
-            return null;
+            throw new NotImplementedException();
         }
 
-        public byte[] Encode(byte[] pcm)
+        public System.Collections.Generic.IEnumerable<int> PermittedEncodingFrameSizes
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public byte[] Encode(ArraySegment<byte> pcm)
         {
             throw new NotImplementedException();
         }

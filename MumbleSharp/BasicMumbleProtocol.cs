@@ -1,4 +1,5 @@
-﻿using MumbleSharp.Audio;
+﻿using System.Threading;
+using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
@@ -36,12 +37,22 @@ namespace MumbleSharp
         /// </summary>
         public bool ReceivedServerSync { get; private set; }
 
+        public SpeechCodecs TransmissionCodec { get; private set; }
+
         public User LocalUser { get; private set; }
 
         /// <summary>
         /// The current ping time (in seconds) for the TCP connection
         /// </summary>
         public float TcpPing { get; private set; }
+
+        private AudioEncodingBuffer _encodingBuffer;
+        private readonly Thread _encodingThread;
+
+        public BasicMumbleProtocol()
+        {
+            _encodingThread = new Thread(EncodingThreadEntry);
+        }
 
         /// <summary>
         /// Associates this protocol with an opening mumble connection
@@ -200,7 +211,11 @@ namespace MumbleSharp
             if (LocalUser != null)
                 throw new InvalidOperationException("Second ServerSync Received");
 
+            //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
+
+            _encodingBuffer = new AudioEncodingBuffer(this);
+            _encodingThread.Start();
 
             ReceivedServerSync = true;
         }
@@ -215,8 +230,19 @@ namespace MumbleSharp
         #endregion
 
         #region voice
+        private void EncodingThreadEntry()
+        {
+            throw new NotImplementedException("pull encoded frames from AudioEncodingBuffer and send them");
+        }
+
         public virtual void CodecVersion(CodecVersion codecVersion)
         {
+            if (codecVersion.Opus)
+                TransmissionCodec = SpeechCodecs.Opus;
+            else if (codecVersion.PreferAlpha)
+                TransmissionCodec = SpeechCodecs.CeltAlpha;
+            else
+                TransmissionCodec = SpeechCodecs.CeltBeta;
         }
 
         /// <summary>
@@ -256,7 +282,7 @@ namespace MumbleSharp
             if (!UserDictionary.TryGetValue(userId, out user))
                 return;
 
-            user.EncodedVoice(data, sequence, codec);
+            user.ReceiveEncodedVoice(data, sequence, codec);
         }
         #endregion
 
@@ -328,6 +354,12 @@ namespace MumbleSharp
         public virtual X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             return null;
+        }
+
+
+        public void SendVoice(ArraySegment<byte> pcm, SpeechTarget target, uint targetId)
+        {
+            _encodingBuffer.Add(pcm, target, targetId);
         }
     }
 }

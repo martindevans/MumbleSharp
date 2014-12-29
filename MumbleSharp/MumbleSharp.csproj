@@ -51,7 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio\AudioBuffer.cs" />
+    <Compile Include="Audio\AudioDecodingBuffer.cs" />
+    <Compile Include="Audio\AudioEncodingBuffer.cs" />
     <Compile Include="Audio\Codecs\CeltaAlpha\CeltAlphaCodec.cs" />
     <Compile Include="Audio\Codecs\CeltBeta\CeltBetaCodec.cs" />
     <Compile Include="Audio\Codecs\Opus\OpusCodec.cs" />

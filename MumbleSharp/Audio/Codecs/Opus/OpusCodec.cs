@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MumbleSharp.Audio.Codecs.Opus
 {
@@ -6,6 +7,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         : IVoiceCodec
     {
         readonly OpusDecoder _decoder = new OpusDecoder((int)Constants.SAMPLE_RATE, 1) { EnableForwardErrorCorrection = true };
+        readonly OpusEncoder _encoder = new OpusEncoder((int)Constants.SAMPLE_RATE, 1) { EnableForwardErrorCorrection = true };
 
         public byte[] Decode(byte[] encodedData)
         {
@@ -26,9 +28,22 @@ namespace MumbleSharp.Audio.Codecs.Opus
             return dst;
         }
 
-        public byte[] Encode(byte[] pcm)
+        public IEnumerable<int> PermittedEncodingFrameSizes
         {
-            throw new NotImplementedException();
+            get
+            {
+                return _encoder.PermittedFrameSizes;
+            }
+        }
+
+        public byte[] Encode(ArraySegment<byte> pcm)
+        {
+            var numberOfSamples = _encoder.FrameSizeInBytes(pcm.Count / sizeof(ushort));
+
+            byte[] dst = new byte[numberOfSamples];
+            _encoder.Encode(pcm.Array, pcm.Offset, dst, 0, numberOfSamples);
+
+            return dst;
         }
     }
 }

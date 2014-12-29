@@ -10,7 +10,12 @@ namespace MumbleSharp.Audio.Codecs.CeltaAlpha
             throw new NotImplementedException();
         }
 
-        public byte[] Encode(byte[] pcm)
+        public System.Collections.Generic.IEnumerable<int> PermittedEncodingFrameSizes
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public byte[] Encode(ArraySegment<byte> pcm)
         {
             throw new NotImplementedException();
         }

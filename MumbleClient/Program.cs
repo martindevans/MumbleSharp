@@ -62,6 +62,8 @@ namespace MumbleClient
             Thread t = new Thread(a => UpdateLoop(connection)) {IsBackground = true};
             t.Start();
 
+            var r = new MicrophoneRecorder(protocol);
+
             //When localuser is set it means we're really connected
             while (!protocol.ReceivedServerSync)
             {

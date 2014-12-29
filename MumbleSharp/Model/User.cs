@@ -7,6 +7,7 @@ using MumbleSharp.Audio.Codecs.Speex;
 using MumbleSharp.Packets;
 using System;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 namespace MumbleSharp.Model
 {
@@ -38,6 +39,11 @@ namespace MumbleSharp.Model
         public string Name { get; set; }
         public string Comment { get; set; }
 
+        private readonly Lazy<CeltAlphaCodec> _alpha = new Lazy<CeltAlphaCodec>();
+        private readonly Lazy<CeltBetaCodec> _beta = new Lazy<CeltBetaCodec>();
+        private readonly Lazy<SpeexCodec> _speex = new Lazy<SpeexCodec>();
+        private readonly Lazy<OpusCodec> _opus = new Lazy<OpusCodec>();
+
         public User(IMumbleProtocol owner, uint id)
         {
             _owner = owner;
@@ -53,10 +59,6 @@ namespace MumbleSharp.Model
             });
         }
 
-        private readonly Lazy<CeltAlphaCodec> _alpha = new Lazy<CeltAlphaCodec>();
-        private readonly Lazy<CeltBetaCodec> _beta = new Lazy<CeltBetaCodec>();
-        private readonly Lazy<SpeexCodec> _speex = new Lazy<SpeexCodec>();
-        private readonly Lazy<OpusCodec> _opus = new Lazy<OpusCodec>();
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
         {
             switch (codec)
@@ -98,7 +100,7 @@ namespace MumbleSharp.Model
             return other.Id == Id;
         }
 
-        private readonly AudioBuffer _buffer = new AudioBuffer();
+        private readonly AudioDecodingBuffer _buffer = new AudioDecodingBuffer();
         public IWaveProvider Voice
         {
             get
@@ -107,7 +109,7 @@ namespace MumbleSharp.Model
             }
         }
 
-        public void EncodedVoice(byte[] data, long sequence, IVoiceCodec codec)
+        public void ReceiveEncodedVoice(byte[] data, long sequence, IVoiceCodec codec)
         {
             _buffer.AddEncodedPacket(sequence, data, codec);
         }

@@ -107,6 +107,11 @@ namespace MumbleSharp
             _tcp.Send<T>(type, packet);
         }
 
+        public void SendVoice(ArraySegment<byte> buffer, SpeechTarget target, uint targetId)
+        {
+            throw new NotImplementedException();
+        }
+
         private void ReceivedEncryptedUdp(byte[] packet)
         {
             byte[] plaintext = _cryptState.Decrypt(packet, packet.Length);

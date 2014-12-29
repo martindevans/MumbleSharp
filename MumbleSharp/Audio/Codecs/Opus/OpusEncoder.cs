@@ -57,8 +57,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         /// </summary>
         /// <param name="srcSamplingRate">The sampling rate of the input stream.</param>
         /// <param name="srcChannelCount">The number of channels in the input stream.</param>
-        /// <param name="application">Opus coding mode.</param>
-        public OpusEncoder(int srcSamplingRate, int srcChannelCount, Application application)
+        public OpusEncoder(int srcSamplingRate, int srcChannelCount)
         {
             if (srcSamplingRate != 8000 &&
                 srcSamplingRate != 12000 &&
@@ -70,7 +69,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
                 throw new ArgumentOutOfRangeException("srcChannelCount");
 
             IntPtr error;
-            var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, (int)application, out error);
+            var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, 2048, out error);
             if ((NativeMethods.OpusErrors)error != NativeMethods.OpusErrors.Ok)
             {
                 throw new Exception("Exception occured while creating encoder");
@@ -142,7 +141,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         /// <summary>
         /// Permitted frame sizes in samples per channel.
         /// </summary>
-        private int[] PermittedFrameSizes { get; set; }
+        public int[] PermittedFrameSizes { get; set; }
 
         /// <summary>
         /// Gets or sets the bitrate setting of the encoding.

@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reflection;
+using MumbleSharp.Audio;
 using MumbleSharp.Packets;
 
 namespace MumbleSharp.Model
@@ -45,6 +47,15 @@ namespace MumbleSharp.Model
                 msg.ChannelId = new uint[Id];
 
             Owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
+        }
+
+        public void SendVoice(ArraySegment<byte> buffer, bool whisper = false)
+        {
+            Owner.SendVoice(
+                buffer,
+                target: whisper ? SpeechTarget.WhisperToChannel : SpeechTarget.Normal,
+                targetId: Id
+            );
         }
 
         public override string ToString()

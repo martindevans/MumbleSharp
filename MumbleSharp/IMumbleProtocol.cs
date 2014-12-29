@@ -1,10 +1,12 @@
-﻿using MumbleSharp.Audio;
+﻿using System;
+using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Version = MumbleSharp.Packets.Version;
 
 namespace MumbleSharp
 {
@@ -36,6 +38,8 @@ namespace MumbleSharp
         IEnumerable<User> Users { get; }
 
         bool ReceivedServerSync { get; }
+
+        SpeechCodecs TransmissionCodec { get; }
 
         void Initialise(MumbleConnection connection);
 
@@ -78,5 +82,7 @@ namespace MumbleSharp
         void SuggestConfig(SuggestConfig suggestedConfiguration);
 
         IVoiceCodec GetCodec(uint user, SpeechCodecs codec);
+
+        void SendVoice(ArraySegment<byte> pcm, SpeechTarget target, uint targetId);
     }
 }
