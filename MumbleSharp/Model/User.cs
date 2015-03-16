@@ -1,13 +1,8 @@
 ﻿using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
-using MumbleSharp.Audio.Codecs.CeltaAlpha;
-using MumbleSharp.Audio.Codecs.CeltBeta;
-using MumbleSharp.Audio.Codecs.Opus;
-using MumbleSharp.Audio.Codecs.Speex;
 using MumbleSharp.Packets;
 using System;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 
 namespace MumbleSharp.Model
 {
@@ -39,10 +34,7 @@ namespace MumbleSharp.Model
         public string Name { get; set; }
         public string Comment { get; set; }
 
-        private readonly Lazy<CeltAlphaCodec> _alpha = new Lazy<CeltAlphaCodec>();
-        private readonly Lazy<CeltBetaCodec> _beta = new Lazy<CeltBetaCodec>();
-        private readonly Lazy<SpeexCodec> _speex = new Lazy<SpeexCodec>();
-        private readonly Lazy<OpusCodec> _opus = new Lazy<OpusCodec>();
+        private readonly CodecSet _codecs = new CodecSet();
 
         public User(IMumbleProtocol owner, uint id)
         {
@@ -61,19 +53,7 @@ namespace MumbleSharp.Model
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
         {
-            switch (codec)
-            {
-                case SpeechCodecs.CeltAlpha:
-                    return _alpha.Value;
-                case SpeechCodecs.Speex:
-                    return _speex.Value;
-                case SpeechCodecs.CeltBeta:
-                    return _beta.Value;
-                case SpeechCodecs.Opus:
-                    return _opus.Value;
-                default:
-                    throw new ArgumentOutOfRangeException("codec");
-            }
+            return _codecs.GetCodec(codec);
         }
 
         public override string ToString()

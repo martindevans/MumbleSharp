@@ -53,7 +53,9 @@
   <ItemGroup>
     <Compile Include="Audio\AudioDecodingBuffer.cs" />
     <Compile Include="Audio\AudioEncodingBuffer.cs" />
-    <Compile Include="Audio\Codecs\CeltaAlpha\CeltAlphaCodec.cs" />
+    <Compile Include="Audio\DynamicCircularBuffer.cs" />
+    <Compile Include="Audio\CodecSet.cs" />
+    <Compile Include="Audio\Codecs\CeltAlpha\CeltAlphaCodec.cs" />
     <Compile Include="Audio\Codecs\CeltBeta\CeltBetaCodec.cs" />
     <Compile Include="Audio\Codecs\Opus\OpusCodec.cs" />
     <Compile Include="Audio\Codecs\Opus\NativeMethods.cs" />

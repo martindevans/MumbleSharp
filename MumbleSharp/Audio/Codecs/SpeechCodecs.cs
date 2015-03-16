@@ -1,10 +1,4 @@
-﻿using MumbleSharp.Audio.Codecs.CeltaAlpha;
-using MumbleSharp.Audio.Codecs.CeltBeta;
-using MumbleSharp.Audio.Codecs.Opus;
-using MumbleSharp.Audio.Codecs.Speex;
-using System;
-
-namespace MumbleSharp.Audio.Codecs
+﻿namespace MumbleSharp.Audio.Codecs
 {
     /// <summary>
     /// 
@@ -16,32 +10,5 @@ namespace MumbleSharp.Audio.Codecs
         Speex = 2,
         CeltBeta = 3,
         Opus = 4
-    }
-
-    public static class SpeechCodecsExtensions
-    {
-        [ThreadStatic] private static IVoiceCodec[] _codecs;
-
-        public static IVoiceCodec GetCodec(this SpeechCodecs codec)
-        {
-            // Codecs array is threadstatic, this means it will be unique per thread.
-            // First time codecs is accessed (by a particular thread) it will be null, we initialise it then
-            if (_codecs == null)
-            {
-                _codecs = new IVoiceCodec[]
-                {
-                    new CeltAlphaCodec(),   //CeltAlpha
-                    null,                   //Nothing!
-                    new SpeexCodec(),       //Speex
-                    new CeltBetaCodec(),    //CeltBeta
-                    new OpusCodec(),        //Opus
-                };
-            }
-
-            if (!Enum.IsDefined(typeof(SpeechCodecs), codec))
-                throw new ArgumentException("codec");
-
-            return _codecs[(int)codec];
-        }
     }
 }

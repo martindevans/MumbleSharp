@@ -5,6 +5,7 @@ using MumbleSharp;
 using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
+using MumbleSharp.Packets;
 using NAudio.Wave;
 
 namespace MumbleClient
@@ -38,6 +39,13 @@ namespace MumbleClient
             base.UserLeft(user);
 
             _players.Remove(user);
+        }
+
+        public override void ServerConfig(ServerConfig serverConfig)
+        {
+            base.ServerConfig(serverConfig);
+
+            Console.WriteLine(serverConfig.WelcomeText);
         }
 
         protected override void ChannelMessageReceived(ChannelMessage message)

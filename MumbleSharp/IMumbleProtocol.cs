@@ -84,5 +84,7 @@ namespace MumbleSharp
         IVoiceCodec GetCodec(uint user, SpeechCodecs codec);
 
         void SendVoice(ArraySegment<byte> pcm, SpeechTarget target, uint targetId);
+
+        void SendVoiceStop();
     }
 }

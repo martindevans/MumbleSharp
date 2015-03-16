@@ -107,9 +107,9 @@ namespace MumbleSharp
             _tcp.Send<T>(type, packet);
         }
 
-        public void SendVoice(ArraySegment<byte> buffer, SpeechTarget target, uint targetId)
+        public void SendVoice(ArraySegment<byte> packet)
         {
-            throw new NotImplementedException();
+            _tcp.Send(PacketType.UDPTunnel, packet);
         }
 
         private void ReceivedEncryptedUdp(byte[] packet)
@@ -294,6 +294,20 @@ namespace MumbleSharp
                     _writer.Flush();
 
                     Serializer.SerializeWithLengthPrefix<T>(_ssl, packet, PrefixStyle.Fixed32BigEndian);
+                    _ssl.Flush();
+                    _netStream.Flush();
+                }
+            }
+
+            public void Send(PacketType type, ArraySegment<byte> packet)
+            {
+                lock (_ssl)
+                {
+                    _writer.Write(IPAddress.HostToNetworkOrder((short)type));
+                    _writer.Write(IPAddress.HostToNetworkOrder(packet.Count));
+                    _writer.Write(packet.Array, packet.Offset, packet.Count);
+
+                    _writer.Flush();
                     _ssl.Flush();
                     _netStream.Flush();
                 }

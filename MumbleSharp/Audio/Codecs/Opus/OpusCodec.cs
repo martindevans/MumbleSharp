@@ -38,10 +38,11 @@ namespace MumbleSharp.Audio.Codecs.Opus
 
         public byte[] Encode(ArraySegment<byte> pcm)
         {
-            var numberOfSamples = _encoder.FrameSizeInBytes(pcm.Count / sizeof(ushort));
+            var samples = pcm.Count / sizeof(ushort);
+            var numberOfBytes = _encoder.FrameSizeInBytes(samples);
 
-            byte[] dst = new byte[numberOfSamples];
-            _encoder.Encode(pcm.Array, pcm.Offset, dst, 0, numberOfSamples);
+            byte[] dst = new byte[numberOfBytes];
+            _encoder.Encode(pcm.Array, pcm.Offset, dst, 0, samples);
 
             return dst;
         }

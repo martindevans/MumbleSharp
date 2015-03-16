@@ -58,6 +58,11 @@ namespace MumbleSharp.Model
             );
         }
 
+        public void SendVoiceStop()
+        {
+            Owner.SendVoiceStop();
+        }
+
         public override string ToString()
         {
             return Name;

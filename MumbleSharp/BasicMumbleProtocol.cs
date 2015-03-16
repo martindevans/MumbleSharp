@@ -20,16 +20,25 @@ namespace MumbleSharp
         public MumbleConnection Connection { get; private set; }
 
         protected readonly ConcurrentDictionary<UInt32, User> UserDictionary = new ConcurrentDictionary<UInt32, User>();
+
         public IEnumerable<User> Users
         {
-            get { return UserDictionary.Values; }
+            get
+            {
+                return UserDictionary.Values;
+            }
         }
 
         protected readonly ConcurrentDictionary<UInt32, Channel> ChannelDictionary = new ConcurrentDictionary<UInt32, Channel>();
+
         public IEnumerable<Channel> Channels
         {
-            get { return ChannelDictionary.Values; }
+            get
+            {
+                return ChannelDictionary.Values;
+            }
         }
+
         public Channel RootChannel { get; private set; }
 
         /// <summary>
@@ -49,9 +58,13 @@ namespace MumbleSharp
         private AudioEncodingBuffer _encodingBuffer;
         private readonly Thread _encodingThread;
 
+        public bool IsEncodingThreadRunning { get; set; }
+
         public BasicMumbleProtocol()
         {
-            _encodingThread = new Thread(EncodingThreadEntry);
+            _encodingThread = new Thread(EncodingThreadEntry) {
+                IsBackground = true
+            };
         }
 
         /// <summary>
@@ -214,7 +227,7 @@ namespace MumbleSharp
             //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
 
-            _encodingBuffer = new AudioEncodingBuffer(this);
+            _encodingBuffer = new AudioEncodingBuffer();
             _encodingThread.Start();
 
             ReceivedServerSync = true;
@@ -232,7 +245,13 @@ namespace MumbleSharp
         #region voice
         private void EncodingThreadEntry()
         {
-            throw new NotImplementedException("pull encoded frames from AudioEncodingBuffer and send them");
+            IsEncodingThreadRunning = true;
+            while (IsEncodingThreadRunning)
+            {
+                var packet = _encodingBuffer.Encode(TransmissionCodec);
+                if (packet != null)
+                    Connection.SendVoice(new ArraySegment<byte>(packet));
+            }
         }
 
         public virtual void CodecVersion(CodecVersion codecVersion)
@@ -284,6 +303,16 @@ namespace MumbleSharp
 
             user.ReceiveEncodedVoice(data, sequence, codec);
         }
+
+        public void SendVoice(ArraySegment<byte> pcm, SpeechTarget target, uint targetId)
+        {
+            _encodingBuffer.Add(pcm, target, targetId);
+        }
+
+        public void SendVoiceStop()
+        {
+            _encodingBuffer.Stop();
+        }
         #endregion
 
         /// <summary>
@@ -293,6 +322,8 @@ namespace MumbleSharp
         public virtual void Ping(Ping ping)
         {
             TcpPing = ping.TcpPingAvg;
+
+            Connection.SendControl<Ping>(PacketType.Ping, ping);
         }
 
         #region text messages
@@ -354,12 +385,6 @@ namespace MumbleSharp
         public virtual X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             return null;
-        }
-
-
-        public void SendVoice(ArraySegment<byte> pcm, SpeechTarget target, uint targetId)
-        {
-            _encodingBuffer.Add(pcm, target, targetId);
         }
     }
 }

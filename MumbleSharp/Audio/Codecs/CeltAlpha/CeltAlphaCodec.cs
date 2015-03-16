@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MumbleSharp.Audio.Codecs.CeltaAlpha
+namespace MumbleSharp.Audio.Codecs.CeltAlpha
 {
     public class CeltBetaCodec
         : IVoiceCodec
