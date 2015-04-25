@@ -41,6 +41,12 @@ namespace MumbleSharp.Model
             _owner = owner;
             Id = id;
         }
+        
+        public void SendMessage(string message)
+        {
+            var messages = message.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            SendMessage(messages);
+        }
 
         public void SendMessage(string[] message)
         {
