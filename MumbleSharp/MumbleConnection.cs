@@ -109,6 +109,9 @@ namespace MumbleSharp
 
         public void SendVoice(ArraySegment<byte> packet)
         {
+            //This is *totally wrong*
+            //the packet contains raw encoded voice data, but we need to put it into the proper packet format
+
             _tcp.Send(PacketType.UDPTunnel, packet);
         }
 
