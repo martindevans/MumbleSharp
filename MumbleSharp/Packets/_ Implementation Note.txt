@@ -1,5 +1,0 @@
-﻿Check out this file:
-
-https://github.com/mumble-voip/mumble/blob/master/src/Mumble.proto
-
-For the mumble.proto file in the official git repository

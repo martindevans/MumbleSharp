@@ -1,12 +1,12 @@
-﻿using System;
+﻿using MumbleProto;
 using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
-using MumbleSharp.Packets;
+using System;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using Version = MumbleSharp.Packets.Version;
+using Version = MumbleProto.Version;
 
 namespace MumbleSharp
 {
@@ -57,7 +57,7 @@ namespace MumbleSharp
 
         void ContextAction(ContextAction contextAction);
 
-        void ContextActionAdd(ContextActionAdd contextActionAdd);
+        void ContextActionModify(ContextActionModify contextActionModify);
 
         void PermissionQuery(PermissionQuery permissionQuery);
 

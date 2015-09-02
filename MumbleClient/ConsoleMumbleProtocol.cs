@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MumbleProto;
 using MumbleSharp;
 using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
@@ -45,7 +46,7 @@ namespace MumbleClient
         {
             base.ServerConfig(serverConfig);
 
-            Console.WriteLine(serverConfig.WelcomeText);
+            Console.WriteLine(serverConfig.welcome_text);
         }
 
         protected override void ChannelMessageReceived(ChannelMessage message)

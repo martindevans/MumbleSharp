@@ -5,8 +5,12 @@
 *.sln.docstates
 *.cache
 *.ncrunchproject
+*.ncrunchsolution
 
+packages
 TestResults
+_Resharper.*
+
 MumbleClient/bin
 MumbleClient/obj
 MumbleGuiClient/bin
@@ -15,6 +19,3 @@ MumbleSharp/bin
 MumbleSharp/obj
 MumbleSharpTest/bin
 MumbleSharpTest/obj
-
-_Resharper.*
-/*.ncrunchsolution

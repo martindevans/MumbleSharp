@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using MumbleProto;
 using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Model;
@@ -8,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Version = MumbleProto.Version;
 
 namespace MumbleSharp
 {
@@ -80,7 +82,7 @@ namespace MumbleSharp
         /// Server has sent a version update
         /// </summary>
         /// <param name="version"></param>
-        public virtual void Version(Packets.Version version)
+        public virtual void Version(Version version)
         {
         }
 
@@ -109,10 +111,10 @@ namespace MumbleSharp
         /// <param name="channelState"></param>
         public virtual void ChannelState(ChannelState channelState)
         {
-            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent) { Temporary = channelState.Temporary },
+            var channel = ChannelDictionary.AddOrUpdate(channelState.channel_id, i => new Channel(this, channelState.channel_id, channelState.name, channelState.parent) { Temporary = channelState.temporary },
                 (i, c) =>
                 {
-                    c.Name = channelState.Name;
+                    c.Name = channelState.name;
                     return c;
                 }
             );
@@ -128,7 +130,7 @@ namespace MumbleSharp
         public virtual void ChannelRemove(ChannelRemove channelRemove)
         {
             Channel c;
-            ChannelDictionary.TryRemove(channelRemove.ChannelId, out c);
+            ChannelDictionary.TryRemove(channelRemove.channel_id, out c);
         }
         #endregion
 
@@ -147,39 +149,36 @@ namespace MumbleSharp
         /// <param name="userState"></param>
         public virtual void UserState(UserState userState)
         {
-            if (userState.Session.HasValue)
+            if (userState.sessionSpecified)
             {
                 bool added = false;
-                User user = UserDictionary.AddOrUpdate(userState.Session.Value, i => {
+                User user = UserDictionary.AddOrUpdate(userState.session, i => {
                     added = true;
-                    return new User(this, userState.Session.Value);
+                    return new User(this, userState.session);
                 }, (i, u) => u);
 
                 if (added)
                     UserJoined(user);
 
-                if (userState.SelfDeaf.HasValue)
-                    user.Deaf = userState.SelfDeaf.Value;
-                if (userState.SelfMute.HasValue)
-                    user.Muted = userState.SelfMute.Value;
-                if (userState.Mute.HasValue)
-                    user.Muted = userState.Mute.Value;
-                if (userState.Deaf.HasValue)
-                    user.Deaf = userState.Deaf.Value;
-                if (userState.Suppress.HasValue)
-                    user.Muted = userState.Suppress.Value;
-                if (userState.Name != null)
-                    user.Name = userState.Name;
-                if (userState.Comment != null)
-                    user.Comment = userState.Comment;
+                if (userState.self_deafSpecified)
+                    user.Deaf = userState.self_deaf;
+                if (userState.self_muteSpecified)
+                    user.Muted = userState.self_mute;
+                if (userState.muteSpecified)
+                    user.Muted = userState.mute;
+                if (userState.deafSpecified)
+                    user.Deaf = userState.deaf;
+                if (userState.suppressSpecified)
+                    user.Muted = userState.suppress;
+                if (userState.nameSpecified)
+                    user.Name = userState.name;
+                if (userState.commentSpecified)
+                    user.Comment = userState.comment;
 
-                if (userState.ChannelId.HasValue)
-                    user.Channel = ChannelDictionary[userState.ChannelId.Value];
+                if (userState.channel_idSpecified)
+                    user.Channel = ChannelDictionary[userState.channel_id];
                 else
                     user.Channel = RootChannel;
-
-                if (userState.Comment != null)
-                    user.Comment = userState.Comment;
             }
         }
 
@@ -190,7 +189,7 @@ namespace MumbleSharp
         public virtual void UserRemove(UserRemove userRemove)
         {
             User user;
-            if (UserDictionary.TryRemove(userRemove.Session, out user))
+            if (UserDictionary.TryRemove(userRemove.session, out user))
             {
                 user.Channel = null;
 
@@ -206,7 +205,7 @@ namespace MumbleSharp
         {
         }
 
-        public virtual void ContextActionAdd(ContextActionAdd contextActionAdd)
+        public virtual void ContextActionModify(ContextActionModify contextActionModify)
         {
         }
 
@@ -225,7 +224,7 @@ namespace MumbleSharp
                 throw new InvalidOperationException("Second ServerSync Received");
 
             //Get the local user
-            LocalUser = UserDictionary[serverSync.Session];
+            LocalUser = UserDictionary[serverSync.session];
 
             _encodingBuffer = new AudioEncodingBuffer();
             _encodingThread.Start();
@@ -256,9 +255,9 @@ namespace MumbleSharp
 
         public virtual void CodecVersion(CodecVersion codecVersion)
         {
-            if (codecVersion.Opus)
+            if (codecVersion.opus)
                 TransmissionCodec = SpeechCodecs.Opus;
-            else if (codecVersion.PreferAlpha)
+            else if (codecVersion.prefer_alpha)
                 TransmissionCodec = SpeechCodecs.CeltAlpha;
             else
                 TransmissionCodec = SpeechCodecs.CeltBeta;
@@ -321,7 +320,7 @@ namespace MumbleSharp
         /// <param name="ping"></param>
         public virtual void Ping(Ping ping)
         {
-            TcpPing = ping.TcpPingAvg;
+            TcpPing = ping.tcp_ping_avg;
 
             Connection.SendControl<Ping>(PacketType.Ping, ping);
         }
@@ -334,36 +333,36 @@ namespace MumbleSharp
         public virtual void TextMessage(TextMessage textMessage)
         {
             User user;
-            if (!UserDictionary.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
+            if (!UserDictionary.TryGetValue(textMessage.actor, out user))   //If we don't know the user for this packet, just ignore it
                 return;
 
-            if (textMessage.ChannelId == null)
+            if (textMessage.channel_id == null)
             {
-                if (textMessage.TreeId == null)
+                if (textMessage.tree_id == null)
                 {
                     //personal message: no channel, no tree
-                    PersonalMessageReceived(new PersonalMessage(user, string.Join("", textMessage.Message)));
+                    PersonalMessageReceived(new PersonalMessage(user, string.Join("", textMessage.message)));
                 }
                 else
                 {
                     //recursive message: sent to multiple channels
                     Channel channel;
-                    if (!ChannelDictionary.TryGetValue(textMessage.TreeId[0], out channel))    //If we don't know the channel for this packet, just ignore it
+                    if (!ChannelDictionary.TryGetValue(textMessage.tree_id[0], out channel))    //If we don't know the channel for this packet, just ignore it
                         return;
 
                     //TODO: This is a *tree* message - trace down the entire tree (using IDs in textMessage.TreeId as roots) and call ChannelMessageReceived for every channel
-                    ChannelMessageReceived(new ChannelMessage(user, string.Join("", textMessage.Message), channel, true));
+                    ChannelMessageReceived(new ChannelMessage(user, string.Join("", textMessage.message), channel, true));
                 }
             }
             else
             {
-                foreach (uint channelId in textMessage.ChannelId)
+                foreach (uint channelId in textMessage.channel_id)
                 {
                     Channel channel;
                     if (!ChannelDictionary.TryGetValue(channelId, out channel))
                         continue;
 
-                    ChannelMessageReceived(new ChannelMessage(user, string.Join("", textMessage.Message), channel));
+                    ChannelMessageReceived(new ChannelMessage(user, string.Join("", textMessage.message), channel));
                 }
                 
             }

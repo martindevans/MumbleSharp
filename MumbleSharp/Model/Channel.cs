@@ -1,10 +1,10 @@
 ﻿
+using MumbleProto;
+using MumbleSharp.Audio;
+using MumbleSharp.Packets;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
-using MumbleSharp.Audio;
-using MumbleSharp.Packets;
 
 namespace MumbleSharp.Model
 {
@@ -37,14 +37,14 @@ namespace MumbleSharp.Model
         {
             var msg = new TextMessage
             {
-                Actor = Owner.LocalUser.Id,
-                Message = message,
+                actor = Owner.LocalUser.Id,
+                message = string.Join(Environment.NewLine, message),
             };
 
             if (recursive)
-                msg.TreeId = new uint[Id];
+                msg.tree_id.AddRange(new uint[] { Id });
             else
-                msg.ChannelId = new uint[Id];
+                msg.channel_id.AddRange(new uint[] { Id });
 
             Owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
         }

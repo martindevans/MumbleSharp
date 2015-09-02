@@ -1,4 +1,5 @@
-﻿using MumbleSharp.Audio;
+﻿using MumbleProto;
+using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Packets;
 using System;
@@ -62,8 +63,8 @@ namespace MumbleSharp.Model
         {
             _owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, new TextMessage
             {
-                Actor = _owner.LocalUser.Id,
-                Message = message,
+                actor = _owner.LocalUser.Id,
+                message = string.Join(Environment.NewLine, message),
             });
         }
 

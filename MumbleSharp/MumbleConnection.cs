@@ -1,4 +1,5 @@
-﻿using MumbleSharp.Audio;
+﻿using MumbleProto;
+using MumbleSharp.Audio;
 using MumbleSharp.Audio.Codecs;
 using MumbleSharp.Packets;
 using ProtoBuf;
@@ -193,17 +194,17 @@ namespace MumbleSharp
 
         internal void ProcessCryptState(CryptSetup cryptSetup)
         {
-            if (cryptSetup.Key != null && cryptSetup.ClientNonce != null && cryptSetup.ServerNonce != null) // Full key setup
+            if (cryptSetup.keySpecified && cryptSetup.client_nonceSpecified && cryptSetup.client_nonceSpecified) // Full key setup
             {
-                _cryptState.SetKeys(cryptSetup.Key, cryptSetup.ClientNonce, cryptSetup.ServerNonce);
+                _cryptState.SetKeys(cryptSetup.key, cryptSetup.client_nonce, cryptSetup.server_nonce);
             }
-            else if (cryptSetup.ServerNonce != null) // Server syncing its nonce to us.
+            else if (cryptSetup.server_nonce != null) // Server syncing its nonce to us.
             {
-                _cryptState.ServerNonce = cryptSetup.ServerNonce;
+                _cryptState.ServerNonce = cryptSetup.server_nonce;
             }
             else // Server wants our nonce.
             {
-                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup { ClientNonce = _cryptState.ClientNonce });
+                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup { client_nonce = _cryptState.ClientNonce });
             }
         }
 
@@ -269,24 +270,27 @@ namespace MumbleSharp
 
             private void Handshake(string username, string password, string[] tokens)
             {
-                Packets.Version version = new Packets.Version
+                MumbleProto.Version version = new MumbleProto.Version
                 {
-                    Release = "MumbleSharp",
-                    ReleaseVersion = (1 << 16) | (2 << 8) | (0 & 0xFF),
-                    Os = Environment.OSVersion.ToString(),
-                    OsVersion = Environment.OSVersion.VersionString,
+                    release = "MumbleSharp",
+                    version = (1 << 16) | (2 << 8) | (0 & 0xFF),
+                    os = Environment.OSVersion.ToString(),
+                    os_version = Environment.OSVersion.VersionString,
                 };
-                Send<Packets.Version>(PacketType.Version, version);
+                Send(PacketType.Version, version);
 
                 Authenticate auth = new Authenticate
                 {
-                    Username = username,
-                    Password = password,
-                    Tokens = tokens ?? new string[0],
-                    CeltVersions = new int[] { unchecked((int)0x8000000b) },
-                    Opus = true,
+                    username = username,
+                    password = password,
+                    opus = true,
                 };
-                Send<Authenticate>(PacketType.Authenticate, auth);
+                auth.tokens.AddRange(tokens ?? new string[0]);
+                auth.celt_versions.AddRange(new int[] {
+                    unchecked((int)0x8000000b)
+                });
+
+                Send(PacketType.Authenticate, auth);
             }
 
             public void Send<T>(PacketType type, T packet)
@@ -336,7 +340,7 @@ namespace MumbleSharp
                     switch (type)
                     {
                         case PacketType.Version:
-                            _protocol.Version(Serializer.DeserializeWithLengthPrefix<Packets.Version>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.Version(Serializer.DeserializeWithLengthPrefix<MumbleProto.Version>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.CryptSetup:
                             var cryptSetup = Serializer.DeserializeWithLengthPrefix<CryptSetup>(_ssl, PrefixStyle.Fixed32BigEndian);
@@ -355,8 +359,8 @@ namespace MumbleSharp
                         case PacketType.ContextAction:
                             _protocol.ContextAction(Serializer.DeserializeWithLengthPrefix<ContextAction>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
-                        case PacketType.ContextActionAdd:
-                            _protocol.ContextActionAdd(Serializer.DeserializeWithLengthPrefix<ContextActionAdd>(_ssl, PrefixStyle.Fixed32BigEndian));
+                        case PacketType.ContextActionModify:
+                            _protocol.ContextActionModify(Serializer.DeserializeWithLengthPrefix<ContextActionModify>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.PermissionQuery:
                             _protocol.PermissionQuery(Serializer.DeserializeWithLengthPrefix<PermissionQuery>(_ssl, PrefixStyle.Fixed32BigEndian));

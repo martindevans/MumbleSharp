@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using MumbleProto;
 using MumbleSharp.Model;
 using MumbleSharp.Packets;
 
@@ -17,14 +19,14 @@ namespace MumbleSharp.Extensions
 
                 var msg = new TextMessage
                 {
-                    Actor = owner.LocalUser.Id,
-                    Message = message,
+                    actor = owner.LocalUser.Id,
+                    message = string.Join(Environment.NewLine, message),
                 };
 
                 if (recursive)
-                    msg.TreeId = group.Select(c => c.Id).ToArray();
+                    msg.tree_id.AddRange(group.Select(c => c.Id));
                 else
-                    msg.ChannelId = group.Select(c => c.Id).ToArray();
+                    msg.channel_id.AddRange(group.Select(c => c.Id));
 
                 owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
             }
