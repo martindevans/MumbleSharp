@@ -33,6 +33,10 @@ namespace MumbleSharp.Model
             Parent = parent;
         }
 
+        /// <summary>
+        /// Send a text message
+        /// </summary>
+        /// <param name="message">Individual lines of a text message</param>
         public void SendMessage(string[] message, bool recursive)
         {
             var msg = new TextMessage
@@ -47,6 +51,18 @@ namespace MumbleSharp.Model
                 msg.channel_id.AddRange(new uint[] { Id });
 
             Owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
+        }
+
+        private static readonly string[] _split = { "\r\n", "\n" };
+
+        /// <summary>
+        /// Send a text message
+        /// </summary>
+        /// <param name="message">A text message (which will be split on newline characters)</param>
+        public void SendMessage(string message, bool recursive)
+        {
+            var messages = message.Split(_split, StringSplitOptions.None);
+            SendMessage(messages, recursive);
         }
 
         public void SendVoice(ArraySegment<byte> buffer, bool whisper = false)

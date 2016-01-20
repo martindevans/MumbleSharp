@@ -68,6 +68,22 @@ namespace MumbleSharp.Model
             });
         }
 
+        /// <summary>
+        /// Move user to a channel
+        /// </summary>
+        /// <param name="channel">Channel to move to</param>
+        public void Move(Channel channel)
+        {
+            if (_channel == channel)
+                return;
+
+            UserState userstate = new UserState();
+            userstate.actor = Id;
+            userstate.channel_id = channel.Id;
+
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
+        }
+
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
         {
             return _codecs.GetCodec(codec);
