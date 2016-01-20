@@ -49,6 +49,14 @@ namespace MumbleSharp.Model
             Owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
         }
 
+        private static readonly string[] _split = { "\r\n", "\n" };
+
+        public void SendMessage(string message, bool recursive)
+        {
+            var messages = message.Split(_split, StringSplitOptions.None);
+            SendMessage(messages, recursive);
+        }
+
         public void SendVoice(ArraySegment<byte> buffer, bool whisper = false)
         {
             Owner.SendVoice(
