@@ -157,9 +157,6 @@ namespace MumbleSharp
                     return new User(this, userState.session);
                 }, (i, u) => u);
 
-                if (added)
-                    UserJoined(user);
-
                 if (userState.self_deafSpecified)
                     user.Deaf = userState.self_deaf;
                 if (userState.self_muteSpecified)
@@ -179,6 +176,9 @@ namespace MumbleSharp
                     user.Channel = ChannelDictionary[userState.channel_id];
                 else
                     user.Channel = RootChannel;
+
+                if (added)
+                    UserJoined(user);
             }
         }
 
