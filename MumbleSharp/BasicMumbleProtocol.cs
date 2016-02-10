@@ -52,11 +52,6 @@ namespace MumbleSharp
 
         public User LocalUser { get; private set; }
 
-        /// <summary>
-        /// The current ping time (in seconds) for the TCP connection
-        /// </summary>
-        public float TcpPing { get; private set; }
-
         private AudioEncodingBuffer _encodingBuffer;
         private readonly Thread _encodingThread;
 
@@ -314,15 +309,40 @@ namespace MumbleSharp
         }
         #endregion
 
+        //using the approch described here to do running calculations of ping values.
+        // http://dsp.stackexchange.com/questions/811/determining-the-mean-and-standard-deviation-in-real-time
+        float _meanOfPings;
+        float _varianceTimesCountOfPings;
+        int _countOfPings;
+
+        
         /// <summary>
         /// Received a ping over the TCP connection
         /// </summary>
         /// <param name="ping"></param>
         public virtual void Ping(Ping ping)
         {
-            TcpPing = ping.tcp_ping_avg;
+            Connection.ShouldSetTimestampWhenPinging = true;
+            if (ping.timestampSpecified && ping.timestamp != 0)
+            {
+                var mostRecentPingtime =
+                    (float) TimeSpan.FromTicks(DateTime.Now.Ticks - (long) ping.timestamp).TotalMilliseconds;
+                
+                //The ping time is the one-way transit time.
+                mostRecentPingtime /= 2;
 
-            Connection.SendControl<Ping>(PacketType.Ping, ping);
+                Console.WriteLine(mostRecentPingtime);
+
+                var previousMean = _meanOfPings;
+                _countOfPings++;
+                _meanOfPings = _meanOfPings + ((mostRecentPingtime - _meanOfPings)/_countOfPings);
+                _varianceTimesCountOfPings = _varianceTimesCountOfPings +
+                                             ((mostRecentPingtime - _meanOfPings)*(mostRecentPingtime - previousMean));
+
+                Connection.TcpPingPackets = (uint) _countOfPings;
+                Connection.TcpPingAvg = _meanOfPings;
+                Connection.TcpPingVariance = _varianceTimesCountOfPings/_countOfPings;
+            }
         }
 
         #region text messages
