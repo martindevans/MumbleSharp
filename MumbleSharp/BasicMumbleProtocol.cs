@@ -331,8 +331,6 @@ namespace MumbleSharp
                 //The ping time is the one-way transit time.
                 mostRecentPingtime /= 2;
 
-                Console.WriteLine(mostRecentPingtime);
-
                 var previousMean = _meanOfPings;
                 _countOfPings++;
                 _meanOfPings = _meanOfPings + ((mostRecentPingtime - _meanOfPings)/_countOfPings);
@@ -340,7 +338,7 @@ namespace MumbleSharp
                                              ((mostRecentPingtime - _meanOfPings)*(mostRecentPingtime - previousMean));
 
                 Connection.TcpPingPackets = (uint) _countOfPings;
-                Connection.TcpPingAvg = _meanOfPings;
+                Connection.TcpPingAverage = _meanOfPings;
                 Connection.TcpPingVariance = _varianceTimesCountOfPings/_countOfPings;
             }
         }
