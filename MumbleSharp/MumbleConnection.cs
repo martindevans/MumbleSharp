@@ -18,6 +18,11 @@ namespace MumbleSharp
     /// </summary>
     public class MumbleConnection
     {
+        public float? TcpPingAverage { get; set; }
+        public float? TcpPingVariance { get; set; }
+        public uint? TcpPingPackets { get; set; }
+        public bool ShouldSetTimestampWhenPinging { get; set; }
+
         public ConnectionStates State { get; private set; }
 
         TcpSocket _tcp;
@@ -90,7 +95,7 @@ namespace MumbleSharp
 
         public void Process()
         {
-            if ((DateTime.Now - _lastSentPing).TotalSeconds > 15)
+            if ((DateTime.Now - _lastSentPing).TotalSeconds > 5)
             {
                 _tcp.SendPing();
 
@@ -322,8 +327,34 @@ namespace MumbleSharp
 
             public void SendPing()
             {
+                var ping = new Ping();
+
+                //Only set the timestamp if we're currently connected.  This prevents the ping stats from being built.
+                //  otherwise the stats will be throw off by the time it takes to connect.
+                if (_connection.ShouldSetTimestampWhenPinging)
+                {
+                    ping.timestamp = (ulong) DateTime.Now.Ticks;
+                    ping.timestampSpecified = true;
+                }
+
+                if (_connection.TcpPingAverage.HasValue)
+                {
+                    ping.tcp_ping_avg = _connection.TcpPingAverage.Value;
+                    ping.tcp_ping_avgSpecified = true;
+                }
+                if (_connection.TcpPingVariance.HasValue)
+                {
+                    ping.tcp_ping_var = _connection.TcpPingVariance.Value;
+                    ping.tcp_ping_varSpecified = true;
+                }
+                if (_connection.TcpPingPackets.HasValue)
+                {
+                    ping.tcp_packets = _connection.TcpPingPackets.Value;
+                    ping.tcp_packetsSpecified = true;
+                }
+
                 lock (_ssl)
-                    Send<Ping>(PacketType.Ping, new Ping());
+                    Send<Ping>(PacketType.Ping, ping);
             }
 
             public void Process()
