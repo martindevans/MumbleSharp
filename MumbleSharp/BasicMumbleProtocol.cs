@@ -309,11 +309,7 @@ namespace MumbleSharp
         }
         #endregion
 
-        //using the approch described here to do running calculations of ping values.
-        // http://dsp.stackexchange.com/questions/811/determining-the-mean-and-standard-deviation-in-real-time
-        float _meanOfPings;
-        float _varianceTimesCountOfPings;
-        int _countOfPings;
+        
 
         
         /// <summary>
@@ -322,25 +318,7 @@ namespace MumbleSharp
         /// <param name="ping"></param>
         public virtual void Ping(Ping ping)
         {
-            Connection.ShouldSetTimestampWhenPinging = true;
-            if (ping.timestampSpecified && ping.timestamp != 0)
-            {
-                var mostRecentPingtime =
-                    (float) TimeSpan.FromTicks(DateTime.Now.Ticks - (long) ping.timestamp).TotalMilliseconds;
-                
-                //The ping time is the one-way transit time.
-                mostRecentPingtime /= 2;
-
-                var previousMean = _meanOfPings;
-                _countOfPings++;
-                _meanOfPings = _meanOfPings + ((mostRecentPingtime - _meanOfPings)/_countOfPings);
-                _varianceTimesCountOfPings = _varianceTimesCountOfPings +
-                                             ((mostRecentPingtime - _meanOfPings)*(mostRecentPingtime - previousMean));
-
-                Connection.TcpPingPackets = (uint) _countOfPings;
-                Connection.TcpPingAverage = _meanOfPings;
-                Connection.TcpPingVariance = _varianceTimesCountOfPings/_countOfPings;
-            }
+            
         }
 
         #region text messages

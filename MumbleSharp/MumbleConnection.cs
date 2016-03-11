@@ -21,7 +21,6 @@ namespace MumbleSharp
         public float? TcpPingAverage { get; set; }
         public float? TcpPingVariance { get; set; }
         public uint? TcpPingPackets { get; set; }
-        public bool ShouldSetTimestampWhenPinging { get; set; }
 
         public ConnectionStates State { get; private set; }
 
@@ -213,6 +212,38 @@ namespace MumbleSharp
             }
         }
 
+        //using the approch described here to do running calculations of ping values.
+        // http://dsp.stackexchange.com/questions/811/determining-the-mean-and-standard-deviation-in-real-time
+        private float _meanOfPings;
+        private float _varianceTimesCountOfPings;
+        private int _countOfPings;
+        private bool _shouldSetTimestampWhenPinging;
+
+        private void ReceivePing(Ping ping)
+        {
+            _shouldSetTimestampWhenPinging = true;
+            if (ping.timestampSpecified && ping.timestamp != 0)
+            {
+                var mostRecentPingtime =
+                    (float)TimeSpan.FromTicks(DateTime.Now.Ticks - (long)ping.timestamp).TotalMilliseconds;
+
+                //The ping time is the one-way transit time.
+                mostRecentPingtime /= 2;
+
+                var previousMean = _meanOfPings;
+                _countOfPings++;
+                _meanOfPings = _meanOfPings + ((mostRecentPingtime - _meanOfPings) / _countOfPings);
+                _varianceTimesCountOfPings = _varianceTimesCountOfPings +
+                                             ((mostRecentPingtime - _meanOfPings) * (mostRecentPingtime - previousMean));
+
+                TcpPingPackets = (uint)_countOfPings;
+                TcpPingAverage = _meanOfPings;
+                TcpPingVariance = _varianceTimesCountOfPings / _countOfPings;
+            }
+
+
+        }
+
         private class TcpSocket
         {
             readonly TcpClient _client;
@@ -331,7 +362,7 @@ namespace MumbleSharp
 
                 //Only set the timestamp if we're currently connected.  This prevents the ping stats from being built.
                 //  otherwise the stats will be throw off by the time it takes to connect.
-                if (_connection.ShouldSetTimestampWhenPinging)
+                if (_connection._shouldSetTimestampWhenPinging)
                 {
                     ping.timestamp = (ulong) DateTime.Now.Ticks;
                     ping.timestampSpecified = true;
@@ -356,6 +387,8 @@ namespace MumbleSharp
                 lock (_ssl)
                     Send<Ping>(PacketType.Ping, ping);
             }
+
+            
 
             public void Process()
             {
@@ -407,7 +440,9 @@ namespace MumbleSharp
                             _connection.ReceiveDecryptedUdp(_reader.ReadBytes(length));
                             break;
                         case PacketType.Ping:
-                            _protocol.Ping(Serializer.DeserializeWithLengthPrefix<Ping>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            var ping = Serializer.DeserializeWithLengthPrefix<Ping>(_ssl, PrefixStyle.Fixed32BigEndian);
+                            _connection.ReceivePing(ping);
+                            _protocol.Ping(ping);
                             break;
                         case PacketType.UserRemove:
                             _protocol.UserRemove(Serializer.DeserializeWithLengthPrefix<UserRemove>(_ssl, PrefixStyle.Fixed32BigEndian));
