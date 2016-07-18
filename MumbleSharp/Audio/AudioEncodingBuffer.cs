@@ -45,7 +45,17 @@ namespace MumbleSharp.Audio
 
             //If we have an unencoded item stored here it's because a previous iteration pulled from the queue and discovered it could not process this packet (different target)
             if (_unencodedItem.HasValue && TryAddToEncodingBuffer(_unencodedItem.Value, out stopped))
+            {
                 _unencodedItem = null;
+            }
+
+            if (stopped)
+            {
+                //remove stop packet
+                TargettedSpeech item;
+                _unencodedBuffer.TryTake(out item, TimeSpan.FromMilliseconds(1));
+                _unencodedItem = null;
+            }
 
             //Accumulate as many bytes as we can stuff into a single frame
             while (_pcmBuffer.Count < maxBytes && !stopped)
@@ -78,11 +88,16 @@ namespace MumbleSharp.Audio
             else
             {
                 //We have a load of bytes of PCM data, let's encode them
-                var frameBytes = codecInstance.PermittedEncodingFrameSizes.Select(f => f * sizeof(ushort)).Where(f => f <= _pcmBuffer.Count).Max();
-                byte[] b = new byte[frameBytes];
-                int read = _pcmBuffer.Read(new ArraySegment<byte>(b));
+                var frameBytesList = codecInstance.PermittedEncodingFrameSizes.Select(f => f * sizeof(ushort)).Where(f => f <= _pcmBuffer.Count);
+                if (frameBytesList.Count() > 0)
+                {
+                    var frameBytes = frameBytesList.Max();
+                    byte[] b = new byte[frameBytes];
+                    int read = _pcmBuffer.Read(new ArraySegment<byte>(b));
 
-                return codecInstance.Encode(new ArraySegment<byte>(b, 0, read));
+                    return codecInstance.Encode(new ArraySegment<byte>(b, 0, read));
+                }
+                else return null;
             }
         }
 
