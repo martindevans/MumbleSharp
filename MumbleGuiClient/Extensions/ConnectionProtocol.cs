@@ -19,6 +19,8 @@ namespace MumbleGuiClient
         public delegate void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, IVoiceCodec codec, SpeechTarget target);
         public delegate void UserJoinedDelegate(BasicMumbleProtocol proto, User user);
         public delegate void UserLeftDelegate(BasicMumbleProtocol proto, User user);
+        public delegate void ChannelJoinedDelegate(BasicMumbleProtocol proto, Channel channel);
+        public delegate void ChannelLeftDelegate(BasicMumbleProtocol proto, Channel channel);
         public delegate void ServerConfigDelegate(BasicMumbleProtocol proto, ServerConfig serverConfig);
         public delegate void ChannelMessageReceivedDelegate(BasicMumbleProtocol proto, ChannelMessage message);
         public delegate void PersonalMessageReceivedDelegate(BasicMumbleProtocol proto, PersonalMessage message);
@@ -26,6 +28,8 @@ namespace MumbleGuiClient
         public EncodedVoiceDelegate encodedVoice;
         public UserJoinedDelegate userJoinedDelegate;
         public UserLeftDelegate userLeftDelegate;
+        public ChannelJoinedDelegate channelJoinedDelegate;
+        public ChannelLeftDelegate channelLeftDelegate;
         public ServerConfigDelegate serverConfigDelegate;
         public ChannelMessageReceivedDelegate channelMessageReceivedDelegate;
         public PersonalMessageReceivedDelegate personalMessageReceivedDelegate;
@@ -52,6 +56,20 @@ namespace MumbleGuiClient
             base.UserLeft(user);
 
             if (userLeftDelegate != null) userLeftDelegate(this, user);
+        }
+
+        protected override void ChannelJoined(Channel channel)
+        {
+            base.ChannelJoined(channel);
+
+            if (channelJoinedDelegate != null) channelJoinedDelegate(this, channel);
+        }
+
+        protected override void ChannelLeft(Channel channel)
+        {
+            base.ChannelLeft(channel);
+
+            if (channelLeftDelegate != null) channelLeftDelegate(this, channel);
         }
 
         public override void ServerConfig(ServerConfig serverConfig)

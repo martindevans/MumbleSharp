@@ -53,18 +53,14 @@ namespace MumbleSharp
         public User LocalUser { get; private set; }
 
         private AudioEncodingBuffer _encodingBuffer;
-        private readonly Thread _encodingThread;
+        private Thread _encodingThread;
         private UInt32 sequenceIndex;
-
-        double lastTimeVoice;
 
         public bool IsEncodingThreadRunning { get; set; }
 
         public BasicMumbleProtocol()
         {
-            _encodingThread = new Thread(EncodingThreadEntry) {
-                IsBackground = true
-            };
+            
         }
 
         /// <summary>
@@ -74,6 +70,18 @@ namespace MumbleSharp
         public virtual void Initialise(MumbleConnection connection)
         {
             Connection = connection;
+
+            _encodingThread = new Thread(EncodingThreadEntry)
+            {
+                IsBackground = true
+            };
+        }
+        public void Close()
+        {
+            _encodingThread.Abort();
+
+            Connection = null;
+            LocalUser = null;
         }
 
         /// <summary>
@@ -82,6 +90,7 @@ namespace MumbleSharp
         /// <param name="version"></param>
         public virtual void Version(Version version)
         {
+            
         }
 
         /// <summary>
@@ -103,6 +112,25 @@ namespace MumbleSharp
         }
 
         #region Channels
+        public void GoToChannel(uint channel)
+        {
+            MumbleProto.UserState state = new MumbleProto.UserState
+            {
+                session = LocalUser.Id,
+                actor = LocalUser.Id,
+                channel_id = channel
+            };
+
+            Connection.SendControl<MumbleProto.UserState>(MumbleSharp.Packets.PacketType.UserState, state);
+        }
+
+        protected virtual void ChannelJoined(Channel channel)
+        {
+        }
+
+        protected virtual void ChannelLeft(Channel channel)
+        {
+        }
         /// <summary>
         /// Server has changed some detail of a channel
         /// </summary>
@@ -119,6 +147,10 @@ namespace MumbleSharp
 
             if (channel.Id == 0)
                 RootChannel = channel;
+
+            ChannelJoined(channel);
+
+            Extensions.Log.Info("Chanel State", channelState);
         }
 
         /// <summary>
@@ -128,7 +160,10 @@ namespace MumbleSharp
         public virtual void ChannelRemove(ChannelRemove channelRemove)
         {
             Channel c;
-            ChannelDictionary.TryRemove(channelRemove.channel_id, out c);
+            if (ChannelDictionary.TryRemove(channelRemove.channel_id, out c))
+            {
+                ChannelLeft(c);
+            }
         }
         #endregion
 
@@ -147,6 +182,8 @@ namespace MumbleSharp
         /// <param name="userState"></param>
         public virtual void UserState(UserState userState)
         {
+            Extensions.Log.Info("User State", userState);
+
             if (userState.sessionSpecified)
             {
                 bool added = false;
@@ -156,15 +193,15 @@ namespace MumbleSharp
                 }, (i, u) => u);
 
                 if (userState.self_deafSpecified)
-                    user.Deaf = userState.self_deaf;
+                    user.SelfDeaf = userState.self_deaf;
                 if (userState.self_muteSpecified)
-                    user.Muted = userState.self_mute;
+                    user.SelfMuted = userState.self_mute;
                 if (userState.muteSpecified)
                     user.Muted = userState.mute;
                 if (userState.deafSpecified)
                     user.Deaf = userState.deaf;
                 if (userState.suppressSpecified)
-                    user.Muted = userState.suppress;
+                    user.Supress = userState.suppress;
                 if (userState.nameSpecified)
                     user.Name = userState.name;
                 if (userState.commentSpecified)
@@ -175,7 +212,7 @@ namespace MumbleSharp
                 else
                     user.Channel = RootChannel;
 
-                if (added)
+                //if (added)
                     UserJoined(user);
             }
         }
@@ -209,6 +246,7 @@ namespace MumbleSharp
 
         public virtual void PermissionQuery(PermissionQuery permissionQuery)
         {
+            
         }
 
         #region server setup
@@ -236,6 +274,7 @@ namespace MumbleSharp
         /// <param name="serverConfig"></param>
         public virtual void ServerConfig(ServerConfig serverConfig)
         {
+            
         }
         #endregion
 
@@ -245,7 +284,12 @@ namespace MumbleSharp
             IsEncodingThreadRunning = true;
             while (IsEncodingThreadRunning)
             {
-                byte[] packet =  _encodingBuffer.Encode(TransmissionCodec);
+                byte[] packet = null;
+                try
+                {
+                    packet = _encodingBuffer.Encode(TransmissionCodec);
+                }
+                catch { }
 
                 if (packet != null)
                 {

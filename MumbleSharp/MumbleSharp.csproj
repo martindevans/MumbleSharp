@@ -77,6 +77,7 @@
     <Compile Include="Audio\Codecs\IVoiceCodec.cs" />
     <Compile Include="BasicMumbleProtocol.cs" />
     <Compile Include="Extensions\IEnumerableOfChannelExtensions.cs" />
+    <Compile Include="Extensions\Log.cs" />
     <Compile Include="LibraryLoader.cs" />
     <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Channel.cs" />

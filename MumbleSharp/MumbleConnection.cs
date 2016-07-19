@@ -291,6 +291,8 @@ namespace MumbleSharp
                 {
                     if (DateTime.Now - startWait > TimeSpan.FromSeconds(2))
                         throw new TimeoutException("Timed out waiting for ssl authentication");
+
+                    System.Threading.Thread.Sleep(10);
                 }
 
                 Handshake(username, password, tokens);
@@ -430,6 +432,8 @@ namespace MumbleSharp
                 lock (_ssl)
                 {
                     PacketType type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
+                    Console.WriteLine("{0:HH:mm:ss}: {1}", DateTime.Now, type.ToString());
+
                     switch (type)
                     {
                         case PacketType.Version:
