@@ -141,7 +141,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         /// <summary>
         /// Permitted frame sizes in samples per channel.
         /// </summary>
-        public int[] PermittedFrameSizes { get; set; }
+        public int[] PermittedFrameSizes { get; private set; }
 
         /// <summary>
         /// Gets or sets the bitrate setting of the encoding.

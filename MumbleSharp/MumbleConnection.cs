@@ -135,63 +135,70 @@ namespace MumbleSharp
 
         private void ReceiveDecryptedUdp(byte[] packet)
         {
-            int type = packet[0] >> 5 & 0x7;
+            var type = packet[0] >> 5 & 0x7;
 
             if (type == 1)
                 Protocol.UdpPing(packet);
             else
+                UnpackVoicePacket(packet, type);
+        }
+
+        private void PackVoicePacket(ArraySegment<byte> packet)
+        {
+        }
+
+        private void UnpackVoicePacket(byte[] packet, int type)
+        {
+            var vType = (SpeechCodecs)type;
+            var target = (SpeechTarget)(packet[0] & 0x1F);
+
+            using (var reader = new UdpPacketReader(new MemoryStream(packet, 1, packet.Length - 1)))
             {
-                var vType = (SpeechCodecs)(packet[0] >> 5 & 0x7);
-                var target = (SpeechTarget)(packet[0] & 0x1F);
+                UInt32 session = (uint)reader.ReadVarInt64();
+                Int64 sequence = reader.ReadVarInt64();
 
-                using (var reader = new UdpPacketReader(new MemoryStream(packet, 1, packet.Length - 1)))
+                //Null codec means the user was not found. This can happen if a user leaves while voice packets are still in flight
+                IVoiceCodec codec = Protocol.GetCodec(session, vType);
+                if (codec == null)
+                    return;
+
+                if (vType == SpeechCodecs.Opus)
                 {
-                    UInt32 session = (uint)reader.ReadVarInt64();
-                    Int64 sequence = reader.ReadVarInt64();
+                    int size = (int)reader.ReadVarInt64();
+                    size &= 0x1fff;
 
-                    //Null codec means the user was not found. This can happen if a user leaves while voice packets are still in flight
-                    IVoiceCodec codec = Protocol.GetCodec(session, vType);
-                    if (codec == null)
+                    if (size == 0)
                         return;
 
-                    if (vType == SpeechCodecs.Opus)
-                    {
-                        int size = (int)reader.ReadVarInt64();
-                        size &= 0x1fff;
+                    byte[] data = reader.ReadBytes(size);
+                    if (data == null)
+                        return;
 
-                        if (size == 0)
-                            return;
+                    Protocol.EncodedVoice(data, session, sequence, codec, target);
+                }
+                else
+                {
+                    throw new NotImplementedException("Codec is not opus");
 
-                        byte[] data = reader.ReadBytes(size);
-                        if (data == null)
-                            return;
+                    //byte header;
+                    //do
+                    //{
+                    //    header = reader.ReadByte();
+                    //    int length = header & 0x7F;
+                    //    if (length > 0)
+                    //    {
+                    //        byte[] data = reader.ReadBytes(length);
+                    //        if (data == null)
+                    //            break;
 
-                        Protocol.EncodedVoice(data, session, sequence, codec, target);
-                    }
-                    else
-                    {
-                        throw new NotImplementedException("Codec is not opus");
+                    //        //TODO: Put *encoded* packets into a queue, then decode the head of the queue
+                    //        //TODO: This allows packets to come into late and be inserted into the correct place in the queue (if they arrive before decoding handles a later packet)
+                    //        byte[] decodedPcmData = codec.Decode(data);
+                    //        if (decodedPcmData != null)
+                    //            Protocol.Voice(decodedPcmData, session, sequence);
+                    //    }
 
-                        //byte header;
-                        //do
-                        //{
-                        //    header = reader.ReadByte();
-                        //    int length = header & 0x7F;
-                        //    if (length > 0)
-                        //    {
-                        //        byte[] data = reader.ReadBytes(length);
-                        //        if (data == null)
-                        //            break;
-
-                        //        //TODO: Put *encoded* packets into a queue, then decode the head of the queue
-                        //        //TODO: This allows packets to come into late and be inserted into the correct place in the queue (if they arrive before decoding handles a later packet)
-                        //        byte[] decodedPcmData = codec.Decode(data);
-                        //        if (decodedPcmData != null)
-                        //            Protocol.Voice(decodedPcmData, session, sequence);
-                        //    }
-
-                        //} while ((header & 0x80) > 0);
-                    }
+                    //} while ((header & 0x80) > 0);
                 }
             }
         }
@@ -212,6 +219,7 @@ namespace MumbleSharp
             }
         }
 
+        #region pings
         //using the approch described here to do running calculations of ping values.
         // http://dsp.stackexchange.com/questions/811/determining-the-mean-and-standard-deviation-in-real-time
         private float _meanOfPings;
@@ -243,6 +251,7 @@ namespace MumbleSharp
 
 
         }
+        #endregion
 
         private class TcpSocket
         {
