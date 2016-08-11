@@ -17,7 +17,7 @@ namespace MumbleSharp.Model
         public bool Muted { get; set; }
         public bool SelfDeaf { get; set; }
         public bool SelfMuted { get; set; }
-        public bool Supress { get; set; }
+        public bool Suppress { get; set; }
 
         private Channel _channel;
         public Channel Channel

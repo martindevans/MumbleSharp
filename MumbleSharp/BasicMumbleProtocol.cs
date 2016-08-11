@@ -112,18 +112,6 @@ namespace MumbleSharp
         }
 
         #region Channels
-        public void GoToChannel(uint channel)
-        {
-            MumbleProto.UserState state = new MumbleProto.UserState
-            {
-                session = LocalUser.Id,
-                actor = LocalUser.Id,
-                channel_id = channel
-            };
-
-            Connection.SendControl<MumbleProto.UserState>(MumbleSharp.Packets.PacketType.UserState, state);
-        }
-
         protected virtual void ChannelJoined(Channel channel)
         {
         }
@@ -201,7 +189,7 @@ namespace MumbleSharp
                 if (userState.deafSpecified)
                     user.Deaf = userState.deaf;
                 if (userState.suppressSpecified)
-                    user.Supress = userState.suppress;
+                    user.Suppress = userState.suppress;
                 if (userState.nameSpecified)
                     user.Name = userState.name;
                 if (userState.commentSpecified)

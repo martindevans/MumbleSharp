@@ -103,7 +103,7 @@ namespace MumbleGuiClient
                 Muted = user.Muted,
                 SelfDeaf = user.SelfDeaf,
                 SelfMuted = user.SelfMuted,
-                Supress = user.Supress,
+                Supress = user.Suppress,
                 Channel = user.Channel.Id
             };
         }
@@ -263,7 +263,7 @@ namespace MumbleGuiClient
                 ChannelInfo channel = ((TreeNode<ChannelInfo>)tvUsers.SelectedNode).Value;
                 //Enter that channel, needs the functionality in connection or protocol.
 
-                protocol.GoToChannel(channel.Id);
+                protocol.Channels.SingleOrDefault(a => a.Id == channel.Id)?.Join();
             }
         }
 

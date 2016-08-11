@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MumbleSharp
 {
     static class Var64
     {
+        //This stuff is a partial duplicate of the varint64 stuff in UdpPacketReader!
+        //Should write a UdpPacketWriter to mirror it
+
         public static int calculateVarint64(UInt64 value)
         {
 	        UInt64 part0 = value;
