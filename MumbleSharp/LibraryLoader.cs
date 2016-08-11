@@ -31,19 +31,34 @@ namespace MumbleSharp
     /// <summary>
     /// Library loader.
     /// </summary>
-    internal class LibraryLoader
+    //internal class LibraryLoader
+    public class LibraryLoader
     {
+        static System.Collections.Generic.List<IntPtr> libraries = new System.Collections.Generic.List<IntPtr>();
+
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
         private static extern IntPtr LoadLibrary(string lpFileName);
+
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
+        private static extern bool FreeLibrary(IntPtr module);
 
         [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
         private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
-        [DllImport ("dl", CharSet=CharSet.Ansi)]
+        [DllImport("dl", CharSet = CharSet.Ansi)]
         private static extern IntPtr dlopen(string filename, int flags);
 
         [DllImport("dl", CharSet = CharSet.Ansi)]
+        private static extern void dlclose(IntPtr module);
+
+        [DllImport("dl", CharSet = CharSet.Ansi)]
         static extern IntPtr dlsym(IntPtr handle, string symbol);
+
+        public static void UnloadAll()
+        {
+            foreach (IntPtr ptr in libraries)
+                Free(ptr);
+        }
 
         /// <summary>
         /// Load a library.
@@ -52,7 +67,19 @@ namespace MumbleSharp
         /// <returns></returns>
         internal static IntPtr Load(string fileName)
         {
-            return PlatformDetails.IsWindows ? LoadLibrary(fileName) : dlopen(fileName, 1);
+            IntPtr lib = PlatformDetails.IsWindows ? LoadLibrary(fileName) : dlopen(fileName, 1);
+            libraries.Add(lib);
+
+            return lib;
+        }
+
+        internal static bool Free(IntPtr module)
+        {
+            if(PlatformDetails.IsWindows)
+                return FreeLibrary(module);
+
+            dlclose(module);
+            return true;
         }
 
         /// <summary>

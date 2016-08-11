@@ -42,7 +42,10 @@ namespace MumbleSharp.Audio.Codecs.Opus
             var numberOfBytes = _encoder.FrameSizeInBytes(samples);
 
             byte[] dst = new byte[numberOfBytes];
-            _encoder.Encode(pcm.Array, pcm.Offset, dst, 0, samples);
+            int encodedBytes = _encoder.Encode(pcm.Array, pcm.Offset, dst, 0, samples);
+
+            //without it packet will have huge zero-value-tale
+            Array.Resize(ref dst, encodedBytes);
 
             return dst;
         }

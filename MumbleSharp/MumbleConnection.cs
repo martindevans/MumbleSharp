@@ -116,8 +116,9 @@ namespace MumbleSharp
         {
             //This is *totally wrong*
             //the packet contains raw encoded voice data, but we need to put it into the proper packet format
+            //UPD: packet prepare before this method called. See basic protocol
 
-            _tcp.Send(PacketType.UDPTunnel, packet);
+            _tcp.SendVoice(PacketType.UDPTunnel, packet);
         }
 
         private void ReceivedEncryptedUdp(byte[] packet)
@@ -299,6 +300,8 @@ namespace MumbleSharp
                 {
                     if (DateTime.Now - startWait > TimeSpan.FromSeconds(2))
                         throw new TimeoutException("Timed out waiting for ssl authentication");
+
+                    System.Threading.Thread.Sleep(10);
                 }
 
                 Handshake(username, password, tokens);
@@ -365,6 +368,34 @@ namespace MumbleSharp
                 }
             }
 
+            public void SendVoice(PacketType type, ArraySegment<byte> packet)
+            {
+                lock (_ssl)
+                {
+                    _writer.Write(IPAddress.HostToNetworkOrder((short)type));
+                    _writer.Write(IPAddress.HostToNetworkOrder(packet.Count));
+                    _writer.Write(packet.Array, packet.Offset, packet.Count);
+
+                    _writer.Flush();
+                    _ssl.Flush();
+                    _netStream.Flush();
+                }
+            }
+
+            public void SendBuffer(PacketType type, byte[] packet)
+            {
+                lock (_ssl)
+                {
+                    _writer.Write(IPAddress.HostToNetworkOrder((short)type));
+                    _writer.Write(IPAddress.HostToNetworkOrder(packet.Length));
+                    _writer.Write(packet, 0, packet.Length);
+
+                    _writer.Flush();
+                    _ssl.Flush();
+                    _netStream.Flush();
+                }
+            }
+
             public void SendPing()
             {
                 var ping = new Ping();
@@ -410,6 +441,8 @@ namespace MumbleSharp
                 lock (_ssl)
                 {
                     PacketType type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
+                    Console.WriteLine("{0:HH:mm:ss}: {1}", DateTime.Now, type.ToString());
+
                     switch (type)
                     {
                         case PacketType.Version:
@@ -460,7 +493,8 @@ namespace MumbleSharp
                             _protocol.ChannelRemove(Serializer.DeserializeWithLengthPrefix<ChannelRemove>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.TextMessage:
-                            _protocol.TextMessage(Serializer.DeserializeWithLengthPrefix<TextMessage>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            var message = Serializer.DeserializeWithLengthPrefix<TextMessage>(_ssl, PrefixStyle.Fixed32BigEndian);
+                            _protocol.TextMessage(message);
                             break;
 
                         case PacketType.Reject:
@@ -535,7 +569,7 @@ namespace MumbleSharp
 
                 _client.Send(buffer, buffer.Length);
             }
-
+            
             public void Process()
             {
                 if (_client.Client == null)

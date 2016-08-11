@@ -84,6 +84,18 @@ namespace MumbleSharp.Model
             return Name;
         }
 
+        public void Join()
+        {
+            var state = new UserState
+            {
+                session = Owner.LocalUser.Id,
+                actor = Owner.LocalUser.Id,
+                channel_id = Id
+            };
+
+            Owner.Connection.SendControl<UserState>(PacketType.UserState, state);
+        }
+
         internal void RemoveUser(User user)
         {
             _users.GetOrAdd(user, true);

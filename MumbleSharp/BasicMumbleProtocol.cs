@@ -53,15 +53,14 @@ namespace MumbleSharp
         public User LocalUser { get; private set; }
 
         private AudioEncodingBuffer _encodingBuffer;
-        private readonly Thread _encodingThread;
+        private Thread _encodingThread;
+        private UInt32 sequenceIndex;
 
         public bool IsEncodingThreadRunning { get; set; }
 
         public BasicMumbleProtocol()
         {
-            _encodingThread = new Thread(EncodingThreadEntry) {
-                IsBackground = true
-            };
+            
         }
 
         /// <summary>
@@ -71,6 +70,18 @@ namespace MumbleSharp
         public virtual void Initialise(MumbleConnection connection)
         {
             Connection = connection;
+
+            _encodingThread = new Thread(EncodingThreadEntry)
+            {
+                IsBackground = true
+            };
+        }
+        public void Close()
+        {
+            _encodingThread.Abort();
+
+            Connection = null;
+            LocalUser = null;
         }
 
         /// <summary>
@@ -79,6 +90,7 @@ namespace MumbleSharp
         /// <param name="version"></param>
         public virtual void Version(Version version)
         {
+            
         }
 
         /// <summary>
@@ -100,6 +112,13 @@ namespace MumbleSharp
         }
 
         #region Channels
+        protected virtual void ChannelJoined(Channel channel)
+        {
+        }
+
+        protected virtual void ChannelLeft(Channel channel)
+        {
+        }
         /// <summary>
         /// Server has changed some detail of a channel
         /// </summary>
@@ -116,6 +135,10 @@ namespace MumbleSharp
 
             if (channel.Id == 0)
                 RootChannel = channel;
+
+            ChannelJoined(channel);
+
+            Extensions.Log.Info("Chanel State", channelState);
         }
 
         /// <summary>
@@ -125,7 +148,10 @@ namespace MumbleSharp
         public virtual void ChannelRemove(ChannelRemove channelRemove)
         {
             Channel c;
-            ChannelDictionary.TryRemove(channelRemove.channel_id, out c);
+            if (ChannelDictionary.TryRemove(channelRemove.channel_id, out c))
+            {
+                ChannelLeft(c);
+            }
         }
         #endregion
 
@@ -144,6 +170,8 @@ namespace MumbleSharp
         /// <param name="userState"></param>
         public virtual void UserState(UserState userState)
         {
+            Extensions.Log.Info("User State", userState);
+
             if (userState.sessionSpecified)
             {
                 bool added = false;
@@ -153,15 +181,15 @@ namespace MumbleSharp
                 }, (i, u) => u);
 
                 if (userState.self_deafSpecified)
-                    user.Deaf = userState.self_deaf;
+                    user.SelfDeaf = userState.self_deaf;
                 if (userState.self_muteSpecified)
-                    user.Muted = userState.self_mute;
+                    user.SelfMuted = userState.self_mute;
                 if (userState.muteSpecified)
                     user.Muted = userState.mute;
                 if (userState.deafSpecified)
                     user.Deaf = userState.deaf;
                 if (userState.suppressSpecified)
-                    user.Muted = userState.suppress;
+                    user.Suppress = userState.suppress;
                 if (userState.nameSpecified)
                     user.Name = userState.name;
                 if (userState.commentSpecified)
@@ -172,7 +200,7 @@ namespace MumbleSharp
                 else
                     user.Channel = RootChannel;
 
-                if (added)
+                //if (added)
                     UserJoined(user);
             }
         }
@@ -206,6 +234,7 @@ namespace MumbleSharp
 
         public virtual void PermissionQuery(PermissionQuery permissionQuery)
         {
+            
         }
 
         #region server setup
@@ -233,6 +262,7 @@ namespace MumbleSharp
         /// <param name="serverConfig"></param>
         public virtual void ServerConfig(ServerConfig serverConfig)
         {
+            
         }
         #endregion
 
@@ -242,9 +272,47 @@ namespace MumbleSharp
             IsEncodingThreadRunning = true;
             while (IsEncodingThreadRunning)
             {
-                var packet = _encodingBuffer.Encode(TransmissionCodec);
+                byte[] packet = null;
+                try
+                {
+                    packet = _encodingBuffer.Encode(TransmissionCodec);
+                }
+                catch { }
+
                 if (packet != null)
-                    Connection.SendVoice(new ArraySegment<byte>(packet));
+                {
+                    int maxSize = 480;
+
+                    //taken from JS port
+                    for (int currentOffcet = 0; currentOffcet < packet.Length; )
+                    {
+                        int currentBlockSize = Math.Min(packet.Length - currentOffcet, maxSize);
+
+                        byte type = TransmissionCodec == SpeechCodecs.Opus ? (byte)4 : (byte)0;
+                        //originaly [type = codec_type_id << 5 | whistep_chanel_id]. now we can talk only to normal chanel
+                        type = (byte)(type << 5);
+                        byte[] sequence = Var64.writeVarint64_alternative((UInt64)sequenceIndex);
+
+                        // Client side voice header.
+                        byte[] voiceHeader = new byte[1 + sequence.Length];
+                        voiceHeader[0] = type;
+                        sequence.CopyTo(voiceHeader, 1);
+
+                        byte[] header = Var64.writeVarint64_alternative((UInt64)currentBlockSize);
+                        byte[] packedData = new byte[voiceHeader.Length + header.Length + currentBlockSize];
+
+                        Array.Copy(voiceHeader, 0, packedData, 0, voiceHeader.Length);
+                        Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
+                        Array.Copy(packet, currentOffcet, packedData, voiceHeader.Length + header.Length, currentBlockSize);
+
+                        Connection.SendVoice(new ArraySegment<byte>(packedData));
+
+                        sequenceIndex++;
+                        currentOffcet += currentBlockSize;
+                    }
+                }
+
+                //beware! can take a lot of power, because infinite loop without sleep
             }
         }
 
@@ -306,6 +374,7 @@ namespace MumbleSharp
         public void SendVoiceStop()
         {
             _encodingBuffer.Stop();
+            sequenceIndex = 0;
         }
         #endregion
 

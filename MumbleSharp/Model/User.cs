@@ -15,6 +15,9 @@ namespace MumbleSharp.Model
         public UInt32 Id { get; private set; }
         public bool Deaf { get; set; }
         public bool Muted { get; set; }
+        public bool SelfDeaf { get; set; }
+        public bool SelfMuted { get; set; }
+        public bool Suppress { get; set; }
 
         private Channel _channel;
         public Channel Channel
