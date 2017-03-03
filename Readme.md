@@ -34,3 +34,7 @@ Supporting other codecs should be relatively simple. For CELT you'll need to fin
 
 #### Talking
 Currently we can receive audio, but not send it!
+
+## Looking For VoIP In Unity?
+
+I've developed a VoIP asset for Unity, get it [here](https://www.assetstore.unity3d.com/#!/content/70078?aid=1100lJ2J)
