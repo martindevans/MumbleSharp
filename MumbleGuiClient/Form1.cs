@@ -423,10 +423,22 @@ namespace MumbleGuiClient
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string name = textBox1.Text;
-            string pass = "";
-            int port = 64738;
-            string addr = textBox2.Text;
+            string name = textBoxUserName.Text;
+            string pass = textBoxUserPassword.Text;
+            int port;
+            string addr;
+
+            if(textBoxServer.Text.Contains(':'))
+            {
+                var server = textBoxServer.Text.Split(':');
+                addr = server[0];
+                port = Int32.Parse(server[1]);
+            }
+            else
+            {
+                addr = textBoxServer.Text;
+                port = 64738;
+            }
 
             if (connection != null)
             {
