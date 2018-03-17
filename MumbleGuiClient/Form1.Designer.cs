@@ -203,7 +203,7 @@
             this.ClientSize = new System.Drawing.Size(547, 255);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
-            this.Text = "MumbleSharp Server - GUI version";
+            this.Text = "MumbleSharp Client - GUI version";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
