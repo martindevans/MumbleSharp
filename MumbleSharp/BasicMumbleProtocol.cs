@@ -401,9 +401,9 @@ namespace MumbleSharp
             if (!UserDictionary.TryGetValue(textMessage.actor, out user))   //If we don't know the user for this packet, just ignore it
                 return;
 
-            if (textMessage.channel_id == null)
+            if (textMessage.channel_id == null || textMessage.channel_id.Count == 0)
             {
-                if (textMessage.tree_id == null)
+                if (textMessage.tree_id == null || textMessage.tree_id.Count == 0)
                 {
                     //personal message: no channel, no tree
                     PersonalMessageReceived(new PersonalMessage(user, string.Join("", textMessage.message)));
