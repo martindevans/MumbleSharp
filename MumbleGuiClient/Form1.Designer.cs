@@ -35,13 +35,13 @@
             this.tbLog = new System.Windows.Forms.RichTextBox();
             this.tbSendMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
+            this.textBoxUserPassword = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.textBoxServer = new System.Windows.Forms.TextBox();
             this.textBoxUserName = new System.Windows.Forms.TextBox();
-            this.tvUsers = new System.Windows.Forms.TreeView();
             this.mumbleUpdater = new System.Windows.Forms.Timer(this.components);
-            this.textBoxUserPassword = new System.Windows.Forms.TextBox();
+            this.tvUsers = new MumbleGuiClient.ChannelsTreeView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -64,12 +64,12 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.tvUsers);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxUserPassword);
             this.splitContainer1.Panel2.Controls.Add(this.button3);
             this.splitContainer1.Panel2.Controls.Add(this.button2);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxServer);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxUserName);
-            this.splitContainer1.Panel2.Controls.Add(this.tvUsers);
             this.splitContainer1.Size = new System.Drawing.Size(547, 255);
             this.splitContainer1.SplitterDistance = 329;
             this.splitContainer1.TabIndex = 0;
@@ -126,6 +126,16 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
+            // textBoxUserPassword
+            // 
+            this.textBoxUserPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxUserPassword.Location = new System.Drawing.Point(3, 30);
+            this.textBoxUserPassword.Name = "textBoxUserPassword";
+            this.textBoxUserPassword.PasswordChar = '*';
+            this.textBoxUserPassword.Size = new System.Drawing.Size(208, 20);
+            this.textBoxUserPassword.TabIndex = 5;
+            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(55, 82);
@@ -166,34 +176,25 @@
             this.textBoxUserName.TabIndex = 1;
             this.textBoxUserName.Text = "Test";
             // 
-            // tvUsers
-            // 
-            this.tvUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvUsers.Location = new System.Drawing.Point(0, 111);
-            this.tvUsers.Name = "tvUsers";
-            this.tvUsers.Size = new System.Drawing.Size(214, 141);
-            this.tvUsers.TabIndex = 0;
-            this.tvUsers.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvUsers_BeforeCollapse);
-            this.tvUsers.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvUsers_NodeMouseDoubleClick);
-            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
-            // 
             // mumbleUpdater
             // 
             this.mumbleUpdater.Enabled = true;
             this.mumbleUpdater.Interval = 10;
             this.mumbleUpdater.Tick += new System.EventHandler(this.mumbleUpdater_Tick);
             // 
-            // textBoxUserPassword
+            // tvUsers
             // 
-            this.textBoxUserPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tvUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxUserPassword.Location = new System.Drawing.Point(3, 30);
-            this.textBoxUserPassword.Name = "textBoxUserPassword";
-            this.textBoxUserPassword.PasswordChar = '*';
-            this.textBoxUserPassword.Size = new System.Drawing.Size(208, 20);
-            this.textBoxUserPassword.TabIndex = 5;
+            this.tvUsers.Location = new System.Drawing.Point(3, 111);
+            this.tvUsers.Name = "tvUsers";
+            this.tvUsers.Size = new System.Drawing.Size(208, 141);
+            this.tvUsers.TabIndex = 6;
+            this.tvUsers.UpdateInterval = 500;
+            this.tvUsers.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvUsers_BeforeCollapse);
+            this.tvUsers.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvUsers_NodeMouseDoubleClick);
+            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
             // 
             // Form1
             // 
@@ -220,7 +221,6 @@
         private System.Windows.Forms.RichTextBox tbLog;
         private System.Windows.Forms.TextBox tbSendMessage;
         private System.Windows.Forms.Button btnSend;
-        private System.Windows.Forms.TreeView tvUsers;
         private System.Windows.Forms.Timer mumbleUpdater;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ComboBox comboBox1;
@@ -229,6 +229,7 @@
         private System.Windows.Forms.TextBox textBoxUserName;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.TextBox textBoxUserPassword;
+        private ChannelsTreeView tvUsers;
     }
 }
 
