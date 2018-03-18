@@ -278,9 +278,11 @@ namespace MumbleGuiClient
             TreeNode<UserInfo> userNode = null;
             foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)
             {
-                foreach (TreeNode<UserInfo> subNode in chanelNode.Nodes)
+                foreach (TreeNode<UserInfo> subNode in chanelNode.Nodes.OfType<TreeNode<UserInfo>>())
+                {
                     if (subNode.Value.Id == user.Id)
-                        userNode = subNode;
+                        userNode = (TreeNode<UserInfo>)subNode;
+                }
 
                 if (userNode != null)
                 {
