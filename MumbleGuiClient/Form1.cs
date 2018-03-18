@@ -241,10 +241,13 @@ namespace MumbleGuiClient
 
             var msg = new MumbleProto.TextMessage
             {
-                actor = protocol.LocalUser.Id,
-                message = tbSendMessage.Text,
+                Actor = protocol.LocalUser.Id,
+                Message = tbSendMessage.Text,
             };
-            msg.channel_id.Add(target.Id);
+            if (msg.ChannelIds == null)
+                msg.ChannelIds = new uint[] { target.Id };
+            else
+                msg.ChannelIds = msg.ChannelIds.Concat(new uint[] { target.Id }).ToArray();
 
             connection.SendControl<MumbleProto.TextMessage>(MumbleSharp.Packets.PacketType.TextMessage, msg);
             tbSendMessage.Text = "";
@@ -384,7 +387,7 @@ namespace MumbleGuiClient
         {
             tbLog.BeginInvoke((MethodInvoker)(() =>
             {
-                tbLog.AppendText(string.Format("{0}\n", serverConfig.welcome_text));
+                tbLog.AppendText(string.Format("{0}\n", serverConfig.WelcomeText));
             }));
         }
 

@@ -1,3 +1,10 @@
+// Copyright 2005-2018 The Mumble Developers. All rights reserved.
+// Use of this source code is governed by a BSD-style license
+// that can be found in the LICENSE file at the root of the
+// Mumble source tree or at <https://www.mumble.info/LICENSE>.
+
+syntax = "proto2";
+
 package MumbleProto;
 
 option optimize_for = SPEED;
@@ -63,7 +70,8 @@ message Ping {
 // Sent by the server when it rejects the user connection.
 message Reject {
 	enum RejectType {
-		// TODO ??
+		// The rejection reason is unknown (details should be available
+		// in Reject.reason).
 		None = 0;
 		// The client attempted to connect with an incompatible version.
 		WrongVersion = 1;
@@ -98,7 +106,7 @@ message ServerSync {
 	optional uint32 max_bandwidth = 2;
 	// Server welcome text.
 	optional string welcome_text = 3;
-	// Current user permissions TODO: Confirm??
+	// Current user permissions in the root channel.
 	optional uint64 permissions = 4;
 }
 
@@ -134,6 +142,10 @@ message ChannelState {
 	optional int32 position = 9 [default = 0];
 	// SHA1 hash of the description if the description is 128 bytes or more.
 	optional bytes description_hash = 10;
+	// Maximum number of users allowed in the channel. If this value is zero,
+	// the maximum number of users allowed in the channel is given by the
+	// server's "usersperchannel" setting.
+	optional uint32 max_users = 11;
 }
 
 // Used to communicate user leaving or being kicked. May be sent by the client
@@ -180,9 +192,14 @@ message UserState {
 	optional bool self_deaf = 10;
 	// User image if it is less than 128 bytes.
 	optional bytes texture = 11;
-	// TODO ??
+	// The positional audio plugin identifier.
+	// Positional audio information is only sent to users who share
+	// identical plugin contexts.
+	//
+	// This value is not trasmitted to clients.
 	optional bytes plugin_context = 12;
-	// TODO ??
+	// The user's plugin-specific identity.
+	// This value is not transmitted to clients.
 	optional string plugin_identity = 13;
 	// User comment if it is less than 128 bytes.
 	optional string comment = 14;
@@ -209,7 +226,7 @@ message BanList {
 		required uint32 mask = 2;
 		// User name for identification purposes (does not affect the ban).
 		optional string name = 3;
-		// TODO ??
+		// The certificate hash of the banned user.
 		optional string hash = 4;
 		// Reason for the ban (does not affect the ban).
 		optional string reason = 5;
@@ -403,9 +420,9 @@ message VoiceTarget {
 	message Target {
 		// Users that are included as targets.
 		repeated uint32 session = 1;
-		// Channels that are included as targets.
+		// Channel that is included as a target.
 		optional uint32 channel_id = 2;
-		// TODO ??
+		// ACL group that is included as a target.
 		optional string group = 3;
 		// True if the voice should follow links from the specified channel.
 		optional bool links = 4 [default = false];
@@ -529,6 +546,8 @@ message ServerConfig {
 	optional uint32 message_length = 4;
 	// Maximum image message length.
 	optional uint32 image_message_length = 5;
+	// The maximum number of users allowed on the server.
+	optional uint32 max_users = 6;
 }
 
 // Sent by the server to inform the clients of suggested client configuration
@@ -542,4 +561,3 @@ message SuggestConfig {
 	// True if the administrator suggests push to talk to be used on this server.
 	optional bool push_to_talk = 3;
 }
-

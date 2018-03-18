@@ -5,6 +5,7 @@ using MumbleSharp.Packets;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MumbleSharp.Model
 {
@@ -41,14 +42,24 @@ namespace MumbleSharp.Model
         {
             var msg = new TextMessage
             {
-                actor = Owner.LocalUser.Id,
-                message = string.Join(Environment.NewLine, message),
+                Actor = Owner.LocalUser.Id,
+                Message = string.Join(Environment.NewLine, message),
             };
 
             if (recursive)
-                msg.tree_id.AddRange(new uint[] { Id });
+            {
+                if (msg.TreeIds == null)
+                    msg.TreeIds = new uint[] { Id };
+                else
+                    msg.TreeIds = msg.TreeIds.Concat(new uint[] { Id }).ToArray();
+            }
             else
-                msg.channel_id.AddRange(new uint[] { Id });
+            {
+                if (msg.ChannelIds == null)
+                    msg.ChannelIds = new uint[] { Id };
+                else
+                    msg.ChannelIds = msg.ChannelIds.Concat(new uint[] { Id }).ToArray();
+            }
 
             Owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
         }
@@ -88,9 +99,9 @@ namespace MumbleSharp.Model
         {
             var state = new UserState
             {
-                session = Owner.LocalUser.Id,
-                actor = Owner.LocalUser.Id,
-                channel_id = Id
+                Session = Owner.LocalUser.Id,
+                Actor = Owner.LocalUser.Id,
+                ChannelId = Id
             };
 
             Owner.Connection.SendControl<UserState>(PacketType.UserState, state);

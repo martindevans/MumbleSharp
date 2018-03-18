@@ -46,7 +46,7 @@ namespace MumbleClient
         {
             base.ServerConfig(serverConfig);
 
-            Console.WriteLine(serverConfig.welcome_text);
+            Console.WriteLine(serverConfig.WelcomeText);
         }
 
         protected override void ChannelMessageReceived(ChannelMessage message)

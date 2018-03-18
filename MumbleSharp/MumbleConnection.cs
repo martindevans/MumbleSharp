@@ -206,17 +206,17 @@ namespace MumbleSharp
 
         internal void ProcessCryptState(CryptSetup cryptSetup)
         {
-            if (cryptSetup.keySpecified && cryptSetup.client_nonceSpecified && cryptSetup.client_nonceSpecified) // Full key setup
+            if (cryptSetup.ShouldSerializeKey() && cryptSetup.ShouldSerializeClientNonce() && cryptSetup.ShouldSerializeServerNonce()) // Full key setup
             {
-                _cryptState.SetKeys(cryptSetup.key, cryptSetup.client_nonce, cryptSetup.server_nonce);
+                _cryptState.SetKeys(cryptSetup.Key, cryptSetup.ClientNonce, cryptSetup.ServerNonce);
             }
-            else if (cryptSetup.server_nonce != null) // Server syncing its nonce to us.
+            else if (cryptSetup.ServerNonce != null) // Server syncing its nonce to us.
             {
-                _cryptState.ServerNonce = cryptSetup.server_nonce;
+                _cryptState.ServerNonce = cryptSetup.ServerNonce;
             }
             else // Server wants our nonce.
             {
-                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup { client_nonce = _cryptState.ClientNonce });
+                SendControl<CryptSetup>(PacketType.CryptSetup, new CryptSetup { ClientNonce = _cryptState.ClientNonce });
             }
         }
 
@@ -231,10 +231,10 @@ namespace MumbleSharp
         private void ReceivePing(Ping ping)
         {
             _shouldSetTimestampWhenPinging = true;
-            if (ping.timestampSpecified && ping.timestamp != 0)
+            if (ping.ShouldSerializeTimestamp() && ping.Timestamp != 0)
             {
                 var mostRecentPingtime =
-                    (float)TimeSpan.FromTicks(DateTime.Now.Ticks - (long)ping.timestamp).TotalMilliseconds;
+                    (float)TimeSpan.FromTicks(DateTime.Now.Ticks - (long)ping.Timestamp).TotalMilliseconds;
 
                 //The ping time is the one-way transit time.
                 mostRecentPingtime /= 2;
@@ -320,23 +320,21 @@ namespace MumbleSharp
             {
                 MumbleProto.Version version = new MumbleProto.Version
                 {
-                    release = "MumbleSharp",
+                    Release = "MumbleSharp",
                     version = (1 << 16) | (2 << 8) | (0 & 0xFF),
-                    os = Environment.OSVersion.ToString(),
-                    os_version = Environment.OSVersion.VersionString,
+                    Os = Environment.OSVersion.ToString(),
+                    OsVersion = Environment.OSVersion.VersionString,
                 };
                 Send(PacketType.Version, version);
 
                 Authenticate auth = new Authenticate
                 {
-                    username = username,
-                    password = password,
-                    opus = true,
+                    Username = username,
+                    Password = "",
+                    Opus = true,
                 };
-                auth.tokens.AddRange(tokens ?? new string[0]);
-                auth.celt_versions.AddRange(new int[] {
-                    unchecked((int)0x8000000b)
-                });
+                auth.Tokens.AddRange(tokens ?? new string[0]);
+                auth.CeltVersions = new int[] { unchecked((int)0x8000000b) };
 
                 Send(PacketType.Authenticate, auth);
             }
@@ -404,24 +402,20 @@ namespace MumbleSharp
                 //  otherwise the stats will be throw off by the time it takes to connect.
                 if (_connection._shouldSetTimestampWhenPinging)
                 {
-                    ping.timestamp = (ulong) DateTime.Now.Ticks;
-                    ping.timestampSpecified = true;
+                    ping.Timestamp = (ulong) DateTime.Now.Ticks;
                 }
 
                 if (_connection.TcpPingAverage.HasValue)
                 {
-                    ping.tcp_ping_avg = _connection.TcpPingAverage.Value;
-                    ping.tcp_ping_avgSpecified = true;
+                    ping.TcpPingAvg = _connection.TcpPingAverage.Value;
                 }
                 if (_connection.TcpPingVariance.HasValue)
                 {
-                    ping.tcp_ping_var = _connection.TcpPingVariance.Value;
-                    ping.tcp_ping_varSpecified = true;
+                    ping.TcpPingVar = _connection.TcpPingVariance.Value;
                 }
                 if (_connection.TcpPingPackets.HasValue)
                 {
-                    ping.tcp_packets = _connection.TcpPingPackets.Value;
-                    ping.tcp_packetsSpecified = true;
+                    ping.TcpPackets = _connection.TcpPingPackets.Value;
                 }
 
                 lock (_ssl)
