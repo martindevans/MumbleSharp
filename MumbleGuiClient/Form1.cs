@@ -272,7 +272,7 @@ namespace MumbleGuiClient
         }
 
         //--------------------------
-        Dictionary<uint, System.Timers.Timer> _speakingUsersTimers = new Dictionary<uint, System.Timers.Timer>();
+
         void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, MumbleSharp.Audio.Codecs.IVoiceCodec codec, MumbleSharp.Audio.SpeechTarget target)
         {
             User user = proto.Users.FirstOrDefault(u => u.Id == userId);
@@ -294,29 +294,6 @@ namespace MumbleGuiClient
             if (userNode != null)
             {
                 tvUsers.AddNotifyingNode(userNode, " [SPEAK]", TimeSpan.FromMilliseconds(500));
-            }
-        }
-        private void HandleUserStoppedSpeakingTimer(BasicMumbleProtocol proto, uint userId)
-        {
-            User user = proto.Users.FirstOrDefault(u => u.Id == userId);
-            TreeNode<UserInfo> userNode = null;
-            foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)
-            {
-                foreach (TreeNode<UserInfo> subNode in chanelNode.Nodes.OfType<TreeNode<UserInfo>>())
-                {
-                    if (subNode.Value.Id == user.Id)
-                        userNode = (TreeNode<UserInfo>)subNode;
-                }
-
-                if (userNode != null)
-                {
-                    break;
-                }
-            }
-
-            if (userNode != null)
-            {
-                userNode.Text = user.Name;
             }
         }
 
