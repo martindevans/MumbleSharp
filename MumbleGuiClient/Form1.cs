@@ -78,16 +78,17 @@ namespace MumbleGuiClient
             protocol.serverConfigDelegate = ServerConfigDelegate;
 
             tvUsers.ExpandAll();
+            tvUsers.StartUpdating();
 
             recorder = new MicrophoneRecorder(protocol);
-            int deviceCount = NAudio.Wave.WaveIn.DeviceCount;
-            for (int i = 0; i < deviceCount; i++)
+            int recorderDeviceCount = NAudio.Wave.WaveIn.DeviceCount;
+            for (int i = 0; i < recorderDeviceCount; i++)
             {
                 NAudio.Wave.WaveInCapabilities deviceInfo = NAudio.Wave.WaveIn.GetCapabilities(i);
                 string deviceText = string.Format("{0}, {1} channels", deviceInfo.ProductName, deviceInfo.Channels);
                 comboBox1.Items.Add(deviceText);
             }
-            if (deviceCount > 0)
+            if (recorderDeviceCount > 0)
             {
                 MicrophoneRecorder.SelectedDevice = 0;
                 comboBox1.SelectedIndex = 0;
@@ -241,10 +242,13 @@ namespace MumbleGuiClient
 
             var msg = new MumbleProto.TextMessage
             {
-                actor = protocol.LocalUser.Id,
-                message = tbSendMessage.Text,
+                Actor = protocol.LocalUser.Id,
+                Message = tbSendMessage.Text,
             };
-            msg.channel_id.Add(target.Id);
+            if (msg.ChannelIds == null)
+                msg.ChannelIds = new uint[] { target.Id };
+            else
+                msg.ChannelIds = msg.ChannelIds.Concat(new uint[] { target.Id }).ToArray();
 
             connection.SendControl<MumbleProto.TextMessage>(MumbleSharp.Packets.PacketType.TextMessage, msg);
             tbSendMessage.Text = "";
@@ -268,16 +272,18 @@ namespace MumbleGuiClient
         }
 
         //--------------------------
-
+        Dictionary<uint, System.Timers.Timer> _speakingUsersTimers = new Dictionary<uint, System.Timers.Timer>();
         void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, MumbleSharp.Audio.Codecs.IVoiceCodec codec, MumbleSharp.Audio.SpeechTarget target)
         {
             User user = proto.Users.FirstOrDefault(u => u.Id == userId);
             TreeNode<UserInfo> userNode = null;
             foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)
             {
-                foreach (TreeNode<UserInfo> subNode in chanelNode.Nodes)
+                foreach (TreeNode<UserInfo> subNode in chanelNode.Nodes.OfType<TreeNode<UserInfo>>())
+                {
                     if (subNode.Value.Id == user.Id)
-                        userNode = subNode;
+                        userNode = (TreeNode<UserInfo>)subNode;
+                }
 
                 if (userNode != null)
                 {
@@ -287,12 +293,33 @@ namespace MumbleGuiClient
 
             if (userNode != null)
             {
-                //userNode.BeginInvoke((MethodInvoker)(() =>
-                //    {
-                //        userNode.Text = user.Name + " [SPEAK]";
-                //    }));
+                tvUsers.AddNotifyingNode(userNode, " [SPEAK]", TimeSpan.FromMilliseconds(500));
             }
         }
+        private void HandleUserStoppedSpeakingTimer(BasicMumbleProtocol proto, uint userId)
+        {
+            User user = proto.Users.FirstOrDefault(u => u.Id == userId);
+            TreeNode<UserInfo> userNode = null;
+            foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)
+            {
+                foreach (TreeNode<UserInfo> subNode in chanelNode.Nodes.OfType<TreeNode<UserInfo>>())
+                {
+                    if (subNode.Value.Id == user.Id)
+                        userNode = (TreeNode<UserInfo>)subNode;
+                }
+
+                if (userNode != null)
+                {
+                    break;
+                }
+            }
+
+            if (userNode != null)
+            {
+                userNode.Text = user.Name;
+            }
+        }
+
         void ChannelJoinedDelegate(BasicMumbleProtocol proto, Channel channel)
         {
             TreeNode<ChannelInfo> channelNode = null;
@@ -384,7 +411,7 @@ namespace MumbleGuiClient
         {
             tbLog.BeginInvoke((MethodInvoker)(() =>
             {
-                tbLog.AppendText(string.Format("{0}\n", serverConfig.welcome_text));
+                tbLog.AppendText(string.Format("{0}\n", serverConfig.WelcomeText));
             }));
         }
 
@@ -409,11 +436,7 @@ namespace MumbleGuiClient
 
         private void tvUsers_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
-            if (tvUsersClick)
-            {
-                tvUsersClick = false;
-                e.Cancel = true;
-            }
+
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -423,10 +446,22 @@ namespace MumbleGuiClient
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string name = textBox1.Text;
-            string pass = "";
-            int port = 64738;
-            string addr = textBox2.Text;
+            string name = textBoxUserName.Text;
+            string pass = textBoxUserPassword.Text;
+            int port;
+            string addr;
+
+            if(textBoxServer.Text.Contains(':'))
+            {
+                var server = textBoxServer.Text.Split(':');
+                addr = server[0];
+                port = Int32.Parse(server[1]);
+            }
+            else
+            {
+                addr = textBoxServer.Text;
+                port = 64738;
+            }
 
             if (connection != null)
             {

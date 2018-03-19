@@ -19,14 +19,24 @@ namespace MumbleSharp.Extensions
 
                 var msg = new TextMessage
                 {
-                    actor = owner.LocalUser.Id,
-                    message = string.Join(Environment.NewLine, message),
+                    Actor = owner.LocalUser.Id,
+                    Message = string.Join(Environment.NewLine, message),
                 };
 
                 if (recursive)
-                    msg.tree_id.AddRange(group.Select(c => c.Id));
+                {
+                    if (msg.TreeIds == null)
+                        msg.TreeIds = group.Select(c => c.Id).ToArray();
+                    else
+                        msg.TreeIds = msg.TreeIds.Concat(group.Select(c => c.Id)).ToArray();
+                }
                 else
-                    msg.channel_id.AddRange(group.Select(c => c.Id));
+                {
+                    if (msg.ChannelIds == null)
+                        msg.ChannelIds = group.Select(c => c.Id).ToArray();
+                    else
+                        msg.ChannelIds = msg.ChannelIds.Concat(group.Select(c => c.Id)).ToArray();
+                }
 
                 owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, msg);
             }

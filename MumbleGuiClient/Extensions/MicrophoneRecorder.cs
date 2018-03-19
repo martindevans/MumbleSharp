@@ -69,7 +69,7 @@ namespace MumbleGuiClient
         public void Stop()
         {
             _recording = false;
-            _protocol.LocalUser.Channel.SendVoiceStop();
+            _protocol.LocalUser?.Channel.SendVoiceStop();
 
             sourceStream.StopRecording();
             sourceStream.Dispose();

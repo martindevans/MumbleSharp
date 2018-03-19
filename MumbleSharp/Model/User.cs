@@ -66,8 +66,8 @@ namespace MumbleSharp.Model
         {
             _owner.Connection.SendControl<TextMessage>(PacketType.TextMessage, new TextMessage
             {
-                actor = _owner.LocalUser.Id,
-                message = string.Join(Environment.NewLine, message),
+                Actor = _owner.LocalUser.Id,
+                Message = string.Join(Environment.NewLine, message),
             });
         }
 
@@ -81,8 +81,8 @@ namespace MumbleSharp.Model
                 return;
 
             UserState userstate = new UserState();
-            userstate.actor = Id;
-            userstate.channel_id = channel.Id;
+            userstate.Actor = Id;
+            userstate.ChannelId = channel.Id;
 
             _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
         }
