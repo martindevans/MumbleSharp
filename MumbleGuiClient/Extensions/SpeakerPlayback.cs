@@ -22,11 +22,9 @@ namespace MumbleGuiClient
         }
         private static readonly Dictionary<uint, Player> _players = new Dictionary<uint, Player>();
 
-        public static void AddOrUpdatePlayer(uint id, NAudio.Wave.IWaveProvider provider)
+        public static void AddPlayer(uint id, NAudio.Wave.IWaveProvider provider)
         {
-            if (_players.ContainsKey(id))
-                _players[id] = new Player(provider);
-            else
+            if (!_players.ContainsKey(id))
                 _players.Add(id, new Player(provider));
         }
 
