@@ -30,22 +30,29 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.cbPlaybackDevices = new System.Windows.Forms.ComboBox();
+            this.cbRecordingDevices = new System.Windows.Forms.ComboBox();
+            this.btnRecord = new System.Windows.Forms.Button();
             this.tbLog = new System.Windows.Forms.RichTextBox();
             this.tbSendMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
+            this.labelServer = new System.Windows.Forms.Label();
             this.textBoxUserPassword = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.textBoxServer = new System.Windows.Forms.TextBox();
             this.textBoxUserName = new System.Windows.Forms.TextBox();
+            this.labelPassword = new System.Windows.Forms.Label();
+            this.labelUser = new System.Windows.Forms.Label();
+            this.btnDisconnect = new System.Windows.Forms.Button();
+            this.btnConnect = new System.Windows.Forms.Button();
             this.mumbleUpdater = new System.Windows.Forms.Timer(this.components);
+            this.numMinRecordVolume = new System.Windows.Forms.NumericUpDown();
+            this.labelMinRecordVolume = new System.Windows.Forms.Label();
             this.tvUsers = new MumbleGuiClient.ChannelsTreeView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numMinRecordVolume)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -56,53 +63,70 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.comboBox1);
-            this.splitContainer1.Panel1.Controls.Add(this.button1);
+            this.splitContainer1.Panel1.Controls.Add(this.labelMinRecordVolume);
+            this.splitContainer1.Panel1.Controls.Add(this.numMinRecordVolume);
+            this.splitContainer1.Panel1.Controls.Add(this.cbPlaybackDevices);
+            this.splitContainer1.Panel1.Controls.Add(this.cbRecordingDevices);
+            this.splitContainer1.Panel1.Controls.Add(this.btnRecord);
             this.splitContainer1.Panel1.Controls.Add(this.tbLog);
             this.splitContainer1.Panel1.Controls.Add(this.tbSendMessage);
             this.splitContainer1.Panel1.Controls.Add(this.btnSend);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.tvUsers);
+            this.splitContainer1.Panel2.Controls.Add(this.labelServer);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxUserPassword);
-            this.splitContainer1.Panel2.Controls.Add(this.button3);
-            this.splitContainer1.Panel2.Controls.Add(this.button2);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxServer);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxUserName);
+            this.splitContainer1.Panel2.Controls.Add(this.labelPassword);
+            this.splitContainer1.Panel2.Controls.Add(this.labelUser);
+            this.splitContainer1.Panel2.Controls.Add(this.tvUsers);
+            this.splitContainer1.Panel2.Controls.Add(this.btnDisconnect);
+            this.splitContainer1.Panel2.Controls.Add(this.btnConnect);
             this.splitContainer1.Size = new System.Drawing.Size(547, 255);
             this.splitContainer1.SplitterDistance = 329;
             this.splitContainer1.TabIndex = 0;
             // 
-            // comboBox1
+            // cbPlaybackDevices
             // 
-            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cbPlaybackDevices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(12, 12);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(225, 21);
-            this.comboBox1.TabIndex = 4;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.cbPlaybackDevices.FormattingEnabled = true;
+            this.cbPlaybackDevices.Location = new System.Drawing.Point(3, 6);
+            this.cbPlaybackDevices.Name = "cbPlaybackDevices";
+            this.cbPlaybackDevices.Size = new System.Drawing.Size(225, 21);
+            this.cbPlaybackDevices.TabIndex = 5;
+            this.cbPlaybackDevices.SelectedIndexChanged += new System.EventHandler(this.cbPlaybackDevices_SelectedIndexChanged);
             // 
-            // button1
+            // cbRecordingDevices
             // 
-            this.button1.Location = new System.Drawing.Point(243, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(83, 23);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "record";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.cbRecordingDevices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbRecordingDevices.FormattingEnabled = true;
+            this.cbRecordingDevices.Location = new System.Drawing.Point(3, 33);
+            this.cbRecordingDevices.Name = "cbRecordingDevices";
+            this.cbRecordingDevices.Size = new System.Drawing.Size(225, 21);
+            this.cbRecordingDevices.TabIndex = 4;
+            this.cbRecordingDevices.SelectedIndexChanged += new System.EventHandler(this.cbRecordingDevices_SelectedIndexChanged);
+            // 
+            // btnRecord
+            // 
+            this.btnRecord.Location = new System.Drawing.Point(234, 33);
+            this.btnRecord.Name = "btnRecord";
+            this.btnRecord.Size = new System.Drawing.Size(83, 21);
+            this.btnRecord.TabIndex = 3;
+            this.btnRecord.Text = "record";
+            this.btnRecord.UseVisualStyleBackColor = true;
+            this.btnRecord.Click += new System.EventHandler(this.btnRecord_Click);
             // 
             // tbLog
             // 
             this.tbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbLog.Location = new System.Drawing.Point(0, 41);
+            this.tbLog.Location = new System.Drawing.Point(0, 86);
             this.tbLog.Name = "tbLog";
-            this.tbLog.Size = new System.Drawing.Size(326, 185);
+            this.tbLog.Size = new System.Drawing.Size(326, 140);
             this.tbLog.TabIndex = 0;
             this.tbLog.Text = "";
             // 
@@ -126,43 +150,32 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
+            // labelServer
+            // 
+            this.labelServer.AutoSize = true;
+            this.labelServer.Location = new System.Drawing.Point(3, 59);
+            this.labelServer.Name = "labelServer";
+            this.labelServer.Size = new System.Drawing.Size(38, 13);
+            this.labelServer.TabIndex = 9;
+            this.labelServer.Text = "Server";
+            // 
             // textBoxUserPassword
             // 
             this.textBoxUserPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxUserPassword.Location = new System.Drawing.Point(3, 30);
+            this.textBoxUserPassword.Location = new System.Drawing.Point(55, 30);
             this.textBoxUserPassword.Name = "textBoxUserPassword";
             this.textBoxUserPassword.PasswordChar = '*';
-            this.textBoxUserPassword.Size = new System.Drawing.Size(208, 20);
+            this.textBoxUserPassword.Size = new System.Drawing.Size(156, 20);
             this.textBoxUserPassword.TabIndex = 5;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(55, 82);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Disconnect";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(136, 82);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Connect";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // textBoxServer
             // 
             this.textBoxServer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxServer.Location = new System.Drawing.Point(3, 56);
+            this.textBoxServer.Location = new System.Drawing.Point(55, 56);
             this.textBoxServer.Name = "textBoxServer";
-            this.textBoxServer.Size = new System.Drawing.Size(208, 20);
+            this.textBoxServer.Size = new System.Drawing.Size(156, 20);
             this.textBoxServer.TabIndex = 2;
             this.textBoxServer.Text = "localhost:64738";
             // 
@@ -170,17 +183,77 @@
             // 
             this.textBoxUserName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxUserName.Location = new System.Drawing.Point(3, 3);
+            this.textBoxUserName.Location = new System.Drawing.Point(55, 3);
             this.textBoxUserName.Name = "textBoxUserName";
-            this.textBoxUserName.Size = new System.Drawing.Size(208, 20);
+            this.textBoxUserName.Size = new System.Drawing.Size(156, 20);
             this.textBoxUserName.TabIndex = 1;
             this.textBoxUserName.Text = "Test";
+            // 
+            // labelPassword
+            // 
+            this.labelPassword.AutoSize = true;
+            this.labelPassword.Location = new System.Drawing.Point(3, 33);
+            this.labelPassword.Name = "labelPassword";
+            this.labelPassword.Size = new System.Drawing.Size(53, 13);
+            this.labelPassword.TabIndex = 8;
+            this.labelPassword.Text = "Password";
+            // 
+            // labelUser
+            // 
+            this.labelUser.AutoSize = true;
+            this.labelUser.Location = new System.Drawing.Point(3, 6);
+            this.labelUser.Name = "labelUser";
+            this.labelUser.Size = new System.Drawing.Size(29, 13);
+            this.labelUser.TabIndex = 7;
+            this.labelUser.Text = "User";
+            // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Location = new System.Drawing.Point(55, 82);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.btnDisconnect.TabIndex = 4;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
+            // 
+            // btnConnect
+            // 
+            this.btnConnect.Location = new System.Drawing.Point(136, 82);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(75, 23);
+            this.btnConnect.TabIndex = 3;
+            this.btnConnect.Text = "Connect";
+            this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
             // mumbleUpdater
             // 
             this.mumbleUpdater.Enabled = true;
             this.mumbleUpdater.Interval = 10;
             this.mumbleUpdater.Tick += new System.EventHandler(this.mumbleUpdater_Tick);
+            // 
+            // numMinRecordVolume
+            // 
+            this.numMinRecordVolume.Location = new System.Drawing.Point(234, 60);
+            this.numMinRecordVolume.Name = "numMinRecordVolume";
+            this.numMinRecordVolume.Size = new System.Drawing.Size(83, 20);
+            this.numMinRecordVolume.TabIndex = 6;
+            this.numMinRecordVolume.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numMinRecordVolume.ValueChanged += new System.EventHandler(this.numMinRecordVolume_ValueChanged);
+            // 
+            // labelMinRecordVolume
+            // 
+            this.labelMinRecordVolume.AutoSize = true;
+            this.labelMinRecordVolume.Location = new System.Drawing.Point(101, 63);
+            this.labelMinRecordVolume.Name = "labelMinRecordVolume";
+            this.labelMinRecordVolume.Size = new System.Drawing.Size(127, 13);
+            this.labelMinRecordVolume.TabIndex = 7;
+            this.labelMinRecordVolume.Text = "Minimum Record Volume:";
             // 
             // tvUsers
             // 
@@ -211,6 +284,7 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numMinRecordVolume)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -222,14 +296,20 @@
         private System.Windows.Forms.TextBox tbSendMessage;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Timer mumbleUpdater;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnRecord;
+        private System.Windows.Forms.ComboBox cbRecordingDevices;
+        private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.TextBox textBoxServer;
         private System.Windows.Forms.TextBox textBoxUserName;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnDisconnect;
         private System.Windows.Forms.TextBox textBoxUserPassword;
         private ChannelsTreeView tvUsers;
+        private System.Windows.Forms.ComboBox cbPlaybackDevices;
+        private System.Windows.Forms.Label labelServer;
+        private System.Windows.Forms.Label labelPassword;
+        private System.Windows.Forms.Label labelUser;
+        private System.Windows.Forms.NumericUpDown numMinRecordVolume;
+        private System.Windows.Forms.Label labelMinRecordVolume;
     }
 }
 
