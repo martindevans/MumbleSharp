@@ -22,8 +22,6 @@ namespace MumbleGuiClient
         MicrophoneRecorder recorder;
         SpeakerPlayback playback;
 
-        private readonly List<User> usersPendingAddingPlaybackInit = new List<User>();
-
         struct ChannelInfo
         {
             public string Name;
@@ -270,6 +268,8 @@ namespace MumbleGuiClient
         void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, MumbleSharp.Audio.Codecs.IVoiceCodec codec, MumbleSharp.Audio.SpeechTarget target)
         {
             User user = proto.Users.FirstOrDefault(u => u.Id == userId);
+            AddPlayback(user);
+
             TreeNode<UserInfo> userNode = null;
             foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)
             {
@@ -374,18 +374,11 @@ namespace MumbleGuiClient
 
                 userNode.Value = GetUserInfo(user);
             }
-
-            //Add playback for other users, we possibly have to wait after initial connection processing to make sure we have the localuser
-            if (connection.Protocol.LocalUser == null)
-                lock (usersPendingAddingPlaybackInit)
-                    usersPendingAddingPlaybackInit.Add(user);
-            else
-                AddPlayback(user);
         }
         private void AddPlayback(User user)
         {
             if (user.Id != connection.Protocol.LocalUser.Id)
-                SpeakerPlayback.AddOrUpdatePlayer(user.Id, user.Voice);
+                SpeakerPlayback.AddPlayer(user.Id, user.Voice);
         }
         void UserLeftDelegate(BasicMumbleProtocol proto, User user)
         {
@@ -483,13 +476,6 @@ namespace MumbleGuiClient
             while (connection.Protocol.LocalUser == null)
             {
                 connection.Process();
-            }
-
-            lock (usersPendingAddingPlaybackInit)
-            {
-                foreach (var user in usersPendingAddingPlaybackInit)
-                    AddPlayback(user);
-                usersPendingAddingPlaybackInit.Clear();
             }
         }
 
