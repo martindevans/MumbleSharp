@@ -54,9 +54,9 @@ namespace MumbleGuiClient
                 sourceStream.Dispose();
             sourceStream = new WaveInEvent
             {
-                WaveFormat = new WaveFormat(48000,16, 1)
+                WaveFormat = new WaveFormat(48000, 16, 1)
             };
-            sourceStream.BufferMilliseconds = 5;
+            sourceStream.BufferMilliseconds = 10;
             sourceStream.DeviceNumber = SelectedDevice;
             sourceStream.NumberOfBuffers = 3;
             sourceStream.DataAvailable += VoiceDataAvailable;
