@@ -20,7 +20,7 @@ namespace MumbleGuiClient
         }
 
         private DateTime _lastRecordTime = DateTime.MinValue;
-        private TimeSpan _minRecordTime = new TimeSpan(500);
+        private TimeSpan _minRecordTime = TimeSpan.FromMilliseconds(500);
         private void VoiceDataAvailable(object sender, WaveInEventArgs e)
         {
             if (!_recording)
@@ -35,8 +35,12 @@ namespace MumbleGuiClient
                 // interpret as 32 bit floating point audio
                 for (int index = 0; index < e.BytesRecorded / 4; index++)
                 {
-                    var sample = buffer.FloatBuffer[index];
-                    if (sample > MinRecordVolume || sample < -MinRecordVolume)
+                    short sample = (short)((e.Buffer[index + 1] << 8) |
+                                            e.Buffer[index + 0]);
+                    // to floating point
+                    var sample32 = sample / 32768f;
+
+                    if (sample32 > MinRecordVolume || sample32 < -MinRecordVolume)
                     {
                         sufficientVolume = true;
                         break;
@@ -45,9 +49,9 @@ namespace MumbleGuiClient
 
                 if (!sufficientVolume)
                     return;
+                else
+                    _lastRecordTime = now;
             }
-
-            _lastRecordTime = now;
 
             //At the moment we're sending *from* the local user, this is kinda stupid.
             //What we really want is to send *to* other users, or to channels. Something like:
