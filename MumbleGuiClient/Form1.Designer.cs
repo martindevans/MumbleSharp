@@ -30,26 +30,29 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.cbPlaybackDevices = new System.Windows.Forms.ComboBox();
             this.cbRecordingDevices = new System.Windows.Forms.ComboBox();
             this.btnRecord = new System.Windows.Forms.Button();
             this.tbLog = new System.Windows.Forms.RichTextBox();
             this.tbSendMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
-            this.tvUsers = new MumbleGuiClient.ChannelsTreeView();
+            this.labelServer = new System.Windows.Forms.Label();
             this.textBoxUserPassword = new System.Windows.Forms.TextBox();
-            this.btnDisconnect = new System.Windows.Forms.Button();
-            this.btnConnect = new System.Windows.Forms.Button();
             this.textBoxServer = new System.Windows.Forms.TextBox();
             this.textBoxUserName = new System.Windows.Forms.TextBox();
-            this.mumbleUpdater = new System.Windows.Forms.Timer(this.components);
-            this.labelUser = new System.Windows.Forms.Label();
             this.labelPassword = new System.Windows.Forms.Label();
-            this.labelServer = new System.Windows.Forms.Label();
-            this.cbPlaybackDevices = new System.Windows.Forms.ComboBox();
+            this.labelUser = new System.Windows.Forms.Label();
+            this.btnDisconnect = new System.Windows.Forms.Button();
+            this.btnConnect = new System.Windows.Forms.Button();
+            this.mumbleUpdater = new System.Windows.Forms.Timer(this.components);
+            this.numMinRecordVolume = new System.Windows.Forms.NumericUpDown();
+            this.labelMinRecordVolume = new System.Windows.Forms.Label();
+            this.tvUsers = new MumbleGuiClient.ChannelsTreeView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numMinRecordVolume)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -60,6 +63,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.labelMinRecordVolume);
+            this.splitContainer1.Panel1.Controls.Add(this.numMinRecordVolume);
             this.splitContainer1.Panel1.Controls.Add(this.cbPlaybackDevices);
             this.splitContainer1.Panel1.Controls.Add(this.cbRecordingDevices);
             this.splitContainer1.Panel1.Controls.Add(this.btnRecord);
@@ -81,6 +86,17 @@
             this.splitContainer1.Size = new System.Drawing.Size(547, 255);
             this.splitContainer1.SplitterDistance = 329;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // cbPlaybackDevices
+            // 
+            this.cbPlaybackDevices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbPlaybackDevices.FormattingEnabled = true;
+            this.cbPlaybackDevices.Location = new System.Drawing.Point(3, 6);
+            this.cbPlaybackDevices.Name = "cbPlaybackDevices";
+            this.cbPlaybackDevices.Size = new System.Drawing.Size(225, 21);
+            this.cbPlaybackDevices.TabIndex = 5;
+            this.cbPlaybackDevices.SelectedIndexChanged += new System.EventHandler(this.cbPlaybackDevices_SelectedIndexChanged);
             // 
             // cbRecordingDevices
             // 
@@ -108,9 +124,9 @@
             this.tbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbLog.Location = new System.Drawing.Point(0, 60);
+            this.tbLog.Location = new System.Drawing.Point(0, 86);
             this.tbLog.Name = "tbLog";
-            this.tbLog.Size = new System.Drawing.Size(326, 166);
+            this.tbLog.Size = new System.Drawing.Size(326, 140);
             this.tbLog.TabIndex = 0;
             this.tbLog.Text = "";
             // 
@@ -134,19 +150,14 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
-            // tvUsers
+            // labelServer
             // 
-            this.tvUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvUsers.Location = new System.Drawing.Point(3, 111);
-            this.tvUsers.Name = "tvUsers";
-            this.tvUsers.Size = new System.Drawing.Size(208, 141);
-            this.tvUsers.TabIndex = 6;
-            this.tvUsers.UpdateInterval = 500;
-            this.tvUsers.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvUsers_BeforeCollapse);
-            this.tvUsers.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvUsers_NodeMouseDoubleClick);
-            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
+            this.labelServer.AutoSize = true;
+            this.labelServer.Location = new System.Drawing.Point(3, 59);
+            this.labelServer.Name = "labelServer";
+            this.labelServer.Size = new System.Drawing.Size(38, 13);
+            this.labelServer.TabIndex = 9;
+            this.labelServer.Text = "Server";
             // 
             // textBoxUserPassword
             // 
@@ -157,26 +168,6 @@
             this.textBoxUserPassword.PasswordChar = '*';
             this.textBoxUserPassword.Size = new System.Drawing.Size(156, 20);
             this.textBoxUserPassword.TabIndex = 5;
-            // 
-            // btnDisconnect
-            // 
-            this.btnDisconnect.Location = new System.Drawing.Point(55, 82);
-            this.btnDisconnect.Name = "btnDisconnect";
-            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
-            this.btnDisconnect.TabIndex = 4;
-            this.btnDisconnect.Text = "Disconnect";
-            this.btnDisconnect.UseVisualStyleBackColor = true;
-            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
-            // 
-            // btnConnect
-            // 
-            this.btnConnect.Location = new System.Drawing.Point(136, 82);
-            this.btnConnect.Name = "btnConnect";
-            this.btnConnect.Size = new System.Drawing.Size(75, 23);
-            this.btnConnect.TabIndex = 3;
-            this.btnConnect.Text = "Connect";
-            this.btnConnect.UseVisualStyleBackColor = true;
-            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
             // textBoxServer
             // 
@@ -198,11 +189,14 @@
             this.textBoxUserName.TabIndex = 1;
             this.textBoxUserName.Text = "Test";
             // 
-            // mumbleUpdater
+            // labelPassword
             // 
-            this.mumbleUpdater.Enabled = true;
-            this.mumbleUpdater.Interval = 10;
-            this.mumbleUpdater.Tick += new System.EventHandler(this.mumbleUpdater_Tick);
+            this.labelPassword.AutoSize = true;
+            this.labelPassword.Location = new System.Drawing.Point(3, 33);
+            this.labelPassword.Name = "labelPassword";
+            this.labelPassword.Size = new System.Drawing.Size(53, 13);
+            this.labelPassword.TabIndex = 8;
+            this.labelPassword.Text = "Password";
             // 
             // labelUser
             // 
@@ -213,34 +207,67 @@
             this.labelUser.TabIndex = 7;
             this.labelUser.Text = "User";
             // 
-            // labelPassword
+            // btnDisconnect
             // 
-            this.labelPassword.AutoSize = true;
-            this.labelPassword.Location = new System.Drawing.Point(3, 33);
-            this.labelPassword.Name = "labelPassword";
-            this.labelPassword.Size = new System.Drawing.Size(53, 13);
-            this.labelPassword.TabIndex = 8;
-            this.labelPassword.Text = "Password";
+            this.btnDisconnect.Location = new System.Drawing.Point(55, 82);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.btnDisconnect.TabIndex = 4;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
             // 
-            // labelServer
+            // btnConnect
             // 
-            this.labelServer.AutoSize = true;
-            this.labelServer.Location = new System.Drawing.Point(3, 59);
-            this.labelServer.Name = "labelServer";
-            this.labelServer.Size = new System.Drawing.Size(38, 13);
-            this.labelServer.TabIndex = 9;
-            this.labelServer.Text = "Server";
+            this.btnConnect.Location = new System.Drawing.Point(136, 82);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(75, 23);
+            this.btnConnect.TabIndex = 3;
+            this.btnConnect.Text = "Connect";
+            this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
-            // cbPlaybackDevices
+            // mumbleUpdater
             // 
-            this.cbPlaybackDevices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.mumbleUpdater.Enabled = true;
+            this.mumbleUpdater.Interval = 10;
+            this.mumbleUpdater.Tick += new System.EventHandler(this.mumbleUpdater_Tick);
+            // 
+            // numMinRecordVolume
+            // 
+            this.numMinRecordVolume.Location = new System.Drawing.Point(234, 60);
+            this.numMinRecordVolume.Name = "numMinRecordVolume";
+            this.numMinRecordVolume.Size = new System.Drawing.Size(83, 20);
+            this.numMinRecordVolume.TabIndex = 6;
+            this.numMinRecordVolume.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numMinRecordVolume.ValueChanged += new System.EventHandler(this.numMinRecordVolume_ValueChanged);
+            // 
+            // labelMinRecordVolume
+            // 
+            this.labelMinRecordVolume.AutoSize = true;
+            this.labelMinRecordVolume.Location = new System.Drawing.Point(101, 63);
+            this.labelMinRecordVolume.Name = "labelMinRecordVolume";
+            this.labelMinRecordVolume.Size = new System.Drawing.Size(127, 13);
+            this.labelMinRecordVolume.TabIndex = 7;
+            this.labelMinRecordVolume.Text = "Minimum Record Volume:";
+            // 
+            // tvUsers
+            // 
+            this.tvUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbPlaybackDevices.FormattingEnabled = true;
-            this.cbPlaybackDevices.Location = new System.Drawing.Point(3, 6);
-            this.cbPlaybackDevices.Name = "cbPlaybackDevices";
-            this.cbPlaybackDevices.Size = new System.Drawing.Size(225, 21);
-            this.cbPlaybackDevices.TabIndex = 5;
-            this.cbPlaybackDevices.SelectedIndexChanged += new System.EventHandler(this.cbPlaybackDevices_SelectedIndexChanged);
+            this.tvUsers.Location = new System.Drawing.Point(3, 111);
+            this.tvUsers.Name = "tvUsers";
+            this.tvUsers.Size = new System.Drawing.Size(208, 141);
+            this.tvUsers.TabIndex = 6;
+            this.tvUsers.UpdateInterval = 500;
+            this.tvUsers.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvUsers_BeforeCollapse);
+            this.tvUsers.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvUsers_NodeMouseDoubleClick);
+            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
             // 
             // Form1
             // 
@@ -257,6 +284,7 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numMinRecordVolume)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -280,6 +308,8 @@
         private System.Windows.Forms.Label labelServer;
         private System.Windows.Forms.Label labelPassword;
         private System.Windows.Forms.Label labelUser;
+        private System.Windows.Forms.NumericUpDown numMinRecordVolume;
+        private System.Windows.Forms.Label labelMinRecordVolume;
     }
 }
 
