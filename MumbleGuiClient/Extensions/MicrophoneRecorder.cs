@@ -12,7 +12,7 @@ namespace MumbleGuiClient
         public double lastPingSendTime;
         WaveInEvent sourceStream;
         public static int SelectedDevice;
-        public float MinRecordVolume = 0.1f;
+        public float MinRecordVolume = 0.5f;
 
         public MicrophoneRecorder(IMumbleProtocol protocol)
         {
@@ -32,15 +32,13 @@ namespace MumbleGuiClient
                 //check if the volume peaks above the MinRecordVolume
                 bool sufficientVolume = false;
                 var buffer = new WaveBuffer(e.Buffer);
+                short minRecordSampleVolume = Convert.ToInt16(short.MaxValue * MinRecordVolume);
                 // interpret as 32 bit floating point audio
                 for (int index = 0; index < e.BytesRecorded / 4; index++)
                 {
-                    short sample = (short)((e.Buffer[index + 1] << 8) |
-                                            e.Buffer[index + 0]);
-                    // to floating point
-                    var sample32 = sample / 32768f;
+                    var sample = buffer.ShortBuffer[index];
 
-                    if (sample32 > MinRecordVolume || sample32 < -MinRecordVolume)
+                    if (sample > minRecordSampleVolume || sample < -minRecordSampleVolume)
                     {
                         sufficientVolume = true;
                         break;
