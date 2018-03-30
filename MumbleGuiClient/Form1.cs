@@ -17,30 +17,10 @@ namespace MumbleGuiClient
 {
     public partial class Form1 : Form
     {
-        private class AudioPlayer
-        {
-            private readonly NAudio.Wave.WaveOut _playbackDevice = new NAudio.Wave.WaveOut();
-
-            public AudioPlayer(NAudio.Wave.IWaveProvider provider)
-            {
-                _playbackDevice.Init(provider);
-                _playbackDevice.Play();
-
-                _playbackDevice.PlaybackStopped += (sender, args) =>
-                    {
-                        //MessageBox.Show("stop");
-                        //Console.WriteLine("Playback stopped: " + args.Exception);
-                    };
-            }
-        }
-        readonly Dictionary<User, AudioPlayer> _players = new Dictionary<User, AudioPlayer>(); 
-
         MumbleConnection connection;
         ConnectionMumbleProtocol protocol;
         MicrophoneRecorder recorder;
-
-        bool tvUsersClick = false;
-        int selectedDevice;
+        SpeakerPlayback playback;
 
         struct ChannelInfo
         {
@@ -80,18 +60,30 @@ namespace MumbleGuiClient
             tvUsers.ExpandAll();
             tvUsers.StartUpdating();
 
+            playback = new SpeakerPlayback();
+            int playbackDeviceCount = NAudio.Wave.WaveOut.DeviceCount;
+            cbPlaybackDevices.Items.Add("Default Playback Device");
+            for (int i = 0; i < playbackDeviceCount; i++)
+            {
+                NAudio.Wave.WaveOutCapabilities deviceInfo = NAudio.Wave.WaveOut.GetCapabilities(i);
+                string deviceText = string.Format("{0}, {1} channels", deviceInfo.ProductName, deviceInfo.Channels);
+                cbPlaybackDevices.Items.Add(deviceText);
+            }
+            cbPlaybackDevices.SelectedIndex = 0;
+            SpeakerPlayback.SelectedDevice = cbPlaybackDevices.SelectedIndex - 1;
+
             recorder = new MicrophoneRecorder(protocol);
             int recorderDeviceCount = NAudio.Wave.WaveIn.DeviceCount;
             for (int i = 0; i < recorderDeviceCount; i++)
             {
                 NAudio.Wave.WaveInCapabilities deviceInfo = NAudio.Wave.WaveIn.GetCapabilities(i);
                 string deviceText = string.Format("{0}, {1} channels", deviceInfo.ProductName, deviceInfo.Channels);
-                comboBox1.Items.Add(deviceText);
+                cbRecordingDevices.Items.Add(deviceText);
             }
             if (recorderDeviceCount > 0)
             {
                 MicrophoneRecorder.SelectedDevice = 0;
-                comboBox1.SelectedIndex = 0;
+                cbRecordingDevices.SelectedIndex = 0;
             }
         }
 
@@ -276,6 +268,8 @@ namespace MumbleGuiClient
         void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, MumbleSharp.Audio.Codecs.IVoiceCodec codec, MumbleSharp.Audio.SpeechTarget target)
         {
             User user = proto.Users.FirstOrDefault(u => u.Id == userId);
+            AddPlayback(user);
+
             TreeNode<UserInfo> userNode = null;
             foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)
             {
@@ -357,17 +351,17 @@ namespace MumbleGuiClient
 
                 userNode.Value = GetUserInfo(user);
             }
-
-            if (!_players.ContainsKey(user))
-                _players.Add(user, new AudioPlayer(user.Voice));
-            else 
-                _players[user] = new AudioPlayer(user.Voice);
+        }
+        private void AddPlayback(User user)
+        {
+            if (user.Id != connection.Protocol.LocalUser.Id)
+                SpeakerPlayback.AddPlayer(user.Id, user.Voice);
         }
         void UserLeftDelegate(BasicMumbleProtocol proto, User user)
         {
             DeleteUserNode(user.Id, tvUsers.Nodes[0]);
 
-            _players.Remove(user);
+            SpeakerPlayback.RemovePlayer(user.Id);
         }
         void ChannelMessageReceivedDelegate(BasicMumbleProtocol proto, ChannelMessage message)
         {
@@ -392,23 +386,23 @@ namespace MumbleGuiClient
             }));
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnRecord_Click(object sender, EventArgs e)
         {
             if (recorder._recording)
             {
-                button1.Text = "record";
+                btnRecord.Text = "record";
                 recorder.Stop();
             }
             else
             {
-                button1.Text = "stop";
+                btnRecord.Text = "stop";
                 recorder.Record();
             }
         }
 
         private void tvUsers_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            tvUsersClick = true;
+
         }
 
         private void tvUsers_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
@@ -416,12 +410,17 @@ namespace MumbleGuiClient
 
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void cbPlaybackDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
-            MicrophoneRecorder.SelectedDevice = comboBox1.SelectedIndex;
+            SpeakerPlayback.SelectedDevice = cbPlaybackDevices.SelectedIndex - 1;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void cbRecordingDevices_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            MicrophoneRecorder.SelectedDevice = cbRecordingDevices.SelectedIndex;
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
         {
             string name = textBoxUserName.Text;
             string pass = textBoxUserPassword.Text;
@@ -457,7 +456,7 @@ namespace MumbleGuiClient
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void btnDisconnect_Click(object sender, EventArgs e)
         {
             if (connection != null)
             {

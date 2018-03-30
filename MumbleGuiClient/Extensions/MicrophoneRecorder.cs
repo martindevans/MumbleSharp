@@ -16,8 +16,6 @@ namespace MumbleGuiClient
         public MicrophoneRecorder(IMumbleProtocol protocol)
         {
             _protocol = protocol;
-
-            int totalDevices = WaveIn.DeviceCount;
         }
 
         private void VoiceDataAvailable(object sender, WaveInEventArgs e)

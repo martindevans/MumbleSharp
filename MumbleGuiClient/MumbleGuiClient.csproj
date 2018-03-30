@@ -53,6 +53,7 @@
     <Compile Include="ChannelsTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Extensions\SpeakerPlayback.cs" />
     <Compile Include="Extensions\ConnectionProtocol.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
