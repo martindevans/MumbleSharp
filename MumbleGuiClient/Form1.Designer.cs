@@ -30,6 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.labelMinRecordVolume = new System.Windows.Forms.Label();
+            this.numMinRecordVolume = new System.Windows.Forms.NumericUpDown();
             this.cbPlaybackDevices = new System.Windows.Forms.ComboBox();
             this.cbRecordingDevices = new System.Windows.Forms.ComboBox();
             this.btnRecord = new System.Windows.Forms.Button();
@@ -42,12 +44,10 @@
             this.textBoxUserName = new System.Windows.Forms.TextBox();
             this.labelPassword = new System.Windows.Forms.Label();
             this.labelUser = new System.Windows.Forms.Label();
+            this.tvUsers = new MumbleGuiClient.ChannelsTreeView();
             this.btnDisconnect = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
             this.mumbleUpdater = new System.Windows.Forms.Timer(this.components);
-            this.numMinRecordVolume = new System.Windows.Forms.NumericUpDown();
-            this.labelMinRecordVolume = new System.Windows.Forms.Label();
-            this.tvUsers = new MumbleGuiClient.ChannelsTreeView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -87,6 +87,30 @@
             this.splitContainer1.SplitterDistance = 329;
             this.splitContainer1.TabIndex = 0;
             // 
+            // labelMinRecordVolume
+            // 
+            this.labelMinRecordVolume.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelMinRecordVolume.AutoSize = true;
+            this.labelMinRecordVolume.Location = new System.Drawing.Point(101, 63);
+            this.labelMinRecordVolume.Name = "labelMinRecordVolume";
+            this.labelMinRecordVolume.Size = new System.Drawing.Size(127, 13);
+            this.labelMinRecordVolume.TabIndex = 7;
+            this.labelMinRecordVolume.Text = "Minimum Record Volume:";
+            // 
+            // numMinRecordVolume
+            // 
+            this.numMinRecordVolume.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numMinRecordVolume.Location = new System.Drawing.Point(234, 60);
+            this.numMinRecordVolume.Name = "numMinRecordVolume";
+            this.numMinRecordVolume.Size = new System.Drawing.Size(83, 20);
+            this.numMinRecordVolume.TabIndex = 6;
+            this.numMinRecordVolume.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numMinRecordVolume.ValueChanged += new System.EventHandler(this.numMinRecordVolume_ValueChanged);
+            // 
             // cbPlaybackDevices
             // 
             this.cbPlaybackDevices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -111,6 +135,7 @@
             // 
             // btnRecord
             // 
+            this.btnRecord.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRecord.Location = new System.Drawing.Point(234, 33);
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(83, 21);
@@ -207,6 +232,20 @@
             this.labelUser.TabIndex = 7;
             this.labelUser.Text = "User";
             // 
+            // tvUsers
+            // 
+            this.tvUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tvUsers.Location = new System.Drawing.Point(3, 111);
+            this.tvUsers.Name = "tvUsers";
+            this.tvUsers.Size = new System.Drawing.Size(208, 141);
+            this.tvUsers.TabIndex = 6;
+            this.tvUsers.UpdateInterval = 500;
+            this.tvUsers.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvUsers_BeforeCollapse);
+            this.tvUsers.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvUsers_NodeMouseDoubleClick);
+            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
+            // 
             // btnDisconnect
             // 
             this.btnDisconnect.Location = new System.Drawing.Point(55, 82);
@@ -232,42 +271,6 @@
             this.mumbleUpdater.Enabled = true;
             this.mumbleUpdater.Interval = 10;
             this.mumbleUpdater.Tick += new System.EventHandler(this.mumbleUpdater_Tick);
-            // 
-            // numMinRecordVolume
-            // 
-            this.numMinRecordVolume.Location = new System.Drawing.Point(234, 60);
-            this.numMinRecordVolume.Name = "numMinRecordVolume";
-            this.numMinRecordVolume.Size = new System.Drawing.Size(83, 20);
-            this.numMinRecordVolume.TabIndex = 6;
-            this.numMinRecordVolume.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numMinRecordVolume.ValueChanged += new System.EventHandler(this.numMinRecordVolume_ValueChanged);
-            // 
-            // labelMinRecordVolume
-            // 
-            this.labelMinRecordVolume.AutoSize = true;
-            this.labelMinRecordVolume.Location = new System.Drawing.Point(101, 63);
-            this.labelMinRecordVolume.Name = "labelMinRecordVolume";
-            this.labelMinRecordVolume.Size = new System.Drawing.Size(127, 13);
-            this.labelMinRecordVolume.TabIndex = 7;
-            this.labelMinRecordVolume.Text = "Minimum Record Volume:";
-            // 
-            // tvUsers
-            // 
-            this.tvUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvUsers.Location = new System.Drawing.Point(3, 111);
-            this.tvUsers.Name = "tvUsers";
-            this.tvUsers.Size = new System.Drawing.Size(208, 141);
-            this.tvUsers.TabIndex = 6;
-            this.tvUsers.UpdateInterval = 500;
-            this.tvUsers.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvUsers_BeforeCollapse);
-            this.tvUsers.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvUsers_NodeMouseDoubleClick);
-            this.tvUsers.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvUsers_MouseDoubleClick);
             // 
             // Form1
             // 
