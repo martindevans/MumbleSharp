@@ -86,7 +86,7 @@ namespace MumbleGuiClient
                 cbRecordingDevices.SelectedIndex = 0;
             }
 
-            numMinRecordVolume.Value = Convert.ToDecimal(recorder.MinRecordVolume)*100;
+            numMinRecordVolume.Value = Convert.ToDecimal(recorder.VoiceDetectionVolume)*100;
         }
 
         UserInfo GetUserInfo(User user)
@@ -471,7 +471,7 @@ namespace MumbleGuiClient
 
         private void numMinRecordVolume_ValueChanged(object sender, EventArgs e)
         {
-            recorder.MinRecordVolume = Convert.ToSingle(numMinRecordVolume.Value/100);
+            recorder.VoiceDetectionVolume = Convert.ToSingle(numMinRecordVolume.Value/100);
         }
 
         //----------------------------
