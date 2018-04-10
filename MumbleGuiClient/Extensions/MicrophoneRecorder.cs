@@ -142,7 +142,7 @@ namespace MumbleGuiClient
                 sourceStream.Dispose();
             sourceStream = new WaveInEvent
             {
-                WaveFormat = new WaveFormat(48000, 16, 1)
+                WaveFormat = new WaveFormat(Constants.SAMPLE_RATE, Constants.SAMPLE_BITS, Constants.CHANNELS)
             };
             sourceStream.BufferMilliseconds = 10;
             sourceStream.DeviceNumber = SelectedDevice;
