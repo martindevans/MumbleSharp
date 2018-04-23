@@ -12,76 +12,35 @@ namespace MumbleGuiClient
         public double lastPingSendTime;
         WaveInEvent sourceStream;
         public static int SelectedDevice;
-        private float _voiceDetectionVolume;
-        private short _voiceDetectionSampleVolume;
-        private short _noiseDetectionSampleVolume;
-        public float VoiceDetectionVolume
+        private IVoiceDetector voiceDetector = new BasicVoiceDetector();
+        private float _voiceDetectionThresholdy;
+        public float VoiceDetectionThreshold
         {
             get
             {
-                return _voiceDetectionVolume;
+                return _voiceDetectionThresholdy;
             }
             set
             {
-                _voiceDetectionVolume = value;
-                _voiceDetectionSampleVolume = Convert.ToInt16(short.MaxValue * value);
-                _noiseDetectionSampleVolume = Convert.ToInt16(short.MaxValue * value * 0.75);
+                _voiceDetectionThresholdy = value;
+                ((BasicVoiceDetector)voiceDetector).VoiceDetectionSampleVolume = Convert.ToInt16(short.MaxValue * value);
+                ((BasicVoiceDetector)voiceDetector).NoiseDetectionSampleVolume = Convert.ToInt16(short.MaxValue * value * 0.8);
             }
         }
 
+
         public MicrophoneRecorder(IMumbleProtocol protocol)
         {
-            VoiceDetectionVolume = 0.5f;
+            VoiceDetectionThreshold = 0.5f;
             _protocol = protocol;
         }
 
-        private enum SoundType
-        {
-            NOTHING,
-            NOISE,
-            VOICE
-        }
-
-        private DateTime _lastDetectedSoundTime = DateTime.MinValue;
-        private TimeSpan _minVoiceHoldTime = TimeSpan.FromMilliseconds(1000);
-        private TimeSpan _minNoiseHoldTime = TimeSpan.FromMilliseconds(250);
-        private SoundType _lastDetectedSound = SoundType.NOTHING;
         private void VoiceDataAvailable(object sender, WaveInEventArgs e)
         {
             if (!_recording)
                 return;
 
-            var now = DateTime.Now;
-
-            SoundType detectedSound = DetectSound(new WaveBuffer(e.Buffer), e.BytesRecorded, _voiceDetectionSampleVolume, _noiseDetectionSampleVolume);
-            if (detectedSound != SoundType.NOTHING)
-                _lastDetectedSoundTime = now;
-
-            //adjust the detectedSound to tyke into account to hold times.
-            if (_lastDetectedSound == SoundType.NOISE && (_lastDetectedSoundTime + _minNoiseHoldTime > now))
-            {
-                switch (detectedSound)
-                {
-                    case SoundType.NOTHING:
-                    case SoundType.NOISE:
-                        detectedSound = SoundType.NOISE;
-                        break;
-                    case SoundType.VOICE:
-                        detectedSound = SoundType.VOICE;
-                        break;
-                }
-            }
-            else if (_lastDetectedSound == SoundType.VOICE && (_lastDetectedSoundTime + _minVoiceHoldTime > now))
-            {
-                detectedSound = SoundType.VOICE;
-            }
-
-
-            _lastDetectedSound = detectedSound;
-
-            if (detectedSound == SoundType.NOTHING)
-                return;
-            else
+            if (voiceDetector.VoiceDetected(new WaveBuffer(e.Buffer), e.BytesRecorded))
             {
                 //At the moment we're sending *from* the local user, this is kinda stupid.
                 //What we really want is to send *to* other users, or to channels. Something like:
@@ -107,32 +66,7 @@ namespace MumbleGuiClient
             }
         }
 
-        private static SoundType DetectSound(WaveBuffer buffer, int bytesRecorded, short minVoiceRecordSampleVolume, short minNoiseRecordSampleVolume)
-        {
-            SoundType result = SoundType.NOTHING;
 
-            //check if the volume peaks above the MinRecordVolume
-            // interpret as 32 bit floating point audio
-            for (int index = 0; index < bytesRecorded / 4; index++)
-            {
-                var sample = buffer.ShortBuffer[index];
-
-                //Check voice volume threshold
-                if (sample > minVoiceRecordSampleVolume || sample < -minVoiceRecordSampleVolume)
-                {
-                    result = SoundType.VOICE;
-                    //skip testing the rest of the sample data as soon as voice volume threshold has been reached
-                    break;
-                }
-                //Check noise volume threshold
-                else if (sample > minNoiseRecordSampleVolume || sample < -minNoiseRecordSampleVolume)
-                {
-                    result = SoundType.NOISE;
-                }
-            }
-
-            return result;
-        }
 
         public void Record()
         {

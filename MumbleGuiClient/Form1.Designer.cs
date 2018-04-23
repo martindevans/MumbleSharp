@@ -30,8 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.labelMinRecordVolume = new System.Windows.Forms.Label();
-            this.numMinRecordVolume = new System.Windows.Forms.NumericUpDown();
+            this.labelVoiceDetectorThreshold = new System.Windows.Forms.Label();
+            this.numVoiceDetectorThreshold = new System.Windows.Forms.NumericUpDown();
             this.cbPlaybackDevices = new System.Windows.Forms.ComboBox();
             this.cbRecordingDevices = new System.Windows.Forms.ComboBox();
             this.btnRecord = new System.Windows.Forms.Button();
@@ -52,7 +52,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numMinRecordVolume)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numVoiceDetectorThreshold)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -63,8 +63,8 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.labelMinRecordVolume);
-            this.splitContainer1.Panel1.Controls.Add(this.numMinRecordVolume);
+            this.splitContainer1.Panel1.Controls.Add(this.labelVoiceDetectorThreshold);
+            this.splitContainer1.Panel1.Controls.Add(this.numVoiceDetectorThreshold);
             this.splitContainer1.Panel1.Controls.Add(this.cbPlaybackDevices);
             this.splitContainer1.Panel1.Controls.Add(this.cbRecordingDevices);
             this.splitContainer1.Panel1.Controls.Add(this.btnRecord);
@@ -87,29 +87,29 @@
             this.splitContainer1.SplitterDistance = 329;
             this.splitContainer1.TabIndex = 0;
             // 
-            // labelMinRecordVolume
+            // labelVoiceDetectorThreshold
             // 
-            this.labelMinRecordVolume.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelMinRecordVolume.AutoSize = true;
-            this.labelMinRecordVolume.Location = new System.Drawing.Point(101, 63);
-            this.labelMinRecordVolume.Name = "labelMinRecordVolume";
-            this.labelMinRecordVolume.Size = new System.Drawing.Size(127, 13);
-            this.labelMinRecordVolume.TabIndex = 7;
-            this.labelMinRecordVolume.Text = "Minimum Record Volume:";
+            this.labelVoiceDetectorThreshold.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelVoiceDetectorThreshold.AutoSize = true;
+            this.labelVoiceDetectorThreshold.Location = new System.Drawing.Point(101, 63);
+            this.labelVoiceDetectorThreshold.Name = "labelVoiceDetectorThreshold";
+            this.labelVoiceDetectorThreshold.Size = new System.Drawing.Size(128, 13);
+            this.labelVoiceDetectorThreshold.TabIndex = 7;
+            this.labelVoiceDetectorThreshold.Text = "Voice Detector Threshold";
             // 
-            // numMinRecordVolume
+            // numVoiceDetectorThreshold
             // 
-            this.numMinRecordVolume.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numMinRecordVolume.Location = new System.Drawing.Point(234, 60);
-            this.numMinRecordVolume.Name = "numMinRecordVolume";
-            this.numMinRecordVolume.Size = new System.Drawing.Size(83, 20);
-            this.numMinRecordVolume.TabIndex = 6;
-            this.numMinRecordVolume.Value = new decimal(new int[] {
+            this.numVoiceDetectorThreshold.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numVoiceDetectorThreshold.Location = new System.Drawing.Point(234, 60);
+            this.numVoiceDetectorThreshold.Name = "numVoiceDetectorThreshold";
+            this.numVoiceDetectorThreshold.Size = new System.Drawing.Size(83, 20);
+            this.numVoiceDetectorThreshold.TabIndex = 6;
+            this.numVoiceDetectorThreshold.Value = new decimal(new int[] {
             50,
             0,
             0,
             0});
-            this.numMinRecordVolume.ValueChanged += new System.EventHandler(this.numMinRecordVolume_ValueChanged);
+            this.numVoiceDetectorThreshold.ValueChanged += new System.EventHandler(this.numVoiceDetectionThreshold_ValueChanged);
             // 
             // cbPlaybackDevices
             // 
@@ -287,7 +287,7 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numMinRecordVolume)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numVoiceDetectorThreshold)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -311,8 +311,8 @@
         private System.Windows.Forms.Label labelServer;
         private System.Windows.Forms.Label labelPassword;
         private System.Windows.Forms.Label labelUser;
-        private System.Windows.Forms.NumericUpDown numMinRecordVolume;
-        private System.Windows.Forms.Label labelMinRecordVolume;
+        private System.Windows.Forms.NumericUpDown numVoiceDetectorThreshold;
+        private System.Windows.Forms.Label labelVoiceDetectorThreshold;
     }
 }
 
