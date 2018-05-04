@@ -6,8 +6,8 @@ namespace MumbleSharp.Audio.Codecs.Opus
     public class OpusCodec
         : IVoiceCodec
     {
-        readonly OpusDecoder _decoder = new OpusDecoder((int)Constants.SAMPLE_RATE, 1) { EnableForwardErrorCorrection = true };
-        readonly OpusEncoder _encoder = new OpusEncoder((int)Constants.SAMPLE_RATE, 1) { EnableForwardErrorCorrection = true };
+        readonly OpusDecoder _decoder = new OpusDecoder(Constants.SAMPLE_RATE, Constants.CHANNELS) { EnableForwardErrorCorrection = true };
+        readonly OpusEncoder _encoder = new OpusEncoder(Constants.SAMPLE_RATE, Constants.CHANNELS) { EnableForwardErrorCorrection = true };
 
         public byte[] Decode(byte[] encodedData)
         {
@@ -17,7 +17,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
                 return null;
             }
 
-            int samples = OpusDecoder.GetSamples(encodedData, 0, encodedData.Length, 48000);
+            int samples = OpusDecoder.GetSamples(encodedData, 0, encodedData.Length, Constants.SAMPLE_RATE);
             if (samples < 1)
                 return null;
 

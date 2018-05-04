@@ -85,6 +85,8 @@ namespace MumbleGuiClient
                 MicrophoneRecorder.SelectedDevice = 0;
                 cbRecordingDevices.SelectedIndex = 0;
             }
+
+            numVoiceDetectorThreshold.Value = Convert.ToDecimal(recorder.VoiceDetectionThreshold)*100;
         }
 
         UserInfo GetUserInfo(User user)
@@ -465,6 +467,11 @@ namespace MumbleGuiClient
                 protocol.Close();
                 tvUsers.Nodes.Clear();
             }
+        }
+
+        private void numVoiceDetectionThreshold_ValueChanged(object sender, EventArgs e)
+        {
+            recorder.VoiceDetectionThreshold = Convert.ToSingle(numVoiceDetectorThreshold.Value / 100);
         }
 
         //----------------------------

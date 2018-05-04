@@ -107,12 +107,12 @@ namespace MumbleSharp.Model
             Owner.Connection.SendControl<UserState>(PacketType.UserState, state);
         }
 
-        internal void RemoveUser(User user)
+        internal void AddUser(User user)
         {
             _users.GetOrAdd(user, true);
         }
 
-        internal void AddUser(User user)
+        internal void RemoveUser(User user)
         {
             bool _;
             _users.TryRemove(user, out _);
