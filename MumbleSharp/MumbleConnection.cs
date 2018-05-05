@@ -330,7 +330,7 @@ namespace MumbleSharp
                 Authenticate auth = new Authenticate
                 {
                     Username = username,
-                    Password = "",
+                    Password = password,
                     Opus = true,
                 };
                 auth.Tokens.AddRange(tokens ?? new string[0]);

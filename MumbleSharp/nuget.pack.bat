@@ -1,0 +1,1 @@
+..\.nuget\nuget.exe pack MumbleSharp.csproj -Build -Properties Configuration=Release -OutputDirectory ..\NuGetRelease

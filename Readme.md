@@ -12,6 +12,8 @@ As you can see from the MumbleClient Program.cs creating a new client is very si
 
  1. Implement IMumbleProtocol and implement methods to respond to messages of different types however you wish.
  2. Use a MumbleConnection to connect to a server.
+ 
+You may find the MumbleSharp library as a NuGet package [https://www.nuget.org/packages/MumbleSharp](https://www.nuget.org/packages/MumbleSharp)
 
 ## Work In Progress
  
