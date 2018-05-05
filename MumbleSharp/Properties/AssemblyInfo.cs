@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MumbleSharp")]
-[assembly: AssemblyDescription("MumbleSharp is an implementation of a mumble client in C#.")]
+[assembly: AssemblyDescription("MumbleSharp is a mumble protocol implementation in C#.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MumbleSharp")]
