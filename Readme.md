@@ -5,7 +5,8 @@ MumbleSharp is an implementation of a mumble client in C#.
 The solution comes in two parts:
 
  - MumbleSharp is the actual MumbleSharp library which is a class library for building mumble clients.
- - MumbleClient is a mumble client, currently just a console application to use for testing.
+ - MumbleClient is a console mumble client, a console application to use for testing and learning.
+ - MumbleGuiClient is a winform mumble client, a minimalistic client but fully functional: channels display and switching, message chat, voice support, playback/recording device selection and a very basic voice detection.
 
 As you can see from the MumbleClient Program.cs creating a new client is very simple:
 
@@ -14,7 +15,7 @@ As you can see from the MumbleClient Program.cs creating a new client is very si
 
 ## Work In Progress
  
-This project is currently only partly functional! The library fully supports all non voice things that mumble can do but voice support is very work in progress (only *receiving* Opus encoded packets is supported).
+This project is currently only partly functional! The library fully supports all non voice things that mumble can do but voice support is very work in progress (only Opus encoded packets is supported).
 
 ## Contributing
 
@@ -31,9 +32,6 @@ There is no jitter buffering at the moment. Port the jitter buffering from mumbl
 
 #### Other Codecs
 Supporting other codecs should be relatively simple. For CELT you'll need to find the correct version of the DLL (check out the Mumble-Protocol.pdf for the version) and then write a wrapper with P/Invoke. For Speex you should be able to use NSpeex.
-
-#### Talking
-Currently we can receive audio, but not send it!
 
 ## Looking For VoIP In Unity?
 
