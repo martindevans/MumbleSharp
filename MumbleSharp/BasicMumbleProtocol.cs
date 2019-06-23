@@ -125,7 +125,12 @@ namespace MumbleSharp
         /// <param name="channelState"></param>
         public virtual void ChannelState(ChannelState channelState)
         {
-            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent) { Temporary = channelState.Temporary },
+            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent)
+            {
+                Temporary = channelState.Temporary,
+                Description = channelState.Description,
+                Position = channelState.Position
+            },
                 (i, c) =>
                 {
                     c.Name = channelState.Name;

@@ -16,6 +16,8 @@ namespace MumbleSharp.Model
 
         public bool Temporary { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
+        public int Position { get; set; }
         public uint Id { get; private set; }
         public uint Parent { get; private set; }
 
