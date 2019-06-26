@@ -11,13 +11,17 @@ namespace MumbleSharp.Model
         : IEquatable<User>
     {
         private readonly IMumbleProtocol _owner;
+        private readonly UserState _userstate = new UserState();
 
-        public UInt32 Id { get; private set; }
-        public bool Deaf { get; set; }
-        public bool Muted { get; set; }
-        public bool SelfDeaf { get; set; }
-        public bool SelfMuted { get; set; }
-        public bool Suppress { get; set; }
+        public UInt32 Id { get => _userstate.Actor; private set { _userstate.Actor = value; } }
+        public UInt32 ChannelId { get => _userstate.ChannelId; private set { _userstate.ChannelId = value; } }
+        public string Name { get => _userstate.Name; set { _userstate.Name = value; } }
+        public string Comment { get => _userstate.Comment; set { _userstate.Comment = value; } }
+        public bool Deaf { get => _userstate.Deaf; set { _userstate.Deaf = value; } }
+        public bool Muted { get => _userstate.Mute; set { _userstate.Mute = value; } }
+        public bool SelfDeaf { get => _userstate.SelfDeaf; set { _userstate.SelfDeaf = value; } }
+        public bool SelfMuted { get => _userstate.SelfMute; set { _userstate.SelfMute = value; } }
+        public bool Suppress { get => _userstate.Suppress; set { _userstate.Suppress = value; } }
 
         private Channel _channel;
         public Channel Channel
@@ -34,9 +38,6 @@ namespace MumbleSharp.Model
                     value.AddUser(this);
             }
         }
-
-        public string Name { get; set; }
-        public string Comment { get; set; }
 
         private readonly CodecSet _codecs = new CodecSet();
 
@@ -80,11 +81,17 @@ namespace MumbleSharp.Model
             if (_channel == channel)
                 return;
 
-            UserState userstate = new UserState();
-            userstate.Actor = Id;
-            userstate.ChannelId = channel.Id;
+            this.ChannelId = channel.Id;
 
-            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
+            SendUserState();
+        }
+
+        /// <summary>
+        /// Send user state
+        /// </summary>
+        public void SendUserState()
+        {
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, _userstate);
         }
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
