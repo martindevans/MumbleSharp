@@ -13,7 +13,7 @@ namespace MumbleSharp.Model
         private readonly IMumbleProtocol _owner;
         private readonly UserState _userstate = new UserState();
 
-        public UInt32 Id { get => _userstate.Actor; private set { _userstate.Actor = value; } }
+        public UInt32 Id { get => _userstate.UserId; private set { _userstate.UserId = value; } }
         public UInt32 ChannelId { get => _userstate.ChannelId; private set { _userstate.ChannelId = value; } }
         public string Name { get => _userstate.Name; set { _userstate.Name = value; } }
         public string Comment { get => _userstate.Comment; set { _userstate.Comment = value; } }
@@ -91,7 +91,12 @@ namespace MumbleSharp.Model
         /// </summary>
         public void SendUserState()
         {
-            _owner.Connection.SendControl<UserState>(PacketType.UserState, _userstate);
+            UserState userstate = new UserState();
+            userstate.Actor = this.Id;
+            userstate.ChannelId = this.ChannelId;
+            userstate.SelfMute = this.SelfMuted;
+            userstate.SelfDeaf = this.SelfDeaf;
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
         }
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
