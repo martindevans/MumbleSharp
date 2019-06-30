@@ -90,14 +90,25 @@ namespace MumbleSharp.Model
         /// </summary>
         public void SendUserState()
         {
-            _owner.Connection.SendControl<UserState>(PacketType.UserState, new UserState()
+            UserState userstate = new UserState()
             {
-                Actor = this.Id,
-                Session = _owner.LocalUser.Id,
-                ChannelId = this.ChannelId,
-                SelfMute = this.SelfMuted,
-                SelfDeaf = this.SelfDeaf,
-            });
+                Actor = _owner.LocalUser.Id,
+                ChannelId = this.ChannelId
+            };
+
+            if(this.Id == _owner.LocalUser.Id)
+            {
+                userstate.SelfMute = this.SelfMuted;
+                userstate.SelfDeaf = this.SelfDeaf;
+            } else
+            {
+                userstate.Session = _owner.LocalUser.Id;
+                userstate.UserId = this.Id;
+                userstate.Mute = this.Muted;
+                userstate.Deaf = this.Deaf;
+            }
+
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
         }
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
