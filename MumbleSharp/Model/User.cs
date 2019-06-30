@@ -13,6 +13,9 @@ namespace MumbleSharp.Model
         private readonly IMumbleProtocol _owner;
 
         public UInt32 Id { get; private set; }
+        public UInt32 ChannelId { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
         public bool Deaf { get; set; }
         public bool Muted { get; set; }
         public bool SelfDeaf { get; set; }
@@ -34,9 +37,6 @@ namespace MumbleSharp.Model
                     value.AddUser(this);
             }
         }
-
-        public string Name { get; set; }
-        public string Comment { get; set; }
 
         private readonly CodecSet _codecs = new CodecSet();
 
@@ -80,26 +80,24 @@ namespace MumbleSharp.Model
             if (_channel == channel)
                 return;
 
-            UserState userstate = new UserState();
-            userstate.Actor = Id;
-            userstate.ChannelId = channel.Id;
+            this.ChannelId = channel.Id;
 
-            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
+            SendUserState();
         }
 
         /// <summary>
-        /// Send the user state (including channel, selfmute, selfdeaf)
+        /// Send user state (including channel, selfmute, selfdeaf)
         /// </summary>
         public void SendUserState()
         {
-            UserState userstate = new UserState();
-            userstate.Actor = this.Id;
-            userstate.Session = _owner.LocalUser.Id;
-            userstate.ChannelId = this.Channel.Id;
-            userstate.SelfMute = this.SelfMuted;
-            userstate.SelfDeaf = this.SelfDeaf;
-
-            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, new UserState()
+            {
+                Actor = this.Id,
+                Session = _owner.LocalUser.Id,
+                ChannelId = this.ChannelId,
+                SelfMute = this.SelfMuted,
+                SelfDeaf = this.SelfDeaf,
+            });
         }
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
