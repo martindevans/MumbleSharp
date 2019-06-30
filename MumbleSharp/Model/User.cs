@@ -82,18 +82,28 @@ namespace MumbleSharp.Model
 
             this.ChannelId = channel.Id;
 
-            SendUserState();
-        }
-
-        /// <summary>
-        /// Send user state (including channel, selfmute, selfdeaf)
-        /// </summary>
-        public void SendUserState()
-        {
             UserState userstate = new UserState()
             {
                 Actor = _owner.LocalUser.Id,
                 ChannelId = this.ChannelId
+            };
+
+            if (this.Id != _owner.LocalUser.Id)
+            {
+                userstate.UserId = this.Id;
+            }
+
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
+        }
+
+        /// <summary>
+        /// Send user mute and deaf states
+        /// </summary>
+        public void SendMuteDeaf()
+        {
+            UserState userstate = new UserState()
+            {
+                Actor = _owner.LocalUser.Id
             };
 
             if(this.Id == _owner.LocalUser.Id)
@@ -102,7 +112,6 @@ namespace MumbleSharp.Model
                 userstate.SelfDeaf = this.SelfDeaf;
             } else
             {
-                userstate.Session = _owner.LocalUser.Id;
                 userstate.UserId = this.Id;
                 userstate.Mute = this.Muted;
                 userstate.Deaf = this.Deaf;
