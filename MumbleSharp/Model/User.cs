@@ -13,7 +13,6 @@ namespace MumbleSharp.Model
         private readonly IMumbleProtocol _owner;
 
         public UInt32 Id { get; private set; }
-        public UInt32 ChannelId { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
         public bool Deaf { get; set; }
@@ -80,12 +79,10 @@ namespace MumbleSharp.Model
             if (_channel == channel)
                 return;
 
-            this.ChannelId = channel.Id;
-
             UserState userstate = new UserState()
             {
                 Actor = _owner.LocalUser.Id,
-                ChannelId = this.ChannelId
+                ChannelId = channel.Id
             };
 
             if (this.Id != _owner.LocalUser.Id)
