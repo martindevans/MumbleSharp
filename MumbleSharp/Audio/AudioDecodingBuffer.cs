@@ -11,18 +11,18 @@ namespace MumbleSharp.Audio
     public class AudioDecodingBuffer
         : IWaveProvider
     {
-        private static readonly WaveFormat _format = new WaveFormat((int)Constants.SAMPLE_RATE, (int)Constants.SAMPLE_BITS, 1);
-        public WaveFormat WaveFormat
-        {
-            get
-            {
-                return _format;
-            }
-        }
-
+        private readonly ushort _sampleRate;
+        public WaveFormat WaveFormat { get; private set; }
         private int _decodedOffset;
         private int _decodedCount;
-        private readonly byte[] _decodedBuffer = new byte[Constants.SAMPLE_RATE * (Constants.SAMPLE_BITS / 8) * 1];
+        private readonly byte[] _decodedBuffer;
+
+        public AudioDecodingBuffer(ushort sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        {
+            WaveFormat = new WaveFormat(sampleRate, sampleBits, sampleChannels);
+            _sampleRate = sampleRate;
+            _decodedBuffer = new byte[sampleRate * (sampleBits / 8) * sampleChannels];
+        }
 
         private long _nextSequenceToDecode;
         private readonly List<BufferPacket> _encodedBuffer = new List<BufferPacket>(); 
@@ -140,7 +140,7 @@ namespace MumbleSharp.Audio
             //    _codec.Decode(null);
 
             var d = _codec.Decode(packet.Value.Data);
-            _nextSequenceToDecode = packet.Value.Sequence + d.Length / Constants.FRAME_SIZE;
+            _nextSequenceToDecode = packet.Value.Sequence + d.Length / (_sampleRate / 20);
 
             Array.Copy(d, 0, _decodedBuffer, _decodedOffset, d.Length);
             _decodedCount += d.Length;

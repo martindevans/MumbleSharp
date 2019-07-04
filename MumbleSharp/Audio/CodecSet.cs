@@ -9,10 +9,18 @@ namespace MumbleSharp.Audio
 {
     public class CodecSet
     {
-        private readonly Lazy<CeltAlphaCodec> _alpha = new Lazy<CeltAlphaCodec>();
-        private readonly Lazy<CeltBetaCodec> _beta = new Lazy<CeltBetaCodec>();
-        private readonly Lazy<SpeexCodec> _speex = new Lazy<SpeexCodec>();
-        private readonly Lazy<OpusCodec> _opus = new Lazy<OpusCodec>();
+        private readonly Lazy<CeltAlphaCodec> _alpha;
+        private readonly Lazy<CeltBetaCodec> _beta;
+        private readonly Lazy<SpeexCodec> _speex;
+        private readonly Lazy<OpusCodec> _opus;
+
+        public CodecSet(ushort sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        {
+            _alpha = new Lazy<CeltAlphaCodec>();
+            _beta = new Lazy<CeltBetaCodec>();
+            _speex = new Lazy<SpeexCodec>();
+            _opus = new Lazy<OpusCodec>(() => new OpusCodec(sampleRate, sampleBits, sampleChannels));
+        }
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
         {

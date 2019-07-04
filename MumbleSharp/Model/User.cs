@@ -37,10 +37,12 @@ namespace MumbleSharp.Model
             }
         }
 
-        private readonly CodecSet _codecs = new CodecSet();
+        private readonly CodecSet _codecs;
 
-        public User(IMumbleProtocol owner, uint id)
+        public User(IMumbleProtocol owner, uint id, ushort audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
+            _codecs = new CodecSet(audioSampleRate, audioSampleBits, audioSampleChannels);
+            _buffer = new AudioDecodingBuffer(audioSampleRate, audioSampleBits, audioSampleChannels);
             _owner = owner;
             Id = id;
         }
@@ -146,7 +148,7 @@ namespace MumbleSharp.Model
             return other.Id == Id;
         }
 
-        private readonly AudioDecodingBuffer _buffer = new AudioDecodingBuffer();
+        private readonly AudioDecodingBuffer _buffer;
         public IWaveProvider Voice
         {
             get

@@ -58,9 +58,14 @@ namespace MumbleSharp
 
         public bool IsEncodingThreadRunning { get; set; }
 
-        public BasicMumbleProtocol()
+        private ushort _audioSampleRate;
+        private ushort _audioSampleBits;
+        private ushort _audioSampleChannels;
+        public BasicMumbleProtocol(ushort audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
-            
+            _audioSampleRate = audioSampleRate;
+            _audioSampleBits = audioSampleBits;
+            _audioSampleChannels = audioSampleChannels;
         }
 
         /// <summary>
@@ -182,7 +187,7 @@ namespace MumbleSharp
                 bool added = false;
                 User user = UserDictionary.AddOrUpdate(userState.Session, i => {
                     added = true;
-                    return new User(this, userState.Session);
+                    return new User(this, userState.Session, _audioSampleRate, _audioSampleBits, _audioSampleChannels);
                 }, (i, u) => u);
 
                 if (userState.ShouldSerializeSelfDeaf())
