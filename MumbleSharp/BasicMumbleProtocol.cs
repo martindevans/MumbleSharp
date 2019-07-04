@@ -202,7 +202,7 @@ namespace MumbleSharp
 
                 if (userState.ShouldSerializeChannelId())
                     user.Channel = ChannelDictionary[userState.ChannelId];
-                else
+                else if(user.Channel == null)
                     user.Channel = RootChannel;
 
                 //if (added)

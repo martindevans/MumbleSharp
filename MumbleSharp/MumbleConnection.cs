@@ -511,7 +511,7 @@ namespace MumbleSharp
                         case PacketType.RequestBlob:
                         case PacketType.BanList:
                         default:
-                            throw new NotImplementedException();
+                            throw new NotImplementedException($"{nameof(Process)} {nameof(PacketType)}.{type.ToString()}");
                     }
                 }
             }

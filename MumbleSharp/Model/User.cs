@@ -13,6 +13,8 @@ namespace MumbleSharp.Model
         private readonly IMumbleProtocol _owner;
 
         public UInt32 Id { get; private set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
         public bool Deaf { get; set; }
         public bool Muted { get; set; }
         public bool SelfDeaf { get; set; }
@@ -34,9 +36,6 @@ namespace MumbleSharp.Model
                     value.AddUser(this);
             }
         }
-
-        public string Name { get; set; }
-        public string Comment { get; set; }
 
         private readonly CodecSet _codecs = new CodecSet();
 
@@ -80,9 +79,40 @@ namespace MumbleSharp.Model
             if (_channel == channel)
                 return;
 
-            UserState userstate = new UserState();
-            userstate.Actor = Id;
-            userstate.ChannelId = channel.Id;
+            UserState userstate = new UserState()
+            {
+                Actor = _owner.LocalUser.Id,
+                ChannelId = channel.Id
+            };
+
+            if (this.Id != _owner.LocalUser.Id)
+            {
+                userstate.UserId = this.Id;
+            }
+
+            _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
+        }
+
+        /// <summary>
+        /// Send user mute and deaf states
+        /// </summary>
+        public void SendMuteDeaf()
+        {
+            UserState userstate = new UserState()
+            {
+                Actor = _owner.LocalUser.Id
+            };
+
+            if(this.Id == _owner.LocalUser.Id)
+            {
+                userstate.SelfMute = this.SelfMuted;
+                userstate.SelfDeaf = this.SelfDeaf;
+            } else
+            {
+                userstate.UserId = this.Id;
+                userstate.Mute = this.Muted;
+                userstate.Deaf = this.Deaf;
+            }
 
             _owner.Connection.SendControl<UserState>(PacketType.UserState, userstate);
         }
