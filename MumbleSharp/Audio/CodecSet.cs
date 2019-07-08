@@ -14,7 +14,7 @@ namespace MumbleSharp.Audio
         private readonly Lazy<SpeexCodec> _speex;
         private readonly Lazy<OpusCodec> _opus;
 
-        public CodecSet(ushort sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public CodecSet(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
             _alpha = new Lazy<CeltAlphaCodec>();
             _beta = new Lazy<CeltBetaCodec>();

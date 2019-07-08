@@ -17,7 +17,7 @@ namespace MumbleSharp.Audio
 
         private TargettedSpeech? _unencodedItem;
 
-        public AudioEncodingBuffer(ushort sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public AudioEncodingBuffer(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
             _codecs = new CodecSet(sampleRate, sampleBits, sampleChannels);
         }

@@ -58,10 +58,10 @@ namespace MumbleSharp
 
         public bool IsEncodingThreadRunning { get; set; }
 
-        private ushort _audioSampleRate;
-        private ushort _audioSampleBits;
-        private ushort _audioSampleChannels;
-        public BasicMumbleProtocol(ushort audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        private int _audioSampleRate;
+        private byte _audioSampleBits;
+        private byte _audioSampleChannels;
+        public BasicMumbleProtocol(int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
             _audioSampleRate = audioSampleRate;
             _audioSampleBits = audioSampleBits;

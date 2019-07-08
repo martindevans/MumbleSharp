@@ -8,9 +8,9 @@ namespace MumbleSharp.Audio.Codecs.Opus
     {
         readonly OpusDecoder _decoder;
         readonly OpusEncoder _encoder;
-        readonly ushort _sampleRate;
+        readonly int _sampleRate;
 
-        public OpusCodec(ushort SampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort SampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort Channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public OpusCodec(int SampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte SampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte Channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
             _sampleRate = SampleRate;
             _decoder = new OpusDecoder(SampleRate, Channels) { EnableForwardErrorCorrection = true };

@@ -11,13 +11,13 @@ namespace MumbleSharp.Audio
     public class AudioDecodingBuffer
         : IWaveProvider
     {
-        private readonly ushort _sampleRate;
+        private readonly int _sampleRate;
         public WaveFormat WaveFormat { get; private set; }
         private int _decodedOffset;
         private int _decodedCount;
         private readonly byte[] _decodedBuffer;
 
-        public AudioDecodingBuffer(ushort sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, ushort sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, ushort sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public AudioDecodingBuffer(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
         {
             WaveFormat = new WaveFormat(sampleRate, sampleBits, sampleChannels);
             _sampleRate = sampleRate;
