@@ -260,7 +260,7 @@ namespace MumbleSharp
             //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
 
-            _encodingBuffer = new AudioEncodingBuffer();
+            _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels);
             _encodingThread.Start();
 
             ReceivedServerSync = true;
