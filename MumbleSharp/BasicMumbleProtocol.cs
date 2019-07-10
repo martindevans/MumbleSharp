@@ -117,6 +117,37 @@ namespace MumbleSharp
         }
 
         #region Channels
+        protected virtual void SendChannelCreate(Channel channel)
+        {
+            if (channel.Id != 0)
+                throw new ArgumentException("For channel creation the ChannelId cannot be forced, use 0 to avoid this error.", nameof(channel));
+
+            Connection.SendControl<MumbleProto.ChannelState>(PacketType.ChannelState, new MumbleProto.ChannelState()
+            {
+                //ChannelId = channel.Id, //for channel creation the ChannelId must not be set
+                Parent = channel.Parent,
+                Position = channel.Position,
+                Name = channel.Name,
+                Description = channel.Description,
+                Temporary = channel.Temporary
+            });
+        }
+        protected virtual void SendChannelMove(Channel channel, uint parentChannelId)
+        {
+            Connection.SendControl<MumbleProto.ChannelState>(PacketType.ChannelState, new MumbleProto.ChannelState()
+            {
+                ChannelId = channel.Id,
+                Parent = parentChannelId,
+            });
+        }
+        protected virtual void SendChannelRemove(Channel channel)
+        {
+            Connection.SendControl<MumbleProto.ChannelRemove>(PacketType.ChannelRemove, new MumbleProto.ChannelRemove()
+            {
+                ChannelId = channel.Id
+            });
+        }
+
         protected virtual void ChannelJoined(Channel channel)
         {
         }
