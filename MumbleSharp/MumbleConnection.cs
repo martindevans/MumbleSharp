@@ -443,9 +443,11 @@ namespace MumbleSharp
                             _protocol.Version(Serializer.DeserializeWithLengthPrefix<MumbleProto.Version>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.CryptSetup:
-                            var cryptSetup = Serializer.DeserializeWithLengthPrefix<CryptSetup>(_ssl, PrefixStyle.Fixed32BigEndian);
-                            _connection.ProcessCryptState(cryptSetup);
-                            SendPing();
+                            {
+                                var cryptSetup = Serializer.DeserializeWithLengthPrefix<CryptSetup>(_ssl, PrefixStyle.Fixed32BigEndian);
+                                _connection.ProcessCryptState(cryptSetup);
+                                SendPing();
+                            }
                             break;
                         case PacketType.ChannelState:
                             _protocol.ChannelState(Serializer.DeserializeWithLengthPrefix<ChannelState>(_ssl, PrefixStyle.Fixed32BigEndian));
@@ -472,13 +474,17 @@ namespace MumbleSharp
                             _protocol.ServerConfig(Serializer.DeserializeWithLengthPrefix<ServerConfig>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.UDPTunnel:
-                            var length = IPAddress.NetworkToHostOrder(_reader.ReadInt32());
-                            _connection.ReceiveDecryptedUdp(_reader.ReadBytes(length));
+                            {
+                                var length = IPAddress.NetworkToHostOrder(_reader.ReadInt32());
+                                _connection.ReceiveDecryptedUdp(_reader.ReadBytes(length));
+                            }
                             break;
                         case PacketType.Ping:
-                            var ping = Serializer.DeserializeWithLengthPrefix<Ping>(_ssl, PrefixStyle.Fixed32BigEndian);
-                            _connection.ReceivePing(ping);
-                            _protocol.Ping(ping);
+                            {
+                                var ping = Serializer.DeserializeWithLengthPrefix<Ping>(_ssl, PrefixStyle.Fixed32BigEndian);
+                                _connection.ReceivePing(ping);
+                                _protocol.Ping(ping);
+                            }
                             break;
                         case PacketType.UserRemove:
                             _protocol.UserRemove(Serializer.DeserializeWithLengthPrefix<UserRemove>(_ssl, PrefixStyle.Fixed32BigEndian));
@@ -487,13 +493,18 @@ namespace MumbleSharp
                             _protocol.ChannelRemove(Serializer.DeserializeWithLengthPrefix<ChannelRemove>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.TextMessage:
-                            var message = Serializer.DeserializeWithLengthPrefix<TextMessage>(_ssl, PrefixStyle.Fixed32BigEndian);
-                            _protocol.TextMessage(message);
+                            {
+                                var message = Serializer.DeserializeWithLengthPrefix<TextMessage>(_ssl, PrefixStyle.Fixed32BigEndian);
+                                _protocol.TextMessage(message);
+                            }
                             break;
-
                         case PacketType.Reject:
-                            throw new NotImplementedException();
-
+                            {
+                                //TODO: Reject use delegate instead of exception
+                                var reject = Serializer.DeserializeWithLengthPrefix<Reject>(_ssl, PrefixStyle.Fixed32BigEndian);
+                                throw new ProtocolViolationException($"{nameof(Reject)} Type={reject.Type}, Reason='{reject.Reason}'");
+                            }
+                            break;
                         case PacketType.UserList:
                             _protocol.UserList(Serializer.DeserializeWithLengthPrefix<UserList>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
@@ -501,9 +512,15 @@ namespace MumbleSharp
                         case PacketType.SuggestConfig:
                             _protocol.SuggestConfig(Serializer.DeserializeWithLengthPrefix<SuggestConfig>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
+                        case PacketType.PermissionDenied:
+                            {
+                                //TODO: PermissionDenied use delegate instead of exception
+                                var premissionDenied = Serializer.DeserializeWithLengthPrefix<PermissionDenied>(_ssl, PrefixStyle.Fixed32BigEndian);
+                                throw new UnauthorizedAccessException($"{nameof(PermissionDenied)} Type={premissionDenied.Type}, User={premissionDenied.Name} ({premissionDenied.Session}), ChannelId={premissionDenied.ChannelId} , Reason='{premissionDenied.Reason}'");
+                            }
+                            break;
 
                         case PacketType.Authenticate:
-                        case PacketType.PermissionDenied:
                         case PacketType.ACL:
                         case PacketType.QueryUsers:
                         case PacketType.VoiceTarget:
