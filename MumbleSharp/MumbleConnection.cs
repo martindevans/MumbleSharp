@@ -18,6 +18,8 @@ namespace MumbleSharp
     /// </summary>
     public class MumbleConnection
     {
+        private static double PING_DELAY_MILLISECONDS = 5000;
+
         public float? TcpPingAverage { get; set; }
         public float? TcpPingVariance { get; set; }
         public uint? TcpPingPackets { get; set; }
@@ -94,14 +96,14 @@ namespace MumbleSharp
 
         public void Process()
         {
-            if ((DateTime.Now - _lastSentPing).TotalSeconds > 5)
+            if ((DateTime.UtcNow - _lastSentPing).TotalMilliseconds > PING_DELAY_MILLISECONDS)
             {
                 _tcp.SendPing();
 
                 if (_udp.IsConnected)
                     _udp.SendPing();
 
-                _lastSentPing = DateTime.Now;
+                _lastSentPing = DateTime.UtcNow;
             }
             _tcp.Process();
             _udp.Process();
@@ -234,7 +236,7 @@ namespace MumbleSharp
             if (ping.ShouldSerializeTimestamp() && ping.Timestamp != 0)
             {
                 var mostRecentPingtime =
-                    (float)TimeSpan.FromTicks(DateTime.Now.Ticks - (long)ping.Timestamp).TotalMilliseconds;
+                    (float)TimeSpan.FromTicks(DateTime.UtcNow.Ticks - (long)ping.Timestamp).TotalMilliseconds;
 
                 //The ping time is the one-way transit time.
                 mostRecentPingtime /= 2;
@@ -295,10 +297,10 @@ namespace MumbleSharp
                 _reader = new BinaryReader(_ssl);
                 _writer = new BinaryWriter(_ssl);
 
-                DateTime startWait = DateTime.Now;
+                DateTime startWait = DateTime.UtcNow;
                 while (!_ssl.IsAuthenticated)
                 {
-                    if (DateTime.Now - startWait > TimeSpan.FromSeconds(2))
+                    if (DateTime.UtcNow - startWait > TimeSpan.FromSeconds(2))
                         throw new TimeoutException("Timed out waiting for ssl authentication");
 
                     System.Threading.Thread.Sleep(10);
@@ -402,7 +404,7 @@ namespace MumbleSharp
                 //  otherwise the stats will be throw off by the time it takes to connect.
                 if (_connection._shouldSetTimestampWhenPinging)
                 {
-                    ping.Timestamp = (ulong) DateTime.Now.Ticks;
+                    ping.Timestamp = (ulong)DateTime.UtcNow.Ticks;
                 }
 
                 if (_connection.TcpPingAverage.HasValue)
@@ -435,7 +437,9 @@ namespace MumbleSharp
                 lock (_ssl)
                 {
                     PacketType type = (PacketType)IPAddress.NetworkToHostOrder(_reader.ReadInt16());
+#if DEBUG
                     Console.WriteLine("{0:HH:mm:ss}: {1}", DateTime.Now, type.ToString());
+#endif
 
                     switch (type)
                     {
@@ -564,7 +568,7 @@ namespace MumbleSharp
 
             public void SendPing()
             {
-                long timestamp = DateTime.Now.Ticks;
+                long timestamp = DateTime.UtcNow.Ticks;
 
                 byte[] buffer = new byte[9];
                 buffer[0] = 1 << 5;
