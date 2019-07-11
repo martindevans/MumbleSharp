@@ -461,9 +461,6 @@ namespace MumbleSharp
                         case PacketType.ContextAction:
                             _protocol.ContextAction(Serializer.DeserializeWithLengthPrefix<ContextAction>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
-                        case PacketType.ContextActionModify:
-                            _protocol.ContextActionModify(Serializer.DeserializeWithLengthPrefix<ContextActionModify>(_ssl, PrefixStyle.Fixed32BigEndian));
-                            break;
                         case PacketType.PermissionQuery:
                             _protocol.PermissionQuery(Serializer.DeserializeWithLengthPrefix<PermissionQuery>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
@@ -499,34 +496,36 @@ namespace MumbleSharp
                             }
                             break;
                         case PacketType.Reject:
-                            {
-                                //TODO: Reject use delegate instead of exception
-                                var reject = Serializer.DeserializeWithLengthPrefix<Reject>(_ssl, PrefixStyle.Fixed32BigEndian);
-                                throw new ProtocolViolationException($"{nameof(Reject)} Type={reject.Type}, Reason='{reject.Reason}'");
-                            }
+                            _protocol.Reject(Serializer.DeserializeWithLengthPrefix<PermissionDenied>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.UserList:
                             _protocol.UserList(Serializer.DeserializeWithLengthPrefix<UserList>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
-
                         case PacketType.SuggestConfig:
                             _protocol.SuggestConfig(Serializer.DeserializeWithLengthPrefix<SuggestConfig>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.PermissionDenied:
-                            {
-                                //TODO: PermissionDenied use delegate instead of exception
-                                var premissionDenied = Serializer.DeserializeWithLengthPrefix<PermissionDenied>(_ssl, PrefixStyle.Fixed32BigEndian);
-                                throw new UnauthorizedAccessException($"{nameof(PermissionDenied)} Type={premissionDenied.Type}, User={premissionDenied.Name} ({premissionDenied.Session}), ChannelId={premissionDenied.ChannelId} , Reason='{premissionDenied.Reason}'");
-                            }
+                            _protocol.PermissionDenied(Serializer.DeserializeWithLengthPrefix<PermissionDenied>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            break;
+                        case PacketType.ACL:
+                            _protocol.Acl(Serializer.DeserializeWithLengthPrefix<Acl>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            break;
+                        case PacketType.QueryUsers:
+                            _protocol.QueryUsers(Serializer.DeserializeWithLengthPrefix<QueryUsers>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            break;
+                        case PacketType.UserStats:
+                            _protocol.UserStats(Serializer.DeserializeWithLengthPrefix<UserStats>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            break;
+                        case PacketType.BanList:
+                            _protocol.BanList(Serializer.DeserializeWithLengthPrefix<BanList>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
 
+
+                        //The following PacketTypes are only sent from client to server (see https://github.com/mumble-voip/mumble/blob/master/src/Mumble.proto)
                         case PacketType.Authenticate:
-                        case PacketType.ACL:
-                        case PacketType.QueryUsers:
-                        case PacketType.VoiceTarget:
-                        case PacketType.UserStats:
+                        case PacketType.ContextActionModify:
                         case PacketType.RequestBlob:
-                        case PacketType.BanList:
+                        case PacketType.VoiceTarget:
                         default:
                             throw new NotImplementedException($"{nameof(Process)} {nameof(PacketType)}.{type.ToString()}");
                     }
