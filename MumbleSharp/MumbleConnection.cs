@@ -94,7 +94,12 @@ namespace MumbleSharp
             State = ConnectionStates.Disconnected;
         }
 
-        public void Process()
+        /// <summary>
+        /// Processes a received network packet.
+        /// This method should be called periodically.
+        /// </summary>
+        /// <returns>true, if a packet was processed. When this returns true you may want to recall the Process() method as soon as possible as their might be a queue on the network stack (like after a simple Thread.Yield() instead of a more relaxed Thread.Sleep(1) if it returned false).</returns>
+        public bool Process()
         {
             if ((DateTime.UtcNow - _lastSentPing).TotalMilliseconds > PING_DELAY_MILLISECONDS)
             {
@@ -105,9 +110,14 @@ namespace MumbleSharp
 
                 _lastSentPing = DateTime.UtcNow;
             }
-            _tcp.Process();
-            _udp.Process();
+
+            _tcpProcessed = _tcp.Process();
+            _udpProcessed = _udp.IsConnected ? _udp.Process() : false;
+            return _tcpProcessed || _udpProcessed;
         }
+        //declared outside method for alloc optimization
+        private bool _tcpProcessed;
+        private bool _udpProcessed;
 
         public void SendControl<T>(PacketType type, T packet)
         {
@@ -426,13 +436,13 @@ namespace MumbleSharp
 
             
 
-            public void Process()
+            public bool Process()
             {
                 if (!_client.Connected)
                     throw new InvalidOperationException("Not connected");
 
                 if (!_netStream.DataAvailable)
-                    return;
+                    return false;
 
                 lock (_ssl)
                 {
@@ -534,6 +544,8 @@ namespace MumbleSharp
                             throw new NotImplementedException($"{nameof(Process)} {nameof(PacketType)}.{type.ToString()}");
                     }
                 }
+
+                return true;
             }
         }
 
@@ -584,17 +596,18 @@ namespace MumbleSharp
                 _client.Send(buffer, buffer.Length);
             }
             
-            public void Process()
+            public bool Process()
             {
-                if (_client.Client == null)
-                    return;
-                if (_client.Available == 0)
-                    return;
+                if (_client.Client == null
+                    || _client.Available == 0)
+                    return false;
 
                 IPEndPoint sender = _host;
                 byte[] data = _client.Receive(ref sender);
 
                 _connection.ReceivedEncryptedUdp(data);
+
+                return true;
             }
         }
     }
