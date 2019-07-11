@@ -15,7 +15,7 @@ namespace MumbleClient
             _protocol = protocol;
             var sourceStream = new WaveInEvent
             {
-                WaveFormat = new WaveFormat(Constants.SAMPLE_RATE, Constants.SAMPLE_BITS, Constants.CHANNELS)
+                WaveFormat = new WaveFormat(Constants.DEFAULT_AUDIO_SAMPLE_RATE, Constants.DEFAULT_AUDIO_SAMPLE_BITS, Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
             };
             sourceStream.DataAvailable += VoiceDataAvailable;
 
