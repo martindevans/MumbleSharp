@@ -179,8 +179,8 @@ namespace MumbleSharp
         /// <summary>
         /// Sent by the server when it rejects the user connection.
         /// </summary>
-        /// <param name="permissionDenied"></param>
-        void Reject(PermissionDenied permissionDenied);
+        /// <param name="reject"></param>
+        void Reject(Reject reject);
 
         void PermissionDenied(PermissionDenied permissionDenied);
 

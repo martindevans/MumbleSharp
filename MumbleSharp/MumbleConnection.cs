@@ -510,7 +510,7 @@ namespace MumbleSharp
                             }
                             break;
                         case PacketType.Reject:
-                            _protocol.Reject(Serializer.DeserializeWithLengthPrefix<PermissionDenied>(_ssl, PrefixStyle.Fixed32BigEndian));
+                            _protocol.Reject(Serializer.DeserializeWithLengthPrefix<Reject>(_ssl, PrefixStyle.Fixed32BigEndian));
                             break;
                         case PacketType.UserList:
                             _protocol.UserList(Serializer.DeserializeWithLengthPrefix<UserList>(_ssl, PrefixStyle.Fixed32BigEndian));
