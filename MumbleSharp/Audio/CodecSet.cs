@@ -14,12 +14,12 @@ namespace MumbleSharp.Audio
         private readonly Lazy<SpeexCodec> _speex;
         private readonly Lazy<OpusCodec> _opus;
 
-        public CodecSet(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public CodecSet(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, float frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
             _alpha = new Lazy<CeltAlphaCodec>();
             _beta = new Lazy<CeltBetaCodec>();
             _speex = new Lazy<SpeexCodec>();
-            _opus = new Lazy<OpusCodec>(() => new OpusCodec(sampleRate, sampleBits, sampleChannels));
+            _opus = new Lazy<OpusCodec>(() => new OpusCodec(sampleRate, sampleBits, sampleChannels, frameSize));
         }
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)

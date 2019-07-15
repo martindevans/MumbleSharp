@@ -61,11 +61,13 @@ namespace MumbleSharp
         private int _audioSampleRate;
         private byte _audioSampleBits;
         private byte _audioSampleChannels;
-        public BasicMumbleProtocol(int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        private float _audioFrameSize;
+        public BasicMumbleProtocol(int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, float audioFrameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
             _audioSampleRate = audioSampleRate;
             _audioSampleBits = audioSampleBits;
             _audioSampleChannels = audioSampleChannels;
+            _audioFrameSize = audioFrameSize;
         }
 
         /// <summary>
@@ -260,7 +262,7 @@ namespace MumbleSharp
             //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
 
-            _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels);
+            _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels, _audioFrameSize);
             _encodingThread.Start();
 
             ReceivedServerSync = true;

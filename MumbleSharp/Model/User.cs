@@ -39,10 +39,10 @@ namespace MumbleSharp.Model
 
         private readonly CodecSet _codecs;
 
-        public User(IMumbleProtocol owner, uint id, int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public User(IMumbleProtocol owner, uint id, int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, float audioFrameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
-            _codecs = new CodecSet(audioSampleRate, audioSampleBits, audioSampleChannels);
-            _buffer = new AudioDecodingBuffer(audioSampleRate, audioSampleBits, audioSampleChannels);
+            _codecs = new CodecSet(audioSampleRate, audioSampleBits, audioSampleChannels, audioFrameSize);
+            _buffer = new AudioDecodingBuffer(audioSampleRate, audioSampleBits, audioSampleChannels, audioFrameSize);
             _owner = owner;
             Id = id;
         }
