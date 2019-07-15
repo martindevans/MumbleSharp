@@ -6,22 +6,24 @@ namespace MumbleSharp.Audio.Codecs.Opus
     public class OpusCodec
         : IVoiceCodec
     {
-        readonly OpusDecoder _decoder;
-        readonly OpusEncoder _encoder;
-        readonly int _sampleRate;
+        private readonly OpusDecoder _decoder;
+        private readonly OpusEncoder _encoder;
+        private readonly int _sampleRate;
+        private readonly float _frameSize;
 
-        public OpusCodec(int SampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte SampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte Channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS)
+        public OpusCodec(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, float frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
-            _sampleRate = SampleRate;
-            _decoder = new OpusDecoder(SampleRate, Channels) { EnableForwardErrorCorrection = true };
-            _encoder = new OpusEncoder(SampleRate, Channels) { EnableForwardErrorCorrection = true };
+            _sampleRate = sampleRate;
+            _frameSize = frameSize;
+            _decoder = new OpusDecoder(sampleRate, channels) { EnableForwardErrorCorrection = true };
+            _encoder = new OpusEncoder(sampleRate, channels) { EnableForwardErrorCorrection = true };
         }
 
         public byte[] Decode(byte[] encodedData)
         {
             if (encodedData == null)
             {
-                _decoder.Decode(null, 0, 0, new byte[_sampleRate / 20], 0);
+                _decoder.Decode(null, 0, 0, new byte[(int)(_sampleRate / _frameSize)], 0);
                 return null;
             }
 

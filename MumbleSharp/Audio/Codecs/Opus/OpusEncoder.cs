@@ -69,7 +69,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
                 throw new ArgumentOutOfRangeException("srcChannelCount");
 
             IntPtr error;
-            var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, 2048, out error);
+            var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, (int)Application.Voip, out error);
             if ((NativeMethods.OpusErrors)error != NativeMethods.OpusErrors.Ok)
             {
                 throw new Exception("Exception occured while creating encoder");
