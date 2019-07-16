@@ -315,6 +315,7 @@ namespace MumbleSharp
         /// <param name="contextActionModify"></param>
         public void SendContextActionModify(ContextActionModify contextActionModify)
         {
+            Connection.SendControl(PacketType.ContextActionModify, contextActionModify);
         }
 
         #region permissions
@@ -324,7 +325,21 @@ namespace MumbleSharp
         /// <param name="permissionQuery"></param>
         public virtual void PermissionQuery(PermissionQuery permissionQuery)
         {
-            
+            if (permissionQuery.Flush)
+            {
+                foreach(var channel in ChannelDictionary.Values)
+                {
+                    channel.Permissions = 0; // Permissions.DEFAULT_PERMISSIONS;
+                }
+            }
+            else
+            {
+                Channel channel;
+                if (!ChannelDictionary.TryGetValue(permissionQuery.ChannelId, out channel))
+                    throw new Exception($"Recieved a {nameof(PermissionQuery)} for an unknown channel ({permissionQuery.ChannelId})");
+
+                channel.Permissions = (Permission)permissionQuery.Permissions;
+            }
         }
 
         /// <summary>
@@ -333,7 +348,7 @@ namespace MumbleSharp
         /// <param name="permissionQuery"></param>
         public void SendPermissionQuery(PermissionQuery permissionQuery)
         {
-
+            Connection.SendControl(PacketType.PermissionQuery, permissionQuery);
         }
 
         /// <summary>
@@ -654,6 +669,7 @@ namespace MumbleSharp
         /// <param name="requestBlob"></param>
         public void SendRequestBlob(RequestBlob requestBlob)
         {
+            Connection.SendControl(PacketType.RequestBlob, requestBlob);
         }
 
         /// <summary>
