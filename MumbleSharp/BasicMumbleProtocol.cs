@@ -135,7 +135,8 @@ namespace MumbleSharp
                 Position = channel.Position,
                 Name = channel.Name,
                 Description = channel.Description,
-                Temporary = channel.Temporary
+                Temporary = channel.Temporary,
+                //MaxUsers = 0, //If this value is zero, the maximum number of users allowed in the channel is given by the server's "usersperchannel" setting.
             });
         }
         protected void SendChannelMove(Channel channel, uint parentChannelId)
@@ -190,7 +191,7 @@ namespace MumbleSharp
         /// <param name="channelState"></param>
         public void SendChannelState(ChannelState channelState)
         {
-            Connection.SendControl(PacketType.ChannelRemove, channelState);
+            Connection.SendControl(PacketType.ChannelState, channelState);
         }
 
         /// <summary>
