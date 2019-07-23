@@ -79,11 +79,14 @@ namespace MumbleSharp.Model
             SendMessage(messages, recursive);
         }
 
-        public void SendVoice(ArraySegment<byte> buffer, bool whisper = false)
+        public void SendVoice(ArraySegment<byte> buffer, SpeechTarget target = SpeechTarget.Normal)
         {
+            //TODO: remove debug console.writeline
+            Console.WriteLine($"{nameof(SendVoice)} {target.ToString()}");
+
             Owner.SendVoice(
                 buffer,
-                target: whisper ? SpeechTarget.WhisperToChannel : SpeechTarget.Normal,
+                target: target,
                 targetId: Id
             );
         }
