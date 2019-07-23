@@ -9,9 +9,16 @@ namespace MumbleSharp.Audio.Codecs.Opus
         private readonly OpusDecoder _decoder;
         private readonly OpusEncoder _encoder;
         private readonly int _sampleRate;
-        private readonly float _frameSize;
+        private readonly ushort _frameSize;
 
-        public OpusCodec(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, float frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OpusCodec"/> class.
+        /// </summary>
+        /// <param name="sampleRate">The sample rate in Hertz (samples per second).</param>
+        /// <param name="sampleBits">The sample bit depth.</param>
+        /// <param name="sampleChannels">The sample channels (1 for mono, 2 for stereo).</param>
+        /// <param name="frameSize">Size of the frame in samples.</param>
+        public OpusCodec(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, ushort frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
             _sampleRate = sampleRate;
             _frameSize = frameSize;
@@ -23,7 +30,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         {
             if (encodedData == null)
             {
-                _decoder.Decode(null, 0, 0, new byte[(int)(_sampleRate / _frameSize)], 0);
+                _decoder.Decode(null, 0, 0, new byte[_sampleRate / _frameSize], 0);
                 return null;
             }
 

@@ -47,7 +47,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         /// <summary>
         /// Permitted frame sizes in ms.
         /// </summary>
-        private readonly float[] _permittedFrameSizes = {
+        private readonly float[] _permittedFrameSizesInMillisec = {
             2.5f, 5, 10,
             20, 40, 60
         };
@@ -79,9 +79,9 @@ namespace MumbleSharp.Audio.Codecs.Opus
             const int BIT_DEPTH = 16;
             _sampleSize = SampleSize(BIT_DEPTH, srcChannelCount);
 
-            PermittedFrameSizes = new int[_permittedFrameSizes.Length];
-            for (var i = 0; i < _permittedFrameSizes.Length; i++)
-                PermittedFrameSizes[i] = (int)(srcSamplingRate / 1000f * _permittedFrameSizes[i]);
+            PermittedFrameSizes = new int[_permittedFrameSizesInMillisec.Length];
+            for (var i = 0; i < _permittedFrameSizesInMillisec.Length; i++)
+                PermittedFrameSizes[i] = (int)(srcSamplingRate / 1000f * _permittedFrameSizesInMillisec[i]);
         }
 
         private static int SampleSize(int bitDepth, int channelCount)
