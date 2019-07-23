@@ -87,6 +87,7 @@
     <Compile Include="LibraryLoader.cs" />
     <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Channel.cs" />
+    <Compile Include="Model\Permissions.cs" />
     <Compile Include="Model\User.cs" />
     <Compile Include="MumbleConnection.cs" />
     <Compile Include="IMumbleProtocol.cs" />

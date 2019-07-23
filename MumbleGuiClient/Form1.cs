@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MumbleSharp;
@@ -457,6 +458,7 @@ namespace MumbleGuiClient
             while (connection.Protocol.LocalUser == null)
             {
                 connection.Process();
+                Thread.Sleep(1);
             }
         }
 
