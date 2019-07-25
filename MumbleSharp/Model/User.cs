@@ -114,12 +114,12 @@ namespace MumbleSharp.Model
 
             if(this.Id == _owner.LocalUser.Id)
             {
-                userstate.SelfMute = this.SelfMuted;
+                userstate.SelfMute = this.SelfMuted || this.SelfDeaf; //mumble disallows being deaf without being muted
                 userstate.SelfDeaf = this.SelfDeaf;
             } else
             {
                 userstate.UserId = this.Id;
-                userstate.Mute = this.Muted;
+                userstate.Mute = this.Muted || this.Deaf; //mumble disallows being deaf without being muted
                 userstate.Deaf = this.Deaf;
             }
 
