@@ -81,9 +81,6 @@ namespace MumbleSharp.Model
 
         public void SendVoice(ArraySegment<byte> buffer, SpeechTarget target = SpeechTarget.Normal)
         {
-            //TODO: remove debug console.writeline
-            Console.WriteLine($"{nameof(SendVoice)} {target.ToString()}");
-
             Owner.SendVoice(
                 buffer,
                 target: target,

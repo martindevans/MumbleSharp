@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Version = MumbleProto.Version;
+using static MumbleSharp.Audio.AudioEncodingBuffer;
 
 namespace MumbleSharp
 {
@@ -421,45 +422,44 @@ namespace MumbleSharp
             IsEncodingThreadRunning = true;
             while (IsEncodingThreadRunning)
             {
-                byte[] packet = null;
                 try
                 {
-                    packet = _encodingBuffer.Encode(TransmissionCodec);
-                }
-                catch { }
+                    EncodedTargettedSpeech? encodedTargettedSpeech = _encodingBuffer.Encode(TransmissionCodec);
 
-                if (packet != null)
-                {
-                    int maxSize = 480;
-
-                    //taken from JS port
-                    for (int currentOffcet = 0; currentOffcet < packet.Length; )
+                    if (encodedTargettedSpeech.HasValue)
                     {
-                        int currentBlockSize = Math.Min(packet.Length - currentOffcet, maxSize);
+                        int maxSize = 480;
 
-                        byte type = TransmissionCodec == SpeechCodecs.Opus ? (byte)4 : (byte)0;
-                        //originaly [type = codec_type_id << 5 | whistep_chanel_id]. now we can talk only to normal chanel
-                        type = (byte)(type << 5);
-                        byte[] sequence = Var64.writeVarint64_alternative((UInt64)sequenceIndex);
+                        //taken from JS port
+                        for (int currentOffcet = 0; currentOffcet < encodedTargettedSpeech.Value.EncodedPcm.Length;)
+                        {
+                            int currentBlockSize = Math.Min(encodedTargettedSpeech.Value.EncodedPcm.Length - currentOffcet, maxSize);
 
-                        // Client side voice header.
-                        byte[] voiceHeader = new byte[1 + sequence.Length];
-                        voiceHeader[0] = type;
-                        sequence.CopyTo(voiceHeader, 1);
+                            byte type = TransmissionCodec == SpeechCodecs.Opus ? (byte)4 : (byte)0;
+                            //originaly [type = codec_type_id << 5 | whistep_chanel_id].
+                            var typeTarget = (byte)(type << 5 | (int)encodedTargettedSpeech.Value.Target);
+                            byte[] sequence = Var64.writeVarint64_alternative((UInt64)sequenceIndex);
 
-                        byte[] header = Var64.writeVarint64_alternative((UInt64)currentBlockSize);
-                        byte[] packedData = new byte[voiceHeader.Length + header.Length + currentBlockSize];
+                            // Client side voice header.
+                            byte[] voiceHeader = new byte[1 + sequence.Length];
+                            voiceHeader[0] = typeTarget;
+                            sequence.CopyTo(voiceHeader, 1);
 
-                        Array.Copy(voiceHeader, 0, packedData, 0, voiceHeader.Length);
-                        Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
-                        Array.Copy(packet, currentOffcet, packedData, voiceHeader.Length + header.Length, currentBlockSize);
+                            byte[] header = Var64.writeVarint64_alternative((UInt64)currentBlockSize);
+                            byte[] packedData = new byte[voiceHeader.Length + header.Length + currentBlockSize];
 
-                        Connection.SendVoice(new ArraySegment<byte>(packedData));
+                            Array.Copy(voiceHeader, 0, packedData, 0, voiceHeader.Length);
+                            Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
+                            Array.Copy(encodedTargettedSpeech.Value.EncodedPcm, currentOffcet, packedData, voiceHeader.Length + header.Length, currentBlockSize);
 
-                        sequenceIndex++;
-                        currentOffcet += currentBlockSize;
+                            Connection.SendVoice(new ArraySegment<byte>(packedData));
+
+                            sequenceIndex++;
+                            currentOffcet += currentBlockSize;
+                        }
                     }
                 }
+                catch { }
 
                 //beware! can take a lot of power, because infinite loop without sleep
             }

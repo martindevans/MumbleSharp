@@ -45,7 +45,7 @@ namespace MumbleSharp.Audio
             _unencodedBuffer.Add(new TargettedSpeech(stop: true));
         }
 
-        public byte[] Encode(SpeechCodecs codec)
+        public EncodedTargettedSpeech? Encode(SpeechCodecs codec)
         {
             //Get the codec
             var codecInstance = _codecs.GetCodec(codec);
@@ -95,7 +95,10 @@ namespace MumbleSharp.Audio
                 byte[] b = new byte[frameBytes];
                 int read = _pcmBuffer.Read(new ArraySegment<byte>(b));
 
-                return codecInstance.Encode(new ArraySegment<byte>(b, 0, read));
+                return new EncodedTargettedSpeech(
+                    codecInstance.Encode(new ArraySegment<byte>(b, 0, read)),
+                    _target,
+                    _targetId);
             }
             else
             {
@@ -107,7 +110,10 @@ namespace MumbleSharp.Audio
                     byte[] b = new byte[frameBytes];
                     int read = _pcmBuffer.Read(new ArraySegment<byte>(b));
 
-                    return codecInstance.Encode(new ArraySegment<byte>(b, 0, read));
+                    return new EncodedTargettedSpeech(
+                        codecInstance.Encode(new ArraySegment<byte>(b, 0, read)),
+                        _target,
+                        _targetId);
                 }
                 else return null;
             }
@@ -131,6 +137,20 @@ namespace MumbleSharp.Audio
             _targetId = t.TargetId;
 
             return true;
+        }
+
+        public struct EncodedTargettedSpeech
+        {
+            public readonly byte[] EncodedPcm;
+            public readonly SpeechTarget Target;
+            public readonly uint TargetId;
+
+            public EncodedTargettedSpeech(byte[] encodedPcm, SpeechTarget target, uint targetId)
+            {
+                TargetId = targetId;
+                Target = target;
+                EncodedPcm = encodedPcm;
+            }
         }
 
         /// <summary>
