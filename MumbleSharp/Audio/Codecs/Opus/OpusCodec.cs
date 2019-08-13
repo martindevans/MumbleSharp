@@ -6,18 +6,35 @@ namespace MumbleSharp.Audio.Codecs.Opus
     public class OpusCodec
         : IVoiceCodec
     {
-        readonly OpusDecoder _decoder = new OpusDecoder(Constants.SAMPLE_RATE, Constants.CHANNELS) { EnableForwardErrorCorrection = true };
-        readonly OpusEncoder _encoder = new OpusEncoder(Constants.SAMPLE_RATE, Constants.CHANNELS) { EnableForwardErrorCorrection = true };
+        private readonly OpusDecoder _decoder;
+        private readonly OpusEncoder _encoder;
+        private readonly int _sampleRate;
+        private readonly ushort _frameSize;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OpusCodec"/> class.
+        /// </summary>
+        /// <param name="sampleRate">The sample rate in Hertz (samples per second).</param>
+        /// <param name="sampleBits">The sample bit depth.</param>
+        /// <param name="sampleChannels">The sample channels (1 for mono, 2 for stereo).</param>
+        /// <param name="frameSize">Size of the frame in samples.</param>
+        public OpusCodec(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte channels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, ushort frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
+        {
+            _sampleRate = sampleRate;
+            _frameSize = frameSize;
+            _decoder = new OpusDecoder(sampleRate, channels) { EnableForwardErrorCorrection = true };
+            _encoder = new OpusEncoder(sampleRate, channels) { EnableForwardErrorCorrection = true };
+        }
 
         public byte[] Decode(byte[] encodedData)
         {
             if (encodedData == null)
             {
-                _decoder.Decode(null, 0, 0, new byte[Constants.FRAME_SIZE], 0);
+                _decoder.Decode(null, 0, 0, new byte[_sampleRate / _frameSize], 0);
                 return null;
             }
 
-            int samples = OpusDecoder.GetSamples(encodedData, 0, encodedData.Length, Constants.SAMPLE_RATE);
+            int samples = OpusDecoder.GetSamples(encodedData, 0, encodedData.Length, _sampleRate);
             if (samples < 1)
                 return null;
 

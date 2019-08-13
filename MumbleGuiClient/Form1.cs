@@ -449,8 +449,10 @@ namespace MumbleGuiClient
                 tvUsers.Nodes.Clear();
             }
 
+            string srvConnectName = textBoxUserName.Text + "@" + addr + ":" + port;
+
             connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses(addr).First(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork), port), protocol);
-            connection.Connect(name, pass, new string[0], addr);
+            connection.Connect(name, pass, new string[0], srvConnectName);
 
             while (connection.Protocol.LocalUser == null)
             {

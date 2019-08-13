@@ -47,7 +47,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
         /// <summary>
         /// Permitted frame sizes in ms.
         /// </summary>
-        private readonly float[] _permittedFrameSizes = {
+        private readonly float[] _permittedFrameSizesInMillisec = {
             2.5f, 5, 10,
             20, 40, 60
         };
@@ -69,7 +69,7 @@ namespace MumbleSharp.Audio.Codecs.Opus
                 throw new ArgumentOutOfRangeException("srcChannelCount");
 
             IntPtr error;
-            var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, 2048, out error);
+            var encoder = NativeMethods.opus_encoder_create(srcSamplingRate, srcChannelCount, (int)Application.Voip, out error);
             if ((NativeMethods.OpusErrors)error != NativeMethods.OpusErrors.Ok)
             {
                 throw new Exception("Exception occured while creating encoder");
@@ -79,9 +79,9 @@ namespace MumbleSharp.Audio.Codecs.Opus
             const int BIT_DEPTH = 16;
             _sampleSize = SampleSize(BIT_DEPTH, srcChannelCount);
 
-            PermittedFrameSizes = new int[_permittedFrameSizes.Length];
-            for (var i = 0; i < _permittedFrameSizes.Length; i++)
-                PermittedFrameSizes[i] = (int)(srcSamplingRate / 1000f * _permittedFrameSizes[i]);
+            PermittedFrameSizes = new int[_permittedFrameSizesInMillisec.Length];
+            for (var i = 0; i < _permittedFrameSizesInMillisec.Length; i++)
+                PermittedFrameSizes[i] = (int)(srcSamplingRate / 1000f * _permittedFrameSizesInMillisec[i]);
         }
 
         private static int SampleSize(int bitDepth, int channelCount)

@@ -58,9 +58,24 @@ namespace MumbleSharp
 
         public bool IsEncodingThreadRunning { get; set; }
 
-        public BasicMumbleProtocol()
+        private int _audioSampleRate;
+        private byte _audioSampleBits;
+        private byte _audioSampleChannels;
+        private ushort _audioFrameSize;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BasicMumbleProtocol"/> class.
+        /// </summary>
+        /// <param name="audioSampleRate">The sample rate in Hertz (samples per second).</param>
+        /// <param name="audioSampleBits">The sample bit depth.</param>
+        /// <param name="audioSampleChannels">The sample channels (1 for mono, 2 for stereo).</param>
+        /// <param name="audioFrameSize">Size of the frame in samples.</param>
+        public BasicMumbleProtocol(int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, ushort audioFrameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
-            
+            _audioSampleRate = audioSampleRate;
+            _audioSampleBits = audioSampleBits;
+            _audioSampleChannels = audioSampleChannels;
+            _audioFrameSize = audioFrameSize;
         }
 
         /// <summary>
@@ -182,7 +197,7 @@ namespace MumbleSharp
                 bool added = false;
                 User user = UserDictionary.AddOrUpdate(userState.Session, i => {
                     added = true;
-                    return new User(this, userState.Session);
+                    return new User(this, userState.Session, _audioSampleRate, _audioSampleBits, _audioSampleChannels);
                 }, (i, u) => u);
 
                 if (userState.ShouldSerializeSelfDeaf())
@@ -255,7 +270,7 @@ namespace MumbleSharp
             //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
 
-            _encodingBuffer = new AudioEncodingBuffer();
+            _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels, _audioFrameSize);
             _encodingThread.Start();
 
             ReceivedServerSync = true;

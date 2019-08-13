@@ -9,13 +9,25 @@ namespace MumbleSharp.Audio
     {
         private readonly BlockingCollection<TargettedSpeech> _unencodedBuffer = new BlockingCollection<TargettedSpeech>(new ConcurrentQueue<TargettedSpeech>());
 
-        private readonly CodecSet _codecs = new CodecSet();
+        private readonly CodecSet _codecs;
 
         private SpeechTarget _target;
         private uint _targetId;
         private readonly DynamicCircularBuffer _pcmBuffer = new DynamicCircularBuffer();
 
         private TargettedSpeech? _unencodedItem;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AudioEncodingBuffer"/> class.
+        /// </summary>
+        /// <param name="sampleRate">The sample rate in Hertz (samples per second).</param>
+        /// <param name="sampleBits">The sample bit depth.</param>
+        /// <param name="sampleChannels">The sample channels (1 for mono, 2 for stereo).</param>
+        /// <param name="frameSize">Size of the frame in samples.</param>
+        public AudioEncodingBuffer(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, ushort frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
+        {
+            _codecs = new CodecSet(sampleRate, sampleBits, sampleChannels, frameSize);
+        }
 
         /// <summary>
         /// Add some raw PCM data to the buffer to send

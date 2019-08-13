@@ -11,18 +11,28 @@ namespace MumbleSharp.Audio
     public class AudioDecodingBuffer
         : IWaveProvider
     {
-        private static readonly WaveFormat _format = new WaveFormat((int)Constants.SAMPLE_RATE, (int)Constants.SAMPLE_BITS, 1);
-        public WaveFormat WaveFormat
-        {
-            get
-            {
-                return _format;
-            }
-        }
-
+        private readonly int _sampleRate;
+        private readonly ushort _frameSize;
+        public WaveFormat WaveFormat { get; private set; }
         private int _decodedOffset;
         private int _decodedCount;
-        private readonly byte[] _decodedBuffer = new byte[Constants.SAMPLE_RATE * (Constants.SAMPLE_BITS / 8) * 1];
+        private readonly byte[] _decodedBuffer;
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AudioDecodingBuffer"/> class which Buffers up encoded audio packets and provides a constant stream of sound (silence if there is no more audio to decode).
+        /// </summary>
+        /// <param name="sampleRate">The sample rate in Hertz (samples per second).</param>
+        /// <param name="sampleBits">The sample bit depth.</param>
+        /// <param name="sampleChannels">The sample channels (1 for mono, 2 for stereo).</param>
+        /// <param name="frameSize">Size of the frame in samples.</param>
+        public AudioDecodingBuffer(int sampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte sampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte sampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, ushort frameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
+        {
+            WaveFormat = new WaveFormat(sampleRate, sampleBits, sampleChannels);
+            _sampleRate = sampleRate;
+            _frameSize = frameSize;
+            _decodedBuffer = new byte[sampleRate * (sampleBits / 8) * sampleChannels];
+        }
 
         private long _nextSequenceToDecode;
         private readonly List<BufferPacket> _encodedBuffer = new List<BufferPacket>(); 
@@ -140,7 +150,7 @@ namespace MumbleSharp.Audio
             //    _codec.Decode(null);
 
             var d = _codec.Decode(packet.Value.Data);
-            _nextSequenceToDecode = packet.Value.Sequence + d.Length / Constants.FRAME_SIZE;
+            _nextSequenceToDecode = packet.Value.Sequence + d.Length / (_sampleRate / _frameSize);
 
             Array.Copy(d, 0, _decodedBuffer, _decodedOffset, d.Length);
             _decodedCount += d.Length;
