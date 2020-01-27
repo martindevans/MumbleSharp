@@ -252,7 +252,10 @@ namespace MumbleGuiClient
         private void mumbleUpdater_Tick(object sender, EventArgs e)
         {
             if (connection != null)
-                connection.Process();
+                if (connection.Process())
+                    Thread.Yield();
+                else
+                    Thread.Sleep(1);
         }
 
         private void tvUsers_MouseDoubleClick(object sender, MouseEventArgs e)
