@@ -96,7 +96,10 @@ namespace MumbleClient
         {
             while (connection.State != ConnectionStates.Disconnected)
             {
-                connection.Process();
+                if (connection.Process())
+                    Thread.Yield();
+                else
+                    Thread.Sleep(1);
             }
         }
     }
