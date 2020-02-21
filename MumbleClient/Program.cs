@@ -12,6 +12,8 @@ namespace MumbleClient
 {
     internal class Program
     {
+        private static Exception _updateLoopThreadException = null;
+
         private static void Main(string[] args)
         {
             string addr, name, pass;
@@ -59,8 +61,14 @@ namespace MumbleClient
             MumbleConnection connection = new MumbleConnection(new IPEndPoint(Dns.GetHostAddresses(addr).First(a => a.AddressFamily == AddressFamily.InterNetwork), port), protocol);
             connection.Connect(name, pass, new string[0], addr);
 
-            Thread t = new Thread(a => UpdateLoop(connection)) {IsBackground = true};
-            t.Start();
+            //Start the UpdateLoop thread, and collect a possible exception at termination
+            ThreadStart updateLoopThreadStart = new ThreadStart(() => UpdateLoop(connection, out _updateLoopThreadException));
+            updateLoopThreadStart += () => {
+                if(_updateLoopThreadException != null)
+                    throw new Exception($"{nameof(UpdateLoop)} was terminated unexpectedly because of a {_updateLoopThreadException.GetType().ToString()}", _updateLoopThreadException);
+            };
+            Thread updateLoopThread = new Thread(updateLoopThreadStart) {IsBackground = true};
+            updateLoopThread.Start();
 
             var r = new MicrophoneRecorder(protocol);
 
@@ -92,14 +100,21 @@ namespace MumbleClient
                 DrawChannel(indent + "\t", channels, users, channel);
         }
 
-        private static void UpdateLoop(MumbleConnection connection)
+        private static void UpdateLoop(MumbleConnection connection, out Exception exception)
         {
-            while (connection.State != ConnectionStates.Disconnected)
+            exception = null;
+            try
             {
-                if (connection.Process())
-                    Thread.Yield();
-                else
-                    Thread.Sleep(1);
+                while (connection.State != ConnectionStates.Disconnected)
+                {
+                    if (connection.Process())
+                        Thread.Yield();
+                    else
+                        Thread.Sleep(1);
+                }
+            } catch (Exception ex)
+            {
+                exception = ex;
             }
         }
     }

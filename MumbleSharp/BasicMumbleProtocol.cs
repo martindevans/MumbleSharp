@@ -54,7 +54,9 @@ namespace MumbleSharp
         public User LocalUser { get; private set; }
 
         private AudioEncodingBuffer _encodingBuffer;
+        private ThreadStart _encodingThreadStart;
         private Thread _encodingThread;
+        private Exception _encodingThreadException;
         private UInt32 sequenceIndex;
 
         public bool IsEncodingThreadRunning { get; set; }
@@ -87,14 +89,22 @@ namespace MumbleSharp
         {
             Connection = connection;
 
-            _encodingThread = new Thread(EncodingThreadEntry)
+            //Start the EncodingThreadEntry thread, and collect a possible exception at termination
+            _encodingThreadStart = new ThreadStart(() => EncodingThreadEntry(out _encodingThreadException));
+            _encodingThreadStart += () => {
+                if (_encodingThreadException != null)
+                    throw new Exception($"{nameof(BasicMumbleProtocol)}'s {nameof(_encodingThread)} was terminated unexpectedly because of a {_encodingThreadException.GetType().ToString()}", _encodingThreadException);
+            };
+
+            _encodingThread = new Thread(_encodingThreadStart)
             {
-                IsBackground = true
+                IsBackground = true,
+                Priority = ThreadPriority.AboveNormal
             };
         }
         public void Close()
         {
-            _encodingThread.Abort();
+            IsEncodingThreadRunning = false;
 
             Connection = null;
             LocalUser = null;
@@ -417,12 +427,13 @@ namespace MumbleSharp
         #endregion
 
         #region voice
-        private void EncodingThreadEntry()
+        private void EncodingThreadEntry(out Exception exception)
         {
+            exception = null;
             IsEncodingThreadRunning = true;
-            while (IsEncodingThreadRunning)
+            try
             {
-                try
+                while (IsEncodingThreadRunning)
                 {
                     EncodedTargettedSpeech? encodedTargettedSpeech = _encodingBuffer.Encode(TransmissionCodec);
 
@@ -458,10 +469,15 @@ namespace MumbleSharp
                             currentOffcet += currentBlockSize;
                         }
                     }
+                    else
+                    {
+                        Thread.Sleep(1); //avoids consuming a cpu core at 100% if there's nothing to encode...
+                    }
                 }
-                catch { }
-
-                //beware! can take a lot of power, because infinite loop without sleep
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
             }
         }
 
