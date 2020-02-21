@@ -182,15 +182,33 @@ namespace MumbleSharp
         /// <param name="channelState"></param>
         public virtual void ChannelState(ChannelState channelState)
         {
-            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent)
-            {
-                Temporary = channelState.Temporary,
-                Description = channelState.Description,
-                Position = channelState.Position
-            },
+            if(!channelState.ShouldSerializeChannelId())
+                throw new InvalidOperationException($"{nameof(ChannelState)} must provide a {channelState.ChannelId}.");
+
+            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i =>
+                {
+                    //Add new channel to the dictionary
+                    return new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent)
+                    {
+                        Temporary = channelState.Temporary,
+                        Description = channelState.Description,
+                        Position = channelState.Position
+                    };
+                },
                 (i, c) =>
                 {
-                    c.Name = channelState.Name;
+                    //Update existing channel in the dictionary
+                    if (channelState.ShouldSerializeName())
+                        c.Name = channelState.Name;
+                    if (channelState.ShouldSerializeParent())
+                        c.Parent = channelState.Parent;
+                    if (channelState.ShouldSerializeTemporary())
+                        c.Temporary = channelState.Temporary;
+                    if (channelState.ShouldSerializeDescription())
+                        c.Description = channelState.Description;
+                    if (channelState.ShouldSerializePosition())
+                        c.Position = channelState.Position;
+
                     return c;
                 }
             );
@@ -257,30 +275,36 @@ namespace MumbleSharp
             if (userState.ShouldSerializeSession())
             {
                 bool added = false;
-                User user = UserDictionary.AddOrUpdate(userState.Session, i => {
+                User user = UserDictionary.AddOrUpdate(userState.Session, i =>
+                {
+                    //Add new user to the dictionary
                     added = true;
                     return new User(this, userState.Session, _audioSampleRate, _audioSampleBits, _audioSampleChannels);
-                }, (i, u) => u);
+                }, (i, u) =>
+                {
+                    //Update existing user in the dictionary
+                    if (userState.ShouldSerializeSelfDeaf())
+                        u.SelfDeaf = userState.SelfDeaf;
+                    if (userState.ShouldSerializeSelfMute())
+                        u.SelfMuted = userState.SelfMute;
+                    if (userState.ShouldSerializeMute())
+                        u.Muted = userState.Mute;
+                    if (userState.ShouldSerializeDeaf())
+                        u.Deaf = userState.Deaf;
+                    if (userState.ShouldSerializeSuppress())
+                        u.Suppress = userState.Suppress;
+                    if (userState.ShouldSerializeName())
+                        u.Name = userState.Name;
+                    if (userState.ShouldSerializeComment())
+                        u.Comment = userState.Comment;
 
-                if (userState.ShouldSerializeSelfDeaf())
-                    user.SelfDeaf = userState.SelfDeaf;
-                if (userState.ShouldSerializeSelfMute())
-                    user.SelfMuted = userState.SelfMute;
-                if (userState.ShouldSerializeMute())
-                    user.Muted = userState.Mute;
-                if (userState.ShouldSerializeDeaf())
-                    user.Deaf = userState.Deaf;
-                if (userState.ShouldSerializeSuppress())
-                    user.Suppress = userState.Suppress;
-                if (userState.ShouldSerializeName())
-                    user.Name = userState.Name;
-                if (userState.ShouldSerializeComment())
-                    user.Comment = userState.Comment;
+                    if (userState.ShouldSerializeChannelId())
+                        u.Channel = ChannelDictionary[userState.ChannelId];
+                    else if (u.Channel == null)
+                        u.Channel = RootChannel;
 
-                if (userState.ShouldSerializeChannelId())
-                    user.Channel = ChannelDictionary[userState.ChannelId];
-                else if(user.Channel == null)
-                    user.Channel = RootChannel;
+                    return u;
+                });
 
                 //if (added)
                     UserJoined(user);
@@ -347,18 +371,23 @@ namespace MumbleSharp
         {
             if (permissionQuery.Flush)
             {
-                foreach(var channel in ChannelDictionary.Values)
+                foreach (var channel in ChannelDictionary.Values)
                 {
                     channel.Permissions = 0; // Permissions.DEFAULT_PERMISSIONS;
                 }
             }
-            else
+            else if (permissionQuery.ShouldSerializeChannelId())
             {
                 Channel channel;
                 if (!ChannelDictionary.TryGetValue(permissionQuery.ChannelId, out channel))
-                    throw new Exception($"Recieved a {nameof(PermissionQuery)} for an unknown channel ({permissionQuery.ChannelId})");
+                    throw new InvalidOperationException($"{nameof(PermissionQuery)} provided an unknown {permissionQuery.ChannelId}.");
 
-                channel.Permissions = (Permission)permissionQuery.Permissions;
+                if (permissionQuery.ShouldSerializePermissions())
+                    channel.Permissions = (Permission)permissionQuery.Permissions;
+            }
+            else
+            {
+                throw new InvalidOperationException($"{nameof(PermissionQuery)} must provide either {nameof(permissionQuery.Flush)} or {nameof(permissionQuery.ChannelId)}.");
             }
         }
 
@@ -407,8 +436,13 @@ namespace MumbleSharp
             if (LocalUser != null)
                 throw new InvalidOperationException("Second ServerSync Received");
 
+            if (!serverSync.ShouldSerializeSession())
+                throw new InvalidOperationException($"{nameof(ServerSync)} must provide a {nameof(serverSync.Session)}.");
+
             //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
+
+            //TODO: handle the serverSync.WelcomeText, serverSync.Permissions, serverSync.MaxBandwidth
 
             _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels, _audioFrameSize);
             _encodingThread.Start();
@@ -572,7 +606,7 @@ namespace MumbleSharp
         public virtual void TextMessage(TextMessage textMessage)
         {
             User user;
-            if (!UserDictionary.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
+            if (!textMessage.ShouldSerializeActor() || !UserDictionary.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
                 return;
 
             if (textMessage.ChannelIds == null || textMessage.ChannelIds.Length == 0)

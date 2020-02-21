@@ -19,7 +19,7 @@ namespace MumbleSharp.Model
         public string Description { get; set; }
         public int Position { get; set; }
         public uint Id { get; private set; }
-        public uint Parent { get; private set; }
+        public uint Parent { get; internal set; }
         public Permission Permissions { get; internal set; }
 
         // Using a concurrent dictionary as a concurrent hashset (why doesn't .net provide a concurrent hashset?!) - http://stackoverflow.com/a/18923091/108234
