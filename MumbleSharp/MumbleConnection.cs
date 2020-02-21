@@ -88,8 +88,8 @@ namespace MumbleSharp
         {
             State = ConnectionStates.Disconnecting;
 
-            _udp.Close();
-            _tcp.Close();
+            _udp?.Close();
+            _tcp?.Close();
 
             State = ConnectionStates.Disconnected;
         }
