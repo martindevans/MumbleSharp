@@ -126,9 +126,8 @@ namespace MumbleSharp
 
         public void SendVoice(ArraySegment<byte> packet)
         {
-            //This is *totally wrong*
-            //the packet contains raw encoded voice data, but we need to put it into the proper packet format
-            //UPD: packet prepare before this method called. See basic protocol
+            //The packet must be a well formed Mumble packet as described in https://mumble-protocol.readthedocs.org/en/latest/voice_data.html#packet-format
+            //The packet is created in BasicMumbleProtocol's EncodingThread
 
             _tcp.SendVoice(PacketType.UDPTunnel, packet);
         }
