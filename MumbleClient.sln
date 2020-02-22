@@ -1,18 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleClient", "MumbleClient\MumbleClient.csproj", "{156D3610-5354-4EE2-85F5-6EC83A83A4C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleSharp", "MumbleSharp\MumbleSharp.csproj", "{CCF6DB4F-D16F-45F3-920D-E265927BB430}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MumbleSharp", "MumbleSharp\MumbleSharp.csproj", "{CCF6DB4F-D16F-45F3-920D-E265927BB430}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleSharpTest", "MumbleSharpTest\MumbleSharpTest.csproj", "{D41737A2-E1E9-473D-89A2-5F2CCEC93310}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F41C145-F1AC-4BD0-B4BA-59B7D389452A}"
 	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
 		Local.testsettings = Local.testsettings
+		mumble-protocol-1.2.5-alpha.pdf = mumble-protocol-1.2.5-alpha.pdf
+		mumble-protocol.url = mumble-protocol.url
+		MumbleClient.ncrunchsolution = MumbleClient.ncrunchsolution
 		MumbleClient.vsmdi = MumbleClient.vsmdi
+		mumblesharp.ico = mumblesharp.ico
+		mumblesharp.png = mumblesharp.png
+		mumblesharp.xcf = mumblesharp.xcf
+		Readme.md = Readme.md
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
@@ -195,6 +203,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24294624-16F2-4049-B905-762FF87FF0A3}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MumbleClient.vsmdi
