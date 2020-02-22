@@ -94,13 +94,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MumbleSharp\MumbleSharp.csproj">
-      <Project>{ccf6db4f-d16f-45f3-920d-e265927bb430}</Project>
-      <Name>MumbleSharp</Name>
-    </ProjectReference>
+    <Folder Include="Controls\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controls\" />
+    <ProjectReference Include="..\MumbleSharp\MumbleSharp.csproj">
+      <Project>{2ca13bb4-375b-49b1-b8f6-4fba982be302}</Project>
+      <Name>MumbleSharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
