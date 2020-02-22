@@ -1,23 +1,29 @@
 ## MumbleSharp
 
-MumbleSharp is an implementation of a mumble client in C#.
+MumbleSharp is Mumble client library and sample client implementations in C#.
+
+[Mumble](https://www.mumble.info/) is a free, open source, low latency, high quality voice chat application.
+
+![MumbleSharp Logo](mumblesharp.png)
 
 The solution comes in two parts:
 
- - MumbleSharp is the actual MumbleSharp library which is a class library for building mumble clients.
- - MumbleClient is a console mumble client, a console application to use for testing and learning.
- - MumbleGuiClient is a winform mumble client, a minimalistic client but fully functional: channels display and switching, message chat, voice support, playback/recording device selection and a very basic voice detection.
+ 1. The MumbleSharp Library
+    - MumbleSharp is the actual MumbleSharp library which is a class library for building mumble clients.
+ 2. Demo implementations
+    - MumbleClient is a console mumble client, a console application to use for testing and learning.
+    - MumbleGuiClient is a winform mumble client, a minimalistic client but fully functional: channels display and switching, message chat, voice support, playback/recording device selection and a very basic voice detection.
 
 As you can see from the MumbleClient Program.cs creating a new client is very simple:
 
  1. Implement IMumbleProtocol and implement methods to respond to messages of different types however you wish.
  2. Use a MumbleConnection to connect to a server.
- 
+
+## NuGet Package
+
 You may find the MumbleSharp library as a NuGet package:
 
-| Package | NuGet |
-|---------|-------|
-| [MumbleSharp][MumbleSharpNuget] | [![MumbleSharpShield]][MumbleSharpNuget] |
+[![MumbleSharpShield]][MumbleSharpNuget] [[MumbleSharpNuget]][MumbleSharpNuget]
 
 [MumbleSharpNuget]: https://www.nuget.org/packages/MumbleSharp/
 [MumbleSharpShield]: https://img.shields.io/nuget/vpre/MumbleSharp.svg
@@ -34,7 +40,7 @@ When contributing it's often useful to reference the [Mumble source code](https:
 
 ### Things To Do
 
- If you want to contribute here's some ideas:
+If you want to contribute here's some ideas:
  
 #### Jitter Buffer
 There is no jitter buffering at the moment. Port the jitter buffering from mumble or implement your own. AudioBuffer.cs is probably the correct place to start doing this.
