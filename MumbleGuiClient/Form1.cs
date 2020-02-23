@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MumbleSharp;
@@ -251,7 +252,10 @@ namespace MumbleGuiClient
         private void mumbleUpdater_Tick(object sender, EventArgs e)
         {
             if (connection != null)
-                connection.Process();
+                if (connection.Process())
+                    Thread.Yield();
+                else
+                    Thread.Sleep(1);
         }
 
         private void tvUsers_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -457,6 +461,7 @@ namespace MumbleGuiClient
             while (connection.Protocol.LocalUser == null)
             {
                 connection.Process();
+                Thread.Sleep(1);
             }
         }
 

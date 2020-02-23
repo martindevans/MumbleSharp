@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Version = MumbleProto.Version;
+using static MumbleSharp.Audio.AudioEncodingBuffer;
 
 namespace MumbleSharp
 {
@@ -53,7 +54,9 @@ namespace MumbleSharp
         public User LocalUser { get; private set; }
 
         private AudioEncodingBuffer _encodingBuffer;
+        private ThreadStart _encodingThreadStart;
         private Thread _encodingThread;
+        private Exception _encodingThreadException;
         private UInt32 sequenceIndex;
 
         public bool IsEncodingThreadRunning { get; set; }
@@ -86,21 +89,29 @@ namespace MumbleSharp
         {
             Connection = connection;
 
-            _encodingThread = new Thread(EncodingThreadEntry)
+            //Start the EncodingThreadEntry thread, and collect a possible exception at termination
+            _encodingThreadStart = new ThreadStart(() => EncodingThreadEntry(out _encodingThreadException));
+            _encodingThreadStart += () => {
+                if (_encodingThreadException != null)
+                    throw new Exception($"{nameof(BasicMumbleProtocol)}'s {nameof(_encodingThread)} was terminated unexpectedly because of a {_encodingThreadException.GetType().ToString()}", _encodingThreadException);
+            };
+
+            _encodingThread = new Thread(_encodingThreadStart)
             {
-                IsBackground = true
+                IsBackground = true,
+                Priority = ThreadPriority.AboveNormal
             };
         }
         public void Close()
         {
-            _encodingThread.Abort();
+            IsEncodingThreadRunning = false;
 
             Connection = null;
             LocalUser = null;
         }
 
         /// <summary>
-        /// Server has sent a version update
+        /// Server has sent a version update.
         /// </summary>
         /// <param name="version"></param>
         public virtual void Version(Version version)
@@ -109,7 +120,7 @@ namespace MumbleSharp
         }
 
         /// <summary>
-        /// Validate the certificate the server sends for itself. By default this will acept *all* certificates
+        /// Validate the certificate the server sends for itself. By default this will acept *all* certificates.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="certificate"></param>
@@ -121,12 +132,41 @@ namespace MumbleSharp
             return true;
         }
 
+        /// <summary>
+        /// Sent by the server to inform the clients of suggested client configuration specified by the server administrator.
+        /// </summary>
+        /// <param name="config"></param>
         public virtual void SuggestConfig(SuggestConfig config)
         {
 
         }
 
         #region Channels
+        protected void SendChannelCreate(Channel channel)
+        {
+            if (channel.Id != 0)
+                throw new ArgumentException("For channel creation the ChannelId cannot be forced, use 0 to avoid this error.", nameof(channel));
+
+            SendChannelState(new MumbleProto.ChannelState()
+            {
+                //ChannelId = channel.Id, //for channel creation the ChannelId must not be set
+                Parent = channel.Parent,
+                Position = channel.Position,
+                Name = channel.Name,
+                Description = channel.Description,
+                Temporary = channel.Temporary,
+                //MaxUsers = 0, //If this value is zero, the maximum number of users allowed in the channel is given by the server's "usersperchannel" setting.
+            });
+        }
+        protected void SendChannelMove(Channel channel, uint parentChannelId)
+        {
+            SendChannelState(new MumbleProto.ChannelState()
+            {
+                ChannelId = channel.Id,
+                Parent = parentChannelId,
+            });
+        }
+
         protected virtual void ChannelJoined(Channel channel)
         {
         }
@@ -134,21 +174,41 @@ namespace MumbleSharp
         protected virtual void ChannelLeft(Channel channel)
         {
         }
+
         /// <summary>
-        /// Server has changed some detail of a channel
+        /// Used to communicate channel properties between the client and the server.
+        /// Sent by the server during the login process or when channel properties are updated.
         /// </summary>
         /// <param name="channelState"></param>
         public virtual void ChannelState(ChannelState channelState)
         {
-            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i => new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent)
-            {
-                Temporary = channelState.Temporary,
-                Description = channelState.Description,
-                Position = channelState.Position
-            },
+            if(!channelState.ShouldSerializeChannelId())
+                throw new InvalidOperationException($"{nameof(ChannelState)} must provide a {channelState.ChannelId}.");
+
+            var channel = ChannelDictionary.AddOrUpdate(channelState.ChannelId, i =>
+                {
+                    //Add new channel to the dictionary
+                    return new Channel(this, channelState.ChannelId, channelState.Name, channelState.Parent)
+                    {
+                        Temporary = channelState.Temporary,
+                        Description = channelState.Description,
+                        Position = channelState.Position
+                    };
+                },
                 (i, c) =>
                 {
-                    c.Name = channelState.Name;
+                    //Update existing channel in the dictionary
+                    if (channelState.ShouldSerializeName())
+                        c.Name = channelState.Name;
+                    if (channelState.ShouldSerializeParent())
+                        c.Parent = channelState.Parent;
+                    if (channelState.ShouldSerializeTemporary())
+                        c.Temporary = channelState.Temporary;
+                    if (channelState.ShouldSerializeDescription())
+                        c.Description = channelState.Description;
+                    if (channelState.ShouldSerializePosition())
+                        c.Position = channelState.Position;
+
                     return c;
                 }
             );
@@ -162,7 +222,17 @@ namespace MumbleSharp
         }
 
         /// <summary>
-        /// Server has removed a channel
+        /// Used to communicate channel properties between the client and the server.
+        /// Client may use this message to update said channel properties.
+        /// </summary>
+        /// <param name="channelState"></param>
+        public void SendChannelState(ChannelState channelState)
+        {
+            Connection.SendControl(PacketType.ChannelState, channelState);
+        }
+
+        /// <summary>
+        /// Sent by the server when a channel has been removed and clients should be notified.
         /// </summary>
         /// <param name="channelRemove"></param>
         public virtual void ChannelRemove(ChannelRemove channelRemove)
@@ -172,6 +242,15 @@ namespace MumbleSharp
             {
                 ChannelLeft(c);
             }
+        }
+
+        /// <summary>
+        /// Sent by the client when it wants a channel removed.
+        /// </summary>
+        /// <param name="channelRemove"></param>
+        public void SendChannelRemove(ChannelRemove channelRemove)
+        {
+            Connection.SendControl(PacketType.ChannelRemove, channelRemove);
         }
         #endregion
 
@@ -185,7 +264,8 @@ namespace MumbleSharp
         }
 
         /// <summary>
-        /// Server has changed some detail of a user
+        /// Sent by the server when it communicates new and changed users to client.
+        /// First seen during login procedure.
         /// </summary>
         /// <param name="userState"></param>
         public virtual void UserState(UserState userState)
@@ -195,30 +275,36 @@ namespace MumbleSharp
             if (userState.ShouldSerializeSession())
             {
                 bool added = false;
-                User user = UserDictionary.AddOrUpdate(userState.Session, i => {
+                User user = UserDictionary.AddOrUpdate(userState.Session, i =>
+                {
+                    //Add new user to the dictionary
                     added = true;
                     return new User(this, userState.Session, _audioSampleRate, _audioSampleBits, _audioSampleChannels);
-                }, (i, u) => u);
+                }, (i, u) =>
+                {
+                    //Update existing user in the dictionary
+                    if (userState.ShouldSerializeSelfDeaf())
+                        u.SelfDeaf = userState.SelfDeaf;
+                    if (userState.ShouldSerializeSelfMute())
+                        u.SelfMuted = userState.SelfMute;
+                    if (userState.ShouldSerializeMute())
+                        u.Muted = userState.Mute;
+                    if (userState.ShouldSerializeDeaf())
+                        u.Deaf = userState.Deaf;
+                    if (userState.ShouldSerializeSuppress())
+                        u.Suppress = userState.Suppress;
+                    if (userState.ShouldSerializeName())
+                        u.Name = userState.Name;
+                    if (userState.ShouldSerializeComment())
+                        u.Comment = userState.Comment;
 
-                if (userState.ShouldSerializeSelfDeaf())
-                    user.SelfDeaf = userState.SelfDeaf;
-                if (userState.ShouldSerializeSelfMute())
-                    user.SelfMuted = userState.SelfMute;
-                if (userState.ShouldSerializeMute())
-                    user.Muted = userState.Mute;
-                if (userState.ShouldSerializeDeaf())
-                    user.Deaf = userState.Deaf;
-                if (userState.ShouldSerializeSuppress())
-                    user.Suppress = userState.Suppress;
-                if (userState.ShouldSerializeName())
-                    user.Name = userState.Name;
-                if (userState.ShouldSerializeComment())
-                    user.Comment = userState.Comment;
+                    if (userState.ShouldSerializeChannelId())
+                        u.Channel = ChannelDictionary[userState.ChannelId];
+                    else if (u.Channel == null)
+                        u.Channel = RootChannel;
 
-                if (userState.ShouldSerializeChannelId())
-                    user.Channel = ChannelDictionary[userState.ChannelId];
-                else if(user.Channel == null)
-                    user.Channel = RootChannel;
+                    return u;
+                });
 
                 //if (added)
                     UserJoined(user);
@@ -226,7 +312,17 @@ namespace MumbleSharp
         }
 
         /// <summary>
-        /// A user has been removed from the server (left, kicked or banned)
+        /// Sent by the client when it wishes to alter its state.
+        /// </summary>
+        /// <param name="userState"></param>
+        public void SendUserState(UserState userState)
+        {
+            Connection.SendControl(PacketType.UserState, userState);
+        }
+
+        /// <summary>
+        /// Used to communicate user leaving or being kicked.
+        /// Sent by the server when it informs the clients that a user is not present anymore.
         /// </summary>
         /// <param name="userRemove"></param>
         public virtual void UserRemove(UserRemove userRemove)
@@ -242,24 +338,97 @@ namespace MumbleSharp
             if (user.Equals(LocalUser))
                 Connection.Close();
         }
+
+        /// <summary>
+        /// Sent by the client when it attempts to kick a user.
+        /// </summary>
+        /// <param name="userRemove"></param>
+        public void SendUserRemove(UserRemove userRemove)
+        {
+            Connection.SendControl(PacketType.UserRemove, userRemove);
+        }
         #endregion
 
         public virtual void ContextAction(ContextAction contextAction)
         {
         }
 
-        public virtual void ContextActionModify(ContextActionModify contextActionModify)
+        /// <summary>
+        /// Sent by the client when it wants to initiate a Context action.
+        /// </summary>
+        /// <param name="contextActionModify"></param>
+        public void SendContextActionModify(ContextActionModify contextActionModify)
+        {
+            Connection.SendControl(PacketType.ContextActionModify, contextActionModify);
+        }
+
+        #region permissions
+        /// <summary>
+        /// Sent by the server when it replies to the query or wants the user to resync all channel permissions.
+        /// </summary>
+        /// <param name="permissionQuery"></param>
+        public virtual void PermissionQuery(PermissionQuery permissionQuery)
+        {
+            if (permissionQuery.Flush)
+            {
+                foreach (var channel in ChannelDictionary.Values)
+                {
+                    channel.Permissions = 0; // Permissions.DEFAULT_PERMISSIONS;
+                }
+            }
+            else if (permissionQuery.ShouldSerializeChannelId())
+            {
+                Channel channel;
+                if (!ChannelDictionary.TryGetValue(permissionQuery.ChannelId, out channel))
+                    throw new InvalidOperationException($"{nameof(PermissionQuery)} provided an unknown {permissionQuery.ChannelId}.");
+
+                if (permissionQuery.ShouldSerializePermissions())
+                    channel.Permissions = (Permission)permissionQuery.Permissions;
+            }
+            else
+            {
+                throw new InvalidOperationException($"{nameof(PermissionQuery)} must provide either {nameof(permissionQuery.Flush)} or {nameof(permissionQuery.ChannelId)}.");
+            }
+        }
+
+        /// <summary>
+        /// Sent by the client when it wants permissions for a certain channel.
+        /// </summary>
+        /// <param name="permissionQuery"></param>
+        public void SendPermissionQuery(PermissionQuery permissionQuery)
+        {
+            Connection.SendControl(PacketType.PermissionQuery, permissionQuery);
+        }
+
+        /// <summary>
+        /// Sent by the server when it rejects the user connection.
+        /// </summary>
+        /// <param name="reject"></param>
+        public virtual void Reject(Reject reject)
         {
         }
 
-        public virtual void PermissionQuery(PermissionQuery permissionQuery)
+        public virtual void PermissionDenied(PermissionDenied permissionDenied)
         {
-            
         }
+
+        /// <summary>
+        /// Used by the client to send the authentication credentials to the server.
+        /// </summary>
+        /// <param name="authenticate"></param>
+        public void SendAuthenticate(Authenticate authenticate)
+        {
+            Connection.SendControl(PacketType.Authenticate, authenticate);
+        }
+
+        public virtual void Acl(Acl acl)
+        {
+        }
+        #endregion
 
         #region server setup
         /// <summary>
-        /// Initial connection to the server
+        /// ServerSync message is sent by the server when it has authenticated the user and finished synchronizing the server state.
         /// </summary>
         /// <param name="serverSync"></param>
         public virtual void ServerSync(ServerSync serverSync)
@@ -267,8 +436,13 @@ namespace MumbleSharp
             if (LocalUser != null)
                 throw new InvalidOperationException("Second ServerSync Received");
 
+            if (!serverSync.ShouldSerializeSession())
+                throw new InvalidOperationException($"{nameof(ServerSync)} must provide a {nameof(serverSync.Session)}.");
+
             //Get the local user
             LocalUser = UserDictionary[serverSync.Session];
+
+            //TODO: handle the serverSync.WelcomeText, serverSync.Permissions, serverSync.MaxBandwidth
 
             _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels, _audioFrameSize);
             _encodingThread.Start();
@@ -277,7 +451,7 @@ namespace MumbleSharp
         }
 
         /// <summary>
-        /// Some detail of the server configuration has changed
+        /// Sent by the server when it informs the clients on server configuration details.
         /// </summary>
         /// <param name="serverConfig"></param>
         public virtual void ServerConfig(ServerConfig serverConfig)
@@ -287,52 +461,57 @@ namespace MumbleSharp
         #endregion
 
         #region voice
-        private void EncodingThreadEntry()
+        private void EncodingThreadEntry(out Exception exception)
         {
+            exception = null;
             IsEncodingThreadRunning = true;
-            while (IsEncodingThreadRunning)
+            try
             {
-                byte[] packet = null;
-                try
+                while (IsEncodingThreadRunning)
                 {
-                    packet = _encodingBuffer.Encode(TransmissionCodec);
-                }
-                catch { }
+                    EncodedTargettedSpeech? encodedTargettedSpeech = _encodingBuffer.Encode(TransmissionCodec);
 
-                if (packet != null)
-                {
-                    int maxSize = 480;
-
-                    //taken from JS port
-                    for (int currentOffcet = 0; currentOffcet < packet.Length; )
+                    if (encodedTargettedSpeech.HasValue)
                     {
-                        int currentBlockSize = Math.Min(packet.Length - currentOffcet, maxSize);
+                        int maxSize = 480;
 
-                        byte type = TransmissionCodec == SpeechCodecs.Opus ? (byte)4 : (byte)0;
-                        //originaly [type = codec_type_id << 5 | whistep_chanel_id]. now we can talk only to normal chanel
-                        type = (byte)(type << 5);
-                        byte[] sequence = Var64.writeVarint64_alternative((UInt64)sequenceIndex);
+                        //taken from JS port
+                        for (int currentOffcet = 0; currentOffcet < encodedTargettedSpeech.Value.EncodedPcm.Length;)
+                        {
+                            int currentBlockSize = Math.Min(encodedTargettedSpeech.Value.EncodedPcm.Length - currentOffcet, maxSize);
 
-                        // Client side voice header.
-                        byte[] voiceHeader = new byte[1 + sequence.Length];
-                        voiceHeader[0] = type;
-                        sequence.CopyTo(voiceHeader, 1);
+                            byte type = TransmissionCodec == SpeechCodecs.Opus ? (byte)4 : (byte)0;
+                            //originaly [type = codec_type_id << 5 | whistep_chanel_id].
+                            var typeTarget = (byte)(type << 5 | (int)encodedTargettedSpeech.Value.Target);
+                            byte[] sequence = Var64.writeVarint64_alternative((UInt64)sequenceIndex);
 
-                        byte[] header = Var64.writeVarint64_alternative((UInt64)currentBlockSize);
-                        byte[] packedData = new byte[voiceHeader.Length + header.Length + currentBlockSize];
+                            // Client side voice header.
+                            byte[] voiceHeader = new byte[1 + sequence.Length];
+                            voiceHeader[0] = typeTarget;
+                            sequence.CopyTo(voiceHeader, 1);
 
-                        Array.Copy(voiceHeader, 0, packedData, 0, voiceHeader.Length);
-                        Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
-                        Array.Copy(packet, currentOffcet, packedData, voiceHeader.Length + header.Length, currentBlockSize);
+                            byte[] header = Var64.writeVarint64_alternative((UInt64)currentBlockSize);
+                            byte[] packedData = new byte[voiceHeader.Length + header.Length + currentBlockSize];
 
-                        Connection.SendVoice(new ArraySegment<byte>(packedData));
+                            Array.Copy(voiceHeader, 0, packedData, 0, voiceHeader.Length);
+                            Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
+                            Array.Copy(encodedTargettedSpeech.Value.EncodedPcm, currentOffcet, packedData, voiceHeader.Length + header.Length, currentBlockSize);
 
-                        sequenceIndex++;
-                        currentOffcet += currentBlockSize;
+                            Connection.SendVoice(new ArraySegment<byte>(packedData));
+
+                            sequenceIndex++;
+                            currentOffcet += currentBlockSize;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(1); //avoids consuming a cpu core at 100% if there's nothing to encode...
                     }
                 }
-
-                //beware! can take a lot of power, because infinite loop without sleep
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
             }
         }
 
@@ -398,11 +577,10 @@ namespace MumbleSharp
         }
         #endregion
 
-        
-
-        
+        #region ping
         /// <summary>
-        /// Received a ping over the TCP connection
+        /// Received a ping over the TCP connection.
+        /// Server must reply to the client Ping packet with the same timestamp and its own good/late/lost/resync numbers. None of the fields is strictly required.
         /// </summary>
         /// <param name="ping"></param>
         public virtual void Ping(Ping ping)
@@ -410,15 +588,25 @@ namespace MumbleSharp
             
         }
 
+        /// <summary>
+        /// Sent by the client to notify the server that the client is still alive.
+        /// </summary>
+        /// <param name="ping"></param>
+        public void SendPing(Ping ping)
+        {
+            Connection.SendControl(PacketType.Ping, ping);
+        }
+        #endregion
+
         #region text messages
         /// <summary>
-        /// Received a text message from the server
+        /// Received a text message from the server.
         /// </summary>
         /// <param name="textMessage"></param>
         public virtual void TextMessage(TextMessage textMessage)
         {
             User user;
-            if (!UserDictionary.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
+            if (!textMessage.ShouldSerializeActor() || !UserDictionary.TryGetValue(textMessage.Actor, out user))   //If we don't know the user for this packet, just ignore it
                 return;
 
             if (textMessage.ChannelIds == null || textMessage.ChannelIds.Length == 0)
@@ -460,8 +648,21 @@ namespace MumbleSharp
         protected virtual void ChannelMessageReceived(ChannelMessage message)
         {
         }
+
+        /// <summary>
+        /// Used to send and broadcast text messages.
+        /// </summary>
+        /// <param name="textMessage"></param>
+        public void SendTextMessage(TextMessage textMessage)
+        {
+            Connection.SendControl(PacketType.TextMessage, textMessage);
+        }
         #endregion
 
+        /// <summary>
+        /// Lists the registered users.
+        /// </summary>
+        /// <param name="userList"></param>
         public virtual void UserList(UserList userList)
         {
         }
@@ -469,6 +670,84 @@ namespace MumbleSharp
         public virtual X509Certificate SelectCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             return null;
+        }
+
+        /// <summary>
+        /// Sent by the server to inform the client to refresh its registered user information.
+        /// </summary>
+        /// <param name="queryUsers"></param>
+        public virtual void QueryUsers(QueryUsers queryUsers)
+        {
+        }
+
+        /// <summary>
+        /// The client should fill the IDs or Names of the users it wants to refresh.
+        /// The server fills the missing parts and sends the message back.
+        /// </summary>
+        /// <param name="queryUsers"></param>
+        public void SendQueryUsers(QueryUsers queryUsers)
+        {
+            Connection.SendControl(PacketType.QueryUsers, queryUsers);
+        }
+
+        /// <summary>
+        /// Sent by the client when it wants to register or clear whisper targets.
+        /// Note: The first available target ID is 1 as 0 is reserved for normal talking. Maximum target ID is 30.
+        /// </summary>
+        /// <param name="voiceTarget"></param>
+        public void SendVoiceTarget(VoiceTarget voiceTarget)
+        {
+            Connection.SendControl(PacketType.VoiceTarget, voiceTarget);
+        }
+
+        /// <summary>
+        /// Used to communicate user stats between the server and clients.
+        /// </summary>
+        /// <param name="userStats"></param>
+        public virtual void UserStats(UserStats userStats)
+        {
+        }
+
+        /// <summary>
+        /// Used to communicate user stats between the server and clients.
+        /// </summary>
+        /// <param name="userStats"></param>
+        public void SendRequestUserStats(UserStats userStats)
+        {
+            Connection.SendControl(PacketType.UserStats, userStats);
+        }
+
+        /// <summary>
+        /// Used by the client to request binary data from the server.
+        /// By default large comments or textures are not sent within standard messages but instead the
+        /// hash is.
+        /// If the client does not recognize the hash it may request the resource when it needs it.
+        /// The client does so by sending a RequestBlob message with the correct fields filled with the user sessions or channel_ids it wants to receive.
+        /// The server replies to this by sending a new UserState/ChannelState message with the resources filled even if they would normally be transmitted as hashes.
+        /// </summary>
+        /// <param name="requestBlob"></param>
+        public void SendRequestBlob(RequestBlob requestBlob)
+        {
+            Connection.SendControl(PacketType.RequestBlob, requestBlob);
+        }
+
+        /// <summary>
+        /// Relays information on the bans.
+        /// The server sends this list only after a client queries for it.
+        /// </summary>
+        /// <param name="banList"></param>
+        public virtual void BanList(BanList banList)
+        {
+        }
+
+        /// <summary>
+        /// Relays information on the bans.
+        /// The client may send the BanList message to either modify the list of bans or query them from the server.
+        /// </summary>
+        /// <param name="banList"></param>
+        public void SendBanList(BanList banList)
+        {
+            Connection.SendControl(PacketType.BanList, banList);
         }
     }
 }

@@ -69,6 +69,9 @@ namespace MumbleSharp.Audio
         /// <param name="codec">The codec to use to decode this packet</param>
         public void AddEncodedPacket(long sequence, byte[] data, IVoiceCodec codec)
         {
+            if(sequence == 0)
+                _nextSequenceToDecode = 0;
+
             if (_codec == null)
                 _codec = codec;
             else if (_codec != null && _codec != codec)

@@ -19,7 +19,8 @@ namespace MumbleSharp.Model
         public string Description { get; set; }
         public int Position { get; set; }
         public uint Id { get; private set; }
-        public uint Parent { get; private set; }
+        public uint Parent { get; internal set; }
+        public Permission Permissions { get; internal set; }
 
         // Using a concurrent dictionary as a concurrent hashset (why doesn't .net provide a concurrent hashset?!) - http://stackoverflow.com/a/18923091/108234
         private readonly ConcurrentDictionary<User, bool> _users = new ConcurrentDictionary<User, bool>();
@@ -78,11 +79,11 @@ namespace MumbleSharp.Model
             SendMessage(messages, recursive);
         }
 
-        public void SendVoice(ArraySegment<byte> buffer, bool whisper = false)
+        public void SendVoice(ArraySegment<byte> buffer, SpeechTarget target = SpeechTarget.Normal)
         {
             Owner.SendVoice(
                 buffer,
-                target: whisper ? SpeechTarget.WhisperToChannel : SpeechTarget.Normal,
+                target: target,
                 targetId: Id
             );
         }
