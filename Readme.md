@@ -32,7 +32,7 @@ You may find the MumbleSharp library as a NuGet package:
 
 ## Work In Progress
  
-The library nearly supports all non voice things that Mumble can do but for voice support only the Opus encoded packets are supported (Opus is Mumble's primary codec).
+The library nearly supports all non voice things that Mumble can do but for voice support only the [Opus](http://www.opus-codec.org/) encoded packets are supported (Opus is Mumble's primary codec).
 
 ## Contributing
 

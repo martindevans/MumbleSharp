@@ -50,7 +50,7 @@ For more info on Mumble please visit https://www.mumble.info/</Description>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="1.10.0" />
-    <PackageReference Include="protobuf-net" Version="2.4.0" />
+    <PackageReference Include="protobuf-net" Version="2.4.4" />
   </ItemGroup>
 
   <ItemGroup>
