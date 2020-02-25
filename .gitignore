@@ -11,6 +11,7 @@
 packages
 TestResults
 _Resharper.*
+NuGetRelease
 
 MumbleClient/bin
 MumbleClient/obj
