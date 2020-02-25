@@ -4,13 +4,12 @@
 *.xnb
 *.sln.docstates
 *.cache
-*.ncrunchproject
-*.ncrunchsolution
 
 .vs
 packages
 TestResults
 _Resharper.*
+NuGetRelease
 
 MumbleClient/bin
 MumbleClient/obj

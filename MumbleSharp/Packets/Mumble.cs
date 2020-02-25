@@ -2,7 +2,7 @@
 // Consider using 'partial classes' to extend these types
 // Input: mumble.proto
 
-#pragma warning disable CS1591, CS0612, CS3021, IDE1006
+#pragma warning disable CS0612, CS1591, CS3021, IDE1006, RCS1036, RCS1057, RCS1085, RCS1192
 namespace MumbleProto
 {
 
@@ -690,6 +690,9 @@ namespace MumbleProto
         public void ResetRecording() => __pbn__Recording = null;
         private bool? __pbn__Recording;
 
+        [global::ProtoBuf.ProtoMember(20, Name = @"temporary_access_tokens")]
+        public global::System.Collections.Generic.List<string> TemporaryAccessTokens { get; } = new global::System.Collections.Generic.List<string>();
+
     }
 
     [global::ProtoBuf.ProtoContract()]
@@ -900,6 +903,7 @@ namespace MumbleProto
             UserName = 8,
             ChannelFull = 9,
             NestingLimit = 10,
+            ChannelCountLimit = 11,
         }
 
     }
@@ -1773,4 +1777,4 @@ namespace MumbleProto
 
 }
 
-#pragma warning restore CS1591, CS0612, CS3021, IDE1006
+#pragma warning restore CS0612, CS1591, CS3021, IDE1006, RCS1036, RCS1057, RCS1085, RCS1192

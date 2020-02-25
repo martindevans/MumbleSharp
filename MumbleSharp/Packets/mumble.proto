@@ -1,4 +1,4 @@
-// Copyright 2005-2018 The Mumble Developers. All rights reserved.
+// Copyright 2005-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -213,6 +213,8 @@ message UserState {
 	optional bool priority_speaker = 18;
 	// True if the user is currently recording.
 	optional bool recording = 19;
+	// a list of temporary acces tokens to be respected when processing this request
+	repeated string temporary_access_tokens = 20;
 }
 
 // Relays information on the bans. The client may send the BanList message to
@@ -280,7 +282,10 @@ message PermissionDenied {
 		UserName = 8;
 		// Channel is full.
 		ChannelFull = 9;
+		// Channels are nested too deply.
 		NestingLimit = 10;
+		// Maximum channel count reached.
+		ChannelCountLimit = 11;
 	}
 	// The denied permission when type is Permission.
 	optional uint32 permission = 1;

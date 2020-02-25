@@ -66,7 +66,7 @@ namespace MumbleClient
 
         private class AudioPlayer
         {
-            private readonly WaveOut _playbackDevice = new WaveOut();
+            private readonly WaveOutEvent _playbackDevice = new WaveOutEvent();
 
             public AudioPlayer(IWaveProvider provider)
             {
