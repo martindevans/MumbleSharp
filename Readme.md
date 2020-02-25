@@ -1,6 +1,6 @@
-## MumbleSharp
+<img alt="MumbleSharp Logo" align="right" src="mumblesharp.png" width="128" height="128">
 
-<img alt="MumbleSharp Logo" align="right" src="mumblesharp.png">
+## MumbleSharp
 
 MumbleSharp is Mumble client library and sample client implementations in C#.
 
