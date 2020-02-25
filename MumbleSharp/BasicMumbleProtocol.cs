@@ -476,9 +476,9 @@ namespace MumbleSharp
                         int maxSize = 480;
 
                         //taken from JS port
-                        for (int currentOffcet = 0; currentOffcet < encodedTargettedSpeech.Value.EncodedPcm.Length;)
+                        for (int currentOffset = 0; currentOffset < encodedTargettedSpeech.Value.EncodedPcm.Length;)
                         {
-                            int currentBlockSize = Math.Min(encodedTargettedSpeech.Value.EncodedPcm.Length - currentOffcet, maxSize);
+                            int currentBlockSize = Math.Min(encodedTargettedSpeech.Value.EncodedPcm.Length - currentOffset, maxSize);
 
                             byte type = TransmissionCodec == SpeechCodecs.Opus ? (byte)4 : (byte)0;
                             //originaly [type = codec_type_id << 5 | whistep_chanel_id].
@@ -495,12 +495,12 @@ namespace MumbleSharp
 
                             Array.Copy(voiceHeader, 0, packedData, 0, voiceHeader.Length);
                             Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
-                            Array.Copy(encodedTargettedSpeech.Value.EncodedPcm, currentOffcet, packedData, voiceHeader.Length + header.Length, currentBlockSize);
+                            Array.Copy(encodedTargettedSpeech.Value.EncodedPcm, currentOffset, packedData, voiceHeader.Length + header.Length, currentBlockSize);
 
                             Connection.SendVoice(new ArraySegment<byte>(packedData));
 
                             sequenceIndex++;
-                            currentOffcet += currentBlockSize;
+                            currentOffset += currentBlockSize;
                         }
                     }
                     else

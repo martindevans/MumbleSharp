@@ -237,6 +237,15 @@ namespace MumbleSharp
         private float _meanOfPings;
         private float _varianceTimesCountOfPings;
         private int _countOfPings;
+
+        /// <summary>
+        /// Gets a value indicating whether ping stats should set timestamp when pinging.
+        /// Only set the timestamp if we're currently connected.  This prevents the ping stats from being built.
+        /// otherwise the stats will be throw off by the time it takes to connect.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if ping stats should set timestamp when pinging; otherwise, <c>false</c>.
+        /// </value>
         internal bool ShouldSetTimestampWhenPinging { get; private set; }
 
         internal void ReceivePing(Ping ping)
