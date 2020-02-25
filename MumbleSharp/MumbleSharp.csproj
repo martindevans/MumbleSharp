@@ -1,134 +1,65 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CCF6DB4F-D16F-45F3-920D-E265927BB430}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MumbleSharp</RootNamespace>
-    <AssemblyName>MumbleSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net45</TargetFrameworks>
+    <Version>1.2.0</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>MumbleSharp is a mumble protocol implementation in C#.
+For more info on Mumble please visit https://www.mumble.info/</Description>
+    <Copyright>Copyright © 2020</Copyright>
+    <PackageProjectUrl>https://github.com/martindevans/MumbleSharp</PackageProjectUrl>
+    <ApplicationIcon>mumblesharp.ico</ApplicationIcon>
+    <RepositoryUrl>https://github.com/martindevans/MumbleSharp</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Mumble voip voice chat</PackageTags>
+    <Authors>martindevans, Meetsch</Authors>
+    <Company />
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>mumblesharp.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="NAudio, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.10.0\lib\net35\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NSpeex">
-      <HintPath>..\Dependencies\NSpeex v1.1.1\lib\NSpeex.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net, Version=2.4.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.4.0\lib\net40\protobuf-net.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <None Remove="mumblesharp.ico" />
+    <None Remove="Resources\mumble.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Audio\AudioDecodingBuffer.cs" />
-    <Compile Include="Audio\AudioEncodingBuffer.cs" />
-    <Compile Include="Audio\DynamicCircularBuffer.cs" />
-    <Compile Include="Audio\CodecSet.cs" />
-    <Compile Include="Audio\Codecs\CeltAlpha\CeltAlphaCodec.cs" />
-    <Compile Include="Audio\Codecs\CeltBeta\CeltBetaCodec.cs" />
-    <Compile Include="Audio\Codecs\Opus\OpusCodec.cs" />
-    <Compile Include="Audio\Codecs\Opus\NativeMethods.cs" />
-    <Compile Include="Audio\Codecs\Opus\Application.cs" />
-    <Compile Include="Audio\Codecs\Opus\OpusDecoder.cs" />
-    <Compile Include="Audio\Codecs\Opus\OpusEncoder.cs" />
-    <Compile Include="Audio\Codecs\Speex\SpeexCodec.cs" />
-    <Compile Include="Audio\SpeechTarget.cs" />
-    <Compile Include="ConnectionStates.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="CryptState.cs" />
-    <Compile Include="Audio\Codecs\IVoiceCodec.cs" />
-    <Compile Include="BasicMumbleProtocol.cs" />
-    <Compile Include="Extensions\IEnumerableOfChannelExtensions.cs" />
-    <Compile Include="Extensions\Log.cs" />
-    <Compile Include="LibraryLoader.cs" />
-    <Compile Include="Model\Message.cs" />
-    <Compile Include="Model\Channel.cs" />
-    <Compile Include="Model\Permissions.cs" />
-    <Compile Include="Model\User.cs" />
-    <Compile Include="MumbleConnection.cs" />
-    <Compile Include="IMumbleProtocol.cs" />
-    <Compile Include="OcbAes.cs" />
-    <Compile Include="Packets\Mumble.cs" />
-    <Compile Include="Packets\PacketType.cs" />
-    <Compile Include="PlatformDetails.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Audio\Codecs\SpeechCodecs.cs" />
-    <Compile Include="UdpPacketReader.cs" />
-    <Compile Include="Var64.cs" />
+    <Content Include="..\LICENSE" Link="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\mumblesharp.png" Link="mumblesharp.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="mumblesharp.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="Audio\Codecs\Opus\Libs\32bit\opus.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <PackageReference Include="NAudio" Version="1.10.0" />
+    <PackageReference Include="protobuf-net" Version="2.4.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Audio\Codecs\Opus\Libs\32bit\opus.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Audio\Codecs\Opus\Libs\64bit\opus.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Audio\Codecs\Opus\Libs\64bit\opus.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="MumbleSharp.nuspec" />
-    <None Include="nuget.pack.bat" />
-    <None Include="nuget.publish.bat" />
-    <None Include="packages.config" />
-    <None Include="Packets\Implementation Note.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\mumble.ico" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

@@ -1,0 +1,66 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MumbleSharp", "MumbleSharp\MumbleSharp.csproj", "{CCF6DB4F-D16F-45F3-920D-E265927BB430}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F41C145-F1AC-4BD0-B4BA-59B7D389452A}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		mumble-protocol-1.2.5-alpha.pdf = mumble-protocol-1.2.5-alpha.pdf
+		mumble-protocol.url = mumble-protocol.url
+		mumblesharp.ico = mumblesharp.ico
+		mumblesharp.png = mumblesharp.png
+		mumblesharp.xcf = mumblesharp.xcf
+		nuget.pack.bat = nuget.pack.bat
+		nuget.publish.bat = nuget.publish.bat
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{22EE2999-2A63-4C22-9187-0A435E9763D7}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MumbleSharpTest", "MumbleSharpTest\MumbleSharpTest.csproj", "{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleClient", "MumbleClient\MumbleClient.csproj", "{CE9C5569-39A8-498E-A03E-CA4C06D406B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleGuiClient", "MumbleGuiClient\MumbleGuiClient.csproj", "{8A9BA968-D7E3-4E2A-8D9E-488486BBE843}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE9C5569-39A8-498E-A03E-CA4C06D406B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE9C5569-39A8-498E-A03E-CA4C06D406B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE9C5569-39A8-498E-A03E-CA4C06D406B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE9C5569-39A8-498E-A03E-CA4C06D406B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A9BA968-D7E3-4E2A-8D9E-488486BBE843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A9BA968-D7E3-4E2A-8D9E-488486BBE843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A9BA968-D7E3-4E2A-8D9E-488486BBE843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A9BA968-D7E3-4E2A-8D9E-488486BBE843}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24294624-16F2-4049-B905-762FF87FF0A3}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = MumbleClient.vsmdi
+	EndGlobalSection
+EndGlobal
