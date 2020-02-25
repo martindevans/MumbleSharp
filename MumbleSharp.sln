@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleClient", "MumbleClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MumbleSharp", "MumbleSharp\MumbleSharp.csproj", "{CCF6DB4F-D16F-45F3-920D-E265927BB430}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleSharpTest", "MumbleSharpTest\MumbleSharpTest.csproj", "{D41737A2-E1E9-473D-89A2-5F2CCEC93310}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F41C145-F1AC-4BD0-B4BA-59B7D389452A}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
@@ -33,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{22EE29
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MumbleGuiClient", "MumbleGuiClient\MumbleGuiClient.csproj", "{4564A6E1-91FD-4920-8E79-8B33B086C70A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MumbleSharpTest", "MumbleSharpTest\MumbleSharpTest.csproj", "{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,14 +47,14 @@ Global
 		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCF6DB4F-D16F-45F3-920D-E265927BB430}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D41737A2-E1E9-473D-89A2-5F2CCEC93310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D41737A2-E1E9-473D-89A2-5F2CCEC93310}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D41737A2-E1E9-473D-89A2-5F2CCEC93310}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D41737A2-E1E9-473D-89A2-5F2CCEC93310}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4564A6E1-91FD-4920-8E79-8B33B086C70A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4564A6E1-91FD-4920-8E79-8B33B086C70A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4564A6E1-91FD-4920-8E79-8B33B086C70A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4564A6E1-91FD-4920-8E79-8B33B086C70A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B8BCBE5-4C2E-4295-ABE8-3F63EB68033A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,8 +4,6 @@
 *.xnb
 *.sln.docstates
 *.cache
-*.ncrunchproject
-*.ncrunchsolution
 
 .vs
 packages
