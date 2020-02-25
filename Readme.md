@@ -1,10 +1,10 @@
 ## MumbleSharp
 
+<img alt="MumbleSharp Logo" align="right" src="mumblesharp.png">
+
 MumbleSharp is Mumble client library and sample client implementations in C#.
 
 [Mumble](https://www.mumble.info/) is a free, open source, low latency, high quality voice chat application.
-
-![MumbleSharp Logo](mumblesharp.png)
 
 The solution comes in two parts:
 
