@@ -195,23 +195,19 @@ namespace MumbleSharp
                         Position = channelState.Position
                     };
                 },
-                (i, c) =>
-                {
-                    //Update existing channel in the dictionary
-                    if (channelState.ShouldSerializeName())
-                        c.Name = channelState.Name;
-                    if (channelState.ShouldSerializeParent())
-                        c.Parent = channelState.Parent;
-                    if (channelState.ShouldSerializeTemporary())
-                        c.Temporary = channelState.Temporary;
-                    if (channelState.ShouldSerializeDescription())
-                        c.Description = channelState.Description;
-                    if (channelState.ShouldSerializePosition())
-                        c.Position = channelState.Position;
+                (i, c) => c);
 
-                    return c;
-                }
-            );
+            //Update channel in the dictionary
+            if (channelState.ShouldSerializeName())
+                channel.Name = channelState.Name;
+            if (channelState.ShouldSerializeParent())
+                channel.Parent = channelState.Parent;
+            if (channelState.ShouldSerializeTemporary())
+                channel.Temporary = channelState.Temporary;
+            if (channelState.ShouldSerializeDescription())
+                channel.Description = channelState.Description;
+            if (channelState.ShouldSerializePosition())
+                channel.Position = channelState.Position;
 
             if (channel.Id == 0)
                 RootChannel = channel;
@@ -280,31 +276,28 @@ namespace MumbleSharp
                     //Add new user to the dictionary
                     added = true;
                     return new User(this, userState.Session, _audioSampleRate, _audioSampleBits, _audioSampleChannels);
-                }, (i, u) =>
-                {
-                    //Update existing user in the dictionary
-                    if (userState.ShouldSerializeSelfDeaf())
-                        u.SelfDeaf = userState.SelfDeaf;
-                    if (userState.ShouldSerializeSelfMute())
-                        u.SelfMuted = userState.SelfMute;
-                    if (userState.ShouldSerializeMute())
-                        u.Muted = userState.Mute;
-                    if (userState.ShouldSerializeDeaf())
-                        u.Deaf = userState.Deaf;
-                    if (userState.ShouldSerializeSuppress())
-                        u.Suppress = userState.Suppress;
-                    if (userState.ShouldSerializeName())
-                        u.Name = userState.Name;
-                    if (userState.ShouldSerializeComment())
-                        u.Comment = userState.Comment;
+                }, (i, u) => u);
 
-                    if (userState.ShouldSerializeChannelId())
-                        u.Channel = ChannelDictionary[userState.ChannelId];
-                    else if (u.Channel == null)
-                        u.Channel = RootChannel;
+                //Update user in the dictionary
+                if (userState.ShouldSerializeSelfDeaf())
+                    user.SelfDeaf = userState.SelfDeaf;
+                if (userState.ShouldSerializeSelfMute())
+                    user.SelfMuted = userState.SelfMute;
+                if (userState.ShouldSerializeMute())
+                    user.Muted = userState.Mute;
+                if (userState.ShouldSerializeDeaf())
+                    user.Deaf = userState.Deaf;
+                if (userState.ShouldSerializeSuppress())
+                    user.Suppress = userState.Suppress;
+                if (userState.ShouldSerializeName())
+                    user.Name = userState.Name;
+                if (userState.ShouldSerializeComment())
+                    user.Comment = userState.Comment;
 
-                    return u;
-                });
+                if (userState.ShouldSerializeChannelId())
+                    user.Channel = ChannelDictionary[userState.ChannelId];
+                else if (user.Channel == null)
+                    user.Channel = RootChannel;
 
                 //if (added)
                     UserJoined(user);
