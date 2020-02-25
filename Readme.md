@@ -34,7 +34,7 @@ As you can see from the MumbleClient's Program.cs creating a new client is very 
 
 ## Work In Progress
  
-The library nearly supports all non voice things that Mumble can do but for voice it supports only the [Opus](http://www.opus-codec.org/) encoded packets are supported (Opus is Mumble's primary codec).
+The library nearly supports all non-voice things that Mumble can do. For voice it only supports [Opus](http://www.opus-codec.org/) encoded packets (Opus is Mumble's primary codec).
 
 ## Contributing
 
