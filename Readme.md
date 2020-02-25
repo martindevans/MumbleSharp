@@ -14,11 +14,6 @@ The solution comes in two parts:
     - MumbleClient is a console mumble client, a console application to use for testing and learning.
     - MumbleGuiClient is a winform mumble client, a minimalistic client but fully functional: channels display and switching, message chat, voice support, playback/recording device selection and a very basic voice detection.
 
-As you can see from the MumbleClient Program.cs creating a new client is very simple:
-
- 1. Implement IMumbleProtocol and implement methods to respond to messages of different types however you wish.
- 2. Use a MumbleConnection to connect to a server.
-
 ## NuGet Package
 
 You may find the MumbleSharp library as a NuGet package:
@@ -30,13 +25,20 @@ You may find the MumbleSharp library as a NuGet package:
 [MumbleSharpNuget]: https://www.nuget.org/packages/MumbleSharp/
 [MumbleSharpShield]: https://img.shields.io/nuget/vpre/MumbleSharp.svg
 
+## Quick Start
+
+As you can see from the MumbleClient's Program.cs creating a new client is very simple:
+
+ 1. Implement IMumbleProtocol and implement methods to respond to messages of different types however you wish.
+ 2. Use a MumbleConnection to connect to a server.
+
 ## Work In Progress
  
-The library nearly supports all non voice things that Mumble can do but for voice support only the [Opus](http://www.opus-codec.org/) encoded packets are supported (Opus is Mumble's primary codec).
+The library nearly supports all non voice things that Mumble can do but for voice it supports only the [Opus](http://www.opus-codec.org/) encoded packets are supported (Opus is Mumble's primary codec).
 
 ## Contributing
 
-I'm only occasionally working on MumbleSharp in my spare time but I'm very happy to receive contributions. If you're thinking of contributing ping me an email (martindevans@gmail.com) and I'll try to give you any advice I can to achieve whatever you want. It would be helpful if you open an issue when you start working on something, that's a good way to make sure no one else is duplicating your work as well as being a good place to have discussions.
+We're working on MumbleSharp in our spare time but are very happy to receive contributions. If you're thinking of contributing create an issue and assign-it to yourself and we'll try to give you any advice we can to achieve whatever you want, and that's a good way to make sure no one else is duplicating your work as well as being a good place to have discussions.
 
 When contributing it's often useful to reference the [Mumble source code](https://github.com/mumble-voip/mumble).
 
@@ -52,4 +54,4 @@ Supporting other codecs should be relatively simple. For CELT you'll need to fin
 
 ## Looking For VoIP In Unity?
 
-I've developed a VoIP asset for Unity, get it [here](https://www.assetstore.unity3d.com/#!/content/70078?aid=1100lJ2J)
+Martin Evans developed a VoIP asset for Unity, get it [here](https://www.assetstore.unity3d.com/#!/content/70078?aid=1100lJ2J)
