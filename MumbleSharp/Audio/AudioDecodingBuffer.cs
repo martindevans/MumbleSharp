@@ -35,27 +35,51 @@ namespace MumbleSharp.Audio
         }
 
         private long _nextSequenceToDecode;
-        private readonly List<BufferPacket> _encodedBuffer = new List<BufferPacket>(); 
+        private readonly List<BufferPacket> _encodedBuffer = new List<BufferPacket>();
 
         private IVoiceCodec _codec;
+
+        private bool isJitterDetected;
+        private bool isReadPaused;
+        private DateTime jitterTimer = DateTime.UtcNow;
+        private const float jitterMillis = 100f;
+        public bool IsJittering;
 
         public int Read(byte[] buffer, int offset, int count)
         {
             int readCount = 0;
-            while (readCount < count)
-            {
-                readCount += ReadFromBuffer(buffer, offset + readCount, count - readCount);
 
-                //Try to decode some more data into the buffer
-                if (!FillBuffer())
-                    break;
+            if (isReadPaused && (DateTime.UtcNow - jitterTimer).TotalMilliseconds > jitterMillis)
+            {
+                isJitterDetected = false;
+                isReadPaused = false;
             }
 
-            if (readCount == 0)
+            if (!isReadPaused)
             {
-                //Return silence
-                Array.Clear(buffer, 0, buffer.Length);
-                return count;
+                while (readCount < count)
+                {
+                    readCount += ReadFromBuffer(buffer, offset + readCount, count - readCount);
+
+                    if (readCount == 0)
+                    {
+                        //isJitterDetected = true;
+                        IsJittering = true;
+                    }
+
+                    //Try to decode some more data into the buffer
+                    if (!FillBuffer())
+                        break;
+                }
+
+                System.Diagnostics.Debug.WriteLine("d" + _decodedCount.ToString());
+
+                if (readCount == 0)
+                {
+                    //Return silence
+                    Array.Clear(buffer, 0, buffer.Length);
+                    return count;
+                }
             }
 
             return readCount;
@@ -69,7 +93,7 @@ namespace MumbleSharp.Audio
         /// <param name="codec">The codec to use to decode this packet</param>
         public void AddEncodedPacket(long sequence, byte[] data, IVoiceCodec codec)
         {
-            if(sequence == 0)
+            if (sequence == 0)
                 _nextSequenceToDecode = 0;
 
             if (_codec == null)
@@ -81,10 +105,17 @@ namespace MumbleSharp.Audio
             if (_nextSequenceToDecode > sequence)
                 return;
 
-            _encodedBuffer.Add(new BufferPacket {
+            _encodedBuffer.Add(new BufferPacket
+            {
                 Data = data,
                 Sequence = sequence
             });
+
+            if (isJitterDetected)
+            {
+                isReadPaused = true;
+                jitterTimer = DateTime.UtcNow;
+            }
         }
 
         private void ChangeCodec(IVoiceCodec codec)
