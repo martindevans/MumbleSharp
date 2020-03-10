@@ -249,20 +249,13 @@ namespace MumbleGuiClient
             tbSendMessage.Text = "";
         }
 
-        DateTime jitterTimer = DateTime.UtcNow;
         private void mumbleUpdater_Tick(object sender, EventArgs e)
         {
             if (connection != null)
-            {
                 if (connection.Process())
                     Thread.Yield();
                 else
                     Thread.Sleep(1);
-                if ((DateTime.UtcNow - jitterTimer).TotalMilliseconds > 20)
-                {
-                    SpeakerPlayback.PlayAll();
-                }
-            }  
         }
 
         private void tvUsers_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -281,16 +274,7 @@ namespace MumbleGuiClient
         void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, MumbleSharp.Audio.Codecs.IVoiceCodec codec, MumbleSharp.Audio.SpeechTarget target)
         {
             User user = proto.Users.FirstOrDefault(u => u.Id == userId);
-            if (user.IsJittering)
-            {
-                SpeakerPlayback.Pause(userId);
-                //user.IsJittering = false;
-                jitterTimer = DateTime.UtcNow;
-            } else
-            {
-                AddPlayback(user);
-            }
-
+            AddPlayback(user);
 
             TreeNode<UserInfo> userNode = null;
             foreach (TreeNode<ChannelInfo> chanelNode in tvUsers.Nodes)

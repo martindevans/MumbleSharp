@@ -164,18 +164,6 @@ namespace MumbleSharp.Model
             }
         }
 
-        public bool IsJittering
-        {
-            get
-            {
-                return _buffer.IsJittering;
-            }
-            set
-            {
-                _buffer.IsJittering = value;
-            }
-        }
-
         public void ReceiveEncodedVoice(byte[] data, long sequence, IVoiceCodec codec)
         {
             _buffer.AddEncodedPacket(sequence, data, codec);

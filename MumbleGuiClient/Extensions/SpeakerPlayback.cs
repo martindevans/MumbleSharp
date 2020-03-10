@@ -41,14 +41,6 @@ namespace MumbleGuiClient
                 _players[id].Play();
         }
 
-        public static void PlayAll()
-        {
-            foreach(var player in _players)
-            {
-                player.Value.Play();
-            }
-        }
-
         public static void Stop(uint id)
         {
             if (_players.ContainsKey(id))
