@@ -40,16 +40,14 @@ namespace MumbleSharp.Audio
         private IVoiceCodec _codec;
 
         private bool isJitterDetected;
-        private bool isReadPaused;
         private DateTime jitterTimer = DateTime.UtcNow;
-        private const float jitterMillis = 20f;
-        public bool IsJittering;
+        private const float jitterMillis = 50f;
 
         public int Read(byte[] buffer, int offset, int count)
         {
             int readCount = 0;
 
-            if ((DateTime.UtcNow - jitterTimer).TotalMilliseconds > jitterMillis)
+            if (isJitterDetected && ((DateTime.UtcNow - jitterTimer).TotalMilliseconds > jitterMillis))
             {
                 isJitterDetected = false;
             }
@@ -63,8 +61,6 @@ namespace MumbleSharp.Audio
                     if (readCount == 0)
                     {
                         isJitterDetected = true;
-                        jitterTimer = DateTime.UtcNow + TimeSpan.FromSeconds(60);
-                        //IsJittering = true;
                     }
 
                     //Try to decode some more data into the buffer
