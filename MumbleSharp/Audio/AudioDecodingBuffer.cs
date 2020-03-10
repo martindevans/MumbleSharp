@@ -40,16 +40,18 @@ namespace MumbleSharp.Audio
         private IVoiceCodec _codec;
 
         private bool isJitterDetected;
+        private bool isJitterTimerRunning;
         private DateTime jitterTimer = DateTime.UtcNow;
-        private const float jitterMillis = 50f;
+        private const float jitterMillis = 350f;
 
         public int Read(byte[] buffer, int offset, int count)
         {
             int readCount = 0;
 
-            if (isJitterDetected && ((DateTime.UtcNow - jitterTimer).TotalMilliseconds > jitterMillis))
+            if (isJitterTimerRunning && ((DateTime.UtcNow - jitterTimer).TotalMilliseconds > jitterMillis))
             {
                 isJitterDetected = false;
+                isJitterTimerRunning = false;
             }
 
             if (!isJitterDetected)
@@ -87,9 +89,10 @@ namespace MumbleSharp.Audio
         /// <param name="codec">The codec to use to decode this packet</param>
         public void AddEncodedPacket(long sequence, byte[] data, IVoiceCodec codec)
         {
-            if (isJitterDetected)
+            if (isJitterDetected && !isJitterTimerRunning)
             {
                 jitterTimer = DateTime.UtcNow;
+                isJitterTimerRunning = true;
             }
 
             if (sequence == 0)
