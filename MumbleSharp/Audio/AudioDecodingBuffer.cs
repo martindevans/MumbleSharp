@@ -42,12 +42,12 @@ namespace MumbleSharp.Audio
         /// <summary>
         /// The time, in milliseconds, for the jitter buffer to delay when network data is exhausted. Only updates internally when jitter is detected.
         /// </summary>
-        public float JitterDelay { get; set; } = 350f;
+        public TimeSpan JitterDelay { get; set; } = TimeSpan.FromMilliseconds(350f);
 
         private bool isJitterDetected;
         private bool isJitterTimerRunning;
         private DateTime jitterTimer = DateTime.UtcNow;
-        private float jitterMillis = 350f;
+        private double jitterMillis = 350f;
 
         public int Read(byte[] buffer, int offset, int count)
         {
@@ -97,7 +97,7 @@ namespace MumbleSharp.Audio
             if (isJitterDetected && !isJitterTimerRunning)
             {
                 jitterTimer = DateTime.UtcNow;
-                jitterMillis = JitterDelay;
+                jitterMillis = JitterDelay.TotalMilliseconds;
                 isJitterTimerRunning = true;
             }
 
