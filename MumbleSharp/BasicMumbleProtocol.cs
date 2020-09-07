@@ -104,9 +104,13 @@ namespace MumbleSharp
         }
         public void Close()
         {
+            //request encoding thread to exit
             IsEncodingThreadRunning = false;
+            //wait until thread has exited gracefuly (1s max)
+            _encodingThread.Join(1000);
 
             Connection = null;
+
             LocalUser = null;
         }
 
@@ -490,7 +494,7 @@ namespace MumbleSharp
                             Array.Copy(header, 0, packedData, voiceHeader.Length, header.Length);
                             Array.Copy(encodedTargettedSpeech.Value.EncodedPcm, currentOffset, packedData, voiceHeader.Length + header.Length, currentBlockSize);
 
-                            Connection.SendVoice(new ArraySegment<byte>(packedData));
+                            Connection?.SendVoice(new ArraySegment<byte>(packedData));
 
                             sequenceIndex++;
                             currentOffset += currentBlockSize;
