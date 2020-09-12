@@ -33,6 +33,11 @@ namespace MumbleSharp
 
         public IMumbleProtocol Protocol { get; private set; }
 
+        /// <summary>
+        /// Whether or not voice support is unabled with this connection
+        /// </summary>
+        public bool VoiceSupportEnabled { get; private set; }
+
         public IPEndPoint Host
         {
             get;
@@ -46,9 +51,10 @@ namespace MumbleSharp
         /// </summary>
         /// <param name="server">The server adress or IP.</param>
         /// <param name="port">The port the server listens to.</param>
-        /// <param name="protocol">An object which will handle messages from the server</param>
-        public MumbleConnection(string server, int port, IMumbleProtocol protocol)
-            : this(new IPEndPoint(Dns.GetHostAddresses(server).First(a => a.AddressFamily == AddressFamily.InterNetwork), port), protocol)
+        /// <param name="protocol">An object which will handle messages from the server.</param>
+        /// <param name="voiceSupport">Whether or not voice support is unabled with this connection.</param>
+        public MumbleConnection(string server, int port, IMumbleProtocol protocol, bool voiceSupport = true)
+            : this(new IPEndPoint(Dns.GetHostAddresses(server).First(a => a.AddressFamily == AddressFamily.InterNetwork), port), protocol, voiceSupport)
         {
         }
 
@@ -57,11 +63,13 @@ namespace MumbleSharp
         /// </summary>
         /// <param name="host"></param>
         /// <param name="protocol"></param>
-        public MumbleConnection(IPEndPoint host, IMumbleProtocol protocol)
+        /// <param name="voiceSupport">Whether or not voice support is unabled with this connection.</param>
+        public MumbleConnection(IPEndPoint host, IMumbleProtocol protocol, bool voiceSupport = true)
         {
             Host = host;
             State = ConnectionStates.Disconnected;
             Protocol = protocol;
+            VoiceSupportEnabled = voiceSupport;
         }
 
         public void Connect(string username, string password, string[] tokens, string serverName)
@@ -129,7 +137,10 @@ namespace MumbleSharp
             //The packet must be a well formed Mumble packet as described in https://mumble-protocol.readthedocs.org/en/latest/voice_data.html#packet-format
             //The packet is created in BasicMumbleProtocol's EncodingThread
 
-            _tcp.SendVoice(PacketType.UDPTunnel, packet);
+            if (VoiceSupportEnabled)
+                _tcp.SendVoice(PacketType.UDPTunnel, packet);
+            else
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
         }
 
         internal void ReceivedEncryptedUdp(byte[] packet)
@@ -151,7 +162,7 @@ namespace MumbleSharp
 
             if (type == 1)
                 Protocol.UdpPing(packet);
-            else
+            else if(VoiceSupportEnabled)
                 UnpackVoicePacket(packet, type);
         }
 

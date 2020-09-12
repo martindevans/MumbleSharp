@@ -89,25 +89,32 @@ namespace MumbleSharp
         {
             Connection = connection;
 
-            //Start the EncodingThreadEntry thread, and collect a possible exception at termination
-            _encodingThreadStart = new ThreadStart(() => EncodingThreadEntry(out _encodingThreadException));
-            _encodingThreadStart += () => {
-                if (_encodingThreadException != null)
-                    throw new Exception($"{nameof(BasicMumbleProtocol)}'s {nameof(_encodingThread)} was terminated unexpectedly because of a {_encodingThreadException.GetType().ToString()}", _encodingThreadException);
-            };
-
-            _encodingThread = new Thread(_encodingThreadStart)
+            if (connection.VoiceSupportEnabled)
             {
-                IsBackground = true,
-                Priority = ThreadPriority.AboveNormal
-            };
+                //Start the EncodingThreadEntry thread, and collect a possible exception at termination
+                _encodingThreadStart = new ThreadStart(() => EncodingThreadEntry(out _encodingThreadException));
+                _encodingThreadStart += () =>
+                {
+                    if (_encodingThreadException != null)
+                        throw new Exception($"{nameof(BasicMumbleProtocol)}'s {nameof(_encodingThread)} was terminated unexpectedly because of a {_encodingThreadException.GetType().ToString()}", _encodingThreadException);
+                };
+
+                _encodingThread = new Thread(_encodingThreadStart)
+                {
+                    IsBackground = true,
+                    Priority = ThreadPriority.AboveNormal
+                };
+            }
         }
         public void Close()
         {
-            //request encoding thread to exit
-            IsEncodingThreadRunning = false;
-            //wait until thread has exited gracefuly (1s max)
-            _encodingThread.Join(1000);
+            if (Connection.VoiceSupportEnabled)
+            {
+                //request encoding thread to exit
+                IsEncodingThreadRunning = false;
+                //wait until thread has exited gracefuly (1s max)
+                _encodingThread.Join(1000);
+            }
 
             Connection = null;
 
@@ -441,8 +448,11 @@ namespace MumbleSharp
 
             //TODO: handle the serverSync.WelcomeText, serverSync.Permissions, serverSync.MaxBandwidth
 
-            _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels, _audioFrameSize);
-            _encodingThread.Start();
+            if (Connection.VoiceSupportEnabled)
+            {
+                _encodingBuffer = new AudioEncodingBuffer(_audioSampleRate, _audioSampleBits, _audioSampleChannels, _audioFrameSize);
+                _encodingThread.Start();
+            }
 
             ReceivedServerSync = true;
         }
@@ -460,6 +470,9 @@ namespace MumbleSharp
         #region voice
         private void EncodingThreadEntry(out Exception exception)
         {
+            if(!Connection.VoiceSupportEnabled)
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
+
             exception = null;
             IsEncodingThreadRunning = true;
             try
@@ -555,6 +568,9 @@ namespace MumbleSharp
         /// <param name="target"></param>
         public virtual void EncodedVoice(byte[] data, uint userId, long sequence, IVoiceCodec codec, SpeechTarget target)
         {
+            if (!Connection.VoiceSupportEnabled)
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
+
             User user;
             if (!UserDictionary.TryGetValue(userId, out user))
                 return;
@@ -564,11 +580,17 @@ namespace MumbleSharp
 
         public void SendVoice(ArraySegment<byte> pcm, SpeechTarget target, uint targetId)
         {
+            if (!Connection.VoiceSupportEnabled)
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
+
             _encodingBuffer.Add(pcm, target, targetId);
         }
 
         public void SendVoiceStop()
         {
+            if (!Connection.VoiceSupportEnabled)
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
+
             _encodingBuffer.Stop();
             sequenceIndex = 0;
         }

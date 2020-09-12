@@ -48,8 +48,11 @@ namespace MumbleSharp.Model
         /// <param name="audioFrameSize">Size of the frame in samples.</param>
         public User(IMumbleProtocol owner, uint id, int audioSampleRate = Constants.DEFAULT_AUDIO_SAMPLE_RATE, byte audioSampleBits = Constants.DEFAULT_AUDIO_SAMPLE_BITS, byte audioSampleChannels = Constants.DEFAULT_AUDIO_SAMPLE_CHANNELS, ushort audioFrameSize = Constants.DEFAULT_AUDIO_FRAME_SIZE)
         {
-            _codecs = new CodecSet(audioSampleRate, audioSampleBits, audioSampleChannels, audioFrameSize);
-            _buffer = new AudioDecodingBuffer(audioSampleRate, audioSampleBits, audioSampleChannels, audioFrameSize);
+            if (owner.Connection.VoiceSupportEnabled)
+            {
+                _codecs = new CodecSet(audioSampleRate, audioSampleBits, audioSampleChannels, audioFrameSize);
+                _buffer = new AudioDecodingBuffer(audioSampleRate, audioSampleBits, audioSampleChannels, audioFrameSize);
+            }
             _owner = owner;
             Id = id;
         }
@@ -128,6 +131,9 @@ namespace MumbleSharp.Model
 
         protected internal IVoiceCodec GetCodec(SpeechCodecs codec)
         {
+            if (!_owner.Connection.VoiceSupportEnabled)
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
+
             return _codecs.GetCodec(codec);
         }
 
@@ -160,12 +166,18 @@ namespace MumbleSharp.Model
         {
             get
             {
+                if (!_owner.Connection.VoiceSupportEnabled)
+                    throw new InvalidOperationException("Voice Support is disabled with this connection");
+
                 return _buffer;
             }
         }
 
         public void ReceiveEncodedVoice(byte[] data, long sequence, IVoiceCodec codec)
         {
+            if (!_owner.Connection.VoiceSupportEnabled)
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
+
             _buffer.AddEncodedPacket(sequence, data, codec);
         }
     }
