@@ -127,16 +127,19 @@ namespace MumbleSharp
 
         public void SendVoice(PacketType type, ArraySegment<byte> packet)
         {
-            lock (_ssl)
-            {
-                _writer.Write(IPAddress.HostToNetworkOrder((short)type));
-                _writer.Write(IPAddress.HostToNetworkOrder(packet.Count));
-                _writer.Write(packet.Array, packet.Offset, packet.Count);
+            if (_connection.VoiceSupportEnabled)
+                lock (_ssl)
+                {
+                    _writer.Write(IPAddress.HostToNetworkOrder((short)type));
+                    _writer.Write(IPAddress.HostToNetworkOrder(packet.Count));
+                    _writer.Write(packet.Array, packet.Offset, packet.Count);
 
-                _writer.Flush();
-                _ssl.Flush();
-                _netStream.Flush();
-            }
+                    _writer.Flush();
+                    _ssl.Flush();
+                    _netStream.Flush();
+                }
+            else
+                throw new InvalidOperationException("Voice Support is disabled with this connection");
         }
 
         public void SendBuffer(PacketType type, byte[] packet)
