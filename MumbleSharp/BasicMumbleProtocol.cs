@@ -108,7 +108,8 @@ namespace MumbleSharp
         }
         public void Close()
         {
-            if (Connection.VoiceSupportEnabled)
+            if (Connection != null && _encodingThread != null
+                && Connection.VoiceSupportEnabled)
             {
                 //request encoding thread to exit
                 IsEncodingThreadRunning = false;
@@ -262,10 +263,75 @@ namespace MumbleSharp
         #endregion
 
         #region users
+        /// <summary>
+        /// Called when the user has joined.
+        /// </summary>
+        /// <param name="user">the user who joined</param>
         protected virtual void UserJoined(User user)
         {
         }
 
+        /// <summary>
+        /// Called when any of the user's state properties has changed.
+        /// For precise state management you may want to use UserStateDeafChanged, UserStateMuteChanged, UserStateNameChanged, UserStateCommentChanged or UserStateChannelChanged method overrides.
+        /// </summary>
+        /// <param name="user">the user who's tate has changed</param>
+        protected virtual void UserStateChanged(User user)
+        {
+        }
+
+        /// <summary>
+        /// Called if user's Deaf or SelfDeaf state have changed
+        /// </summary>
+        /// <param name="user">the user who's state has changed</param>
+        /// <param name="oldSelfDeafValue">the previous value of the user's SelfDeaf state</param>
+        /// <param name="oldDeafValue">the previous value of the user's Deaf state</param>
+        protected virtual void UserStateDeafChanged(User user, bool oldSelfDeafValue, bool oldDeafValue)
+        {
+        }
+
+        /// <summary>
+        /// Called if user's Mute or SelfMuted or Supress state have changed
+        /// </summary>
+        /// <param name="user">the user who's state has changed</param>
+        /// <param name="oldSelfMutedValue">the previous value of the user's SelfMuted state</param>
+        /// <param name="oldMutedValue">the previous value of the user's Muted state</param>
+        /// <param name="oldSuppressValue">the previous value of the user's Suppress state</param>
+        protected virtual void UserStateMutedChanged(User user, bool oldSelfMutedValue, bool oldMutedValue, bool oldSuppressValue)
+        {
+        }
+
+        /// <summary>
+        /// Called if user's name has changed
+        /// </summary>
+        /// <param name="user">the user who's state has changed</param>
+        /// <param name="oldName">the previous value of the uer's name</param>
+        protected virtual void UserStateNameChanged(User user, string oldName)
+        {
+        }
+
+        /// <summary>
+        /// Called if user's comment has changed
+        /// </summary>
+        /// <param name="user">the user who's state has changed</param>
+        /// <param name="oldComment">the previous value of the uer's comment</param>
+        protected virtual void UserStateCommentChanged(User user, string oldComment)
+        {
+        }
+
+        /// <summary>
+        /// Called if user's channel has changed
+        /// </summary>
+        /// <param name="user">the user who's state has changed</param>
+        /// <param name="oldChannelId">the preivous value of user's channel id</param>
+        protected virtual void UserStateChannelChanged(User user, uint oldChannelId)
+        {
+        }
+
+        /// <summary>
+        /// Called when the user has left
+        /// </summary>
+        /// <param name="user">the user who left</param>
         protected virtual void UserLeft(User user)
         {
         }
@@ -289,29 +355,101 @@ namespace MumbleSharp
                     return new User(this, userState.Session, _audioSampleRate, _audioSampleBits, _audioSampleChannels);
                 }, (i, u) => u);
 
+                bool triggerUserStateMutedChanged = false;
+                bool oldSelfMuted = false;
+                bool oldMuted = false;
+                bool oldSuppress = false;
+                bool triggerUserStateDeafChanged = false;
+                bool oldSelfDeaf = false;
+                bool oldDeaf = false;
+                bool triggerUserStateNameChanged = false;
+                string oldName = string.Empty;
+                bool triggerUserStateCommentChanged = false;
+                string oldComment = string.Empty;
+                bool triggerUserStateChannelChanged = false;
+                uint oldChannelId = RootChannel.Id;
+
                 //Update user in the dictionary
                 if (userState.ShouldSerializeSelfDeaf())
+                {
+                    oldSelfDeaf = user.SelfDeaf;
                     user.SelfDeaf = userState.SelfDeaf;
+                    triggerUserStateDeafChanged = true;
+                }
                 if (userState.ShouldSerializeSelfMute())
+                {
+                    oldSelfMuted = user.SelfMuted;
                     user.SelfMuted = userState.SelfMute;
+                    triggerUserStateMutedChanged = true;
+                }
                 if (userState.ShouldSerializeMute())
+                {
+                    oldMuted = user.Muted;
                     user.Muted = userState.Mute;
+                    triggerUserStateMutedChanged = true;
+                }
                 if (userState.ShouldSerializeDeaf())
+                {
+                    oldDeaf = user.Deaf;
                     user.Deaf = userState.Deaf;
+                    triggerUserStateDeafChanged = true;
+                }
                 if (userState.ShouldSerializeSuppress())
+                {
+                    oldSuppress = user.Suppress;
                     user.Suppress = userState.Suppress;
+                    triggerUserStateMutedChanged = true;
+                }
                 if (userState.ShouldSerializeName())
+                {
+                    oldName = user.Name != null ? string.Copy(user.Name) : null;
                     user.Name = userState.Name;
+                    triggerUserStateNameChanged = true;
+                }
                 if (userState.ShouldSerializeComment())
+                {
+                    oldComment = user.Comment != null ? string.Copy(user.Comment) : null;
                     user.Comment = userState.Comment;
+                    triggerUserStateCommentChanged = true;
+                }
 
                 if (userState.ShouldSerializeChannelId())
+                {
+                    if (user.Channel != null)
+                        oldChannelId = user.Channel.Id;
+                    else
+                        oldChannelId = RootChannel.Id;
                     user.Channel = ChannelDictionary[userState.ChannelId];
+                    triggerUserStateChannelChanged = true;
+                }
                 else if (user.Channel == null)
+                {
+                    oldChannelId = RootChannel.Id;
                     user.Channel = RootChannel;
+                    triggerUserStateChannelChanged = true;
+                }
 
-                //if (added)
+                if (added)
                     UserJoined(user);
+                else
+                {
+                    if (triggerUserStateDeafChanged)
+                        UserStateDeafChanged(user, oldSelfDeaf, oldDeaf);
+
+                    if (triggerUserStateMutedChanged)
+                        UserStateMutedChanged(user, oldSelfMuted, oldMuted, oldSuppress);
+
+                    if (triggerUserStateNameChanged)
+                        UserStateNameChanged(user, oldName);
+
+                    if (triggerUserStateCommentChanged)
+                        UserStateCommentChanged(user, oldComment);
+
+                    if (triggerUserStateChannelChanged)
+                        UserStateChannelChanged(user, oldChannelId);
+
+                    UserStateChanged(user);
+                }
             }
         }
 

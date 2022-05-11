@@ -18,6 +18,8 @@ namespace MumbleGuiClient
     {
         public delegate void EncodedVoiceDelegate(BasicMumbleProtocol proto, byte[] data, uint userId, long sequence, IVoiceCodec codec, SpeechTarget target);
         public delegate void UserJoinedDelegate(BasicMumbleProtocol proto, User user);
+        public delegate void UserStateChangedDelegate(BasicMumbleProtocol proto, User user);
+        public delegate void UserStateChannelChangedDelegate(BasicMumbleProtocol proto, User user, uint oldChannelId);
         public delegate void UserLeftDelegate(BasicMumbleProtocol proto, User user);
         public delegate void ChannelJoinedDelegate(BasicMumbleProtocol proto, Channel channel);
         public delegate void ChannelLeftDelegate(BasicMumbleProtocol proto, Channel channel);
@@ -27,6 +29,8 @@ namespace MumbleGuiClient
 
         public EncodedVoiceDelegate encodedVoice;
         public UserJoinedDelegate userJoinedDelegate;
+        public UserStateChangedDelegate userStateChangedDelegate;
+        public UserStateChannelChangedDelegate userStateChannelChangedDelegate;
         public UserLeftDelegate userLeftDelegate;
         public ChannelJoinedDelegate channelJoinedDelegate;
         public ChannelLeftDelegate channelLeftDelegate;
@@ -49,6 +53,20 @@ namespace MumbleGuiClient
             base.UserJoined(user);
 
             if (userJoinedDelegate != null) userJoinedDelegate(this, user);
+        }
+
+        protected override void UserStateChanged(User user)
+        {
+            base.UserStateChanged(user);
+
+            if (userStateChangedDelegate != null) userStateChangedDelegate(this, user);
+        }
+
+        protected override void UserStateChannelChanged(User user, uint oldChannelId)
+        {
+            base.UserStateChannelChanged(user, oldChannelId);
+
+            if (userStateChannelChangedDelegate != null) userStateChannelChangedDelegate(this, user, oldChannelId);
         }
 
         protected override void UserLeft(User user)
