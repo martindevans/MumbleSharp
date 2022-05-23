@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>True</UseWindowsForms>
     <Authors>martindevans, Meetsch</Authors>
     <Product>MumbleSharp</Product>
     <Description>Windows desktop demo application for the use of the MumbleSharp library.
 For more info on MumbleSharp please visit https://github.com/martindevans/MumbleSharp</Description>
-    <Copyright>Copyright © 2020</Copyright>
+    <Copyright>Copyright © 2022</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>mumblesharp.png</PackageIcon>
     <PackageIconUrl />

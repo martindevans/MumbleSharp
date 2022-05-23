@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;net48</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <Version>1.2.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MumbleSharp is a mumble protocol implementation in C#.
 For more info on Mumble please visit https://www.mumble.info/</Description>
-    <Copyright>Copyright © 2020</Copyright>
+    <Copyright>Copyright © 2022</Copyright>
     <PackageProjectUrl>https://github.com/martindevans/MumbleSharp</PackageProjectUrl>
     <ApplicationIcon>mumblesharp.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/martindevans/MumbleSharp</RepositoryUrl>
