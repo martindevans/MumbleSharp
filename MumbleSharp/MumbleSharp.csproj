@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <Version>1.2.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MumbleSharp is a mumble protocol implementation in C#.
 For more info on Mumble please visit https://www.mumble.info/</Description>
-    <Copyright>Copyright © 2020</Copyright>
+    <Copyright>Copyright © 2022</Copyright>
     <PackageProjectUrl>https://github.com/martindevans/MumbleSharp</PackageProjectUrl>
     <ApplicationIcon>mumblesharp.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/martindevans/MumbleSharp</RepositoryUrl>
@@ -49,8 +49,8 @@ For more info on Mumble please visit https://www.mumble.info/</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NAudio" Version="1.10.0" />
-    <PackageReference Include="protobuf-net" Version="2.4.4" />
+    <PackageReference Include="NAudio.WinMM" Version="2.1.0" />
+    <PackageReference Include="protobuf-net" Version="2.4.7" />
   </ItemGroup>
 
   <ItemGroup>
