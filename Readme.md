@@ -1,8 +1,12 @@
-<img alt="MumbleSharp Logo" align="right" src="mumblesharp.png" width="128" height="128">
-
 ## MumbleSharp
 
 MumbleSharp is Mumble client library and sample client implementations in C#.
+
+![MumbleSharp Logo](https://raw.githubusercontent.com/martindevans/MumbleSharp/master/mumblesharp.png)
+
+The library targets .NET Standard 2.1 and 2.0
+
+The sample client implementations targets .NET 6.0
 
 [Mumble](https://www.mumble.info/) is a free, open source, low latency, high quality voice chat application.
 
@@ -10,7 +14,7 @@ The solution comes in two parts:
 
  1. The MumbleSharp Library
     - MumbleSharp is the actual MumbleSharp library which is a class library for building mumble clients.
- 2. Demo implementations
+ 2. Demo implementations available on [GitHub](https://github.com/martindevans/MumbleSharp)
     - MumbleClient is a console mumble client, a console application to use for testing and learning.
     - MumbleGuiClient is a winform mumble client, a minimalistic client but fully functional: channels display and switching, message chat, voice support, playback/recording device selection and a very basic voice detection.
 
@@ -54,4 +58,4 @@ Supporting other codecs should be relatively simple. For CELT you'll need to fin
 
 ## Looking For VoIP In Unity?
 
-Martin Evans developed a VoIP asset for Unity, get it [here](https://www.assetstore.unity3d.com/#!/content/70078?aid=1100lJ2J)
+Martin Evans developed a VoIP asset for Unity: [Dissonance Voice Chat](https://placeholder-software.co.uk/dissonance/)
