@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MumbleSharp is a mumble protocol implementation in C#.
 For more info on Mumble please visit https://www.mumble.info/</Description>
-    <Copyright>Copyright © 2022</Copyright>
+    <Copyright>Copyright © 2023</Copyright>
     <PackageProjectUrl>https://github.com/martindevans/MumbleSharp</PackageProjectUrl>
     <ApplicationIcon>mumblesharp.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/martindevans/MumbleSharp</RepositoryUrl>
@@ -18,6 +18,7 @@ For more info on Mumble please visit https://www.mumble.info/</Description>
     <PackageIcon>mumblesharp.png</PackageIcon>
     <PackageIconUrl />
     <PackageReadmeFile>Readme.md</PackageReadmeFile>
+    <PackageReleaseNotes>fix inclusion of opus.dll in projects referencing this package.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -61,13 +62,15 @@ For more info on Mumble please visit https://www.mumble.info/</Description>
     <PackageReference Include="protobuf-net" Version="2.4.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Audio\Codecs\Opus\Libs\32bit\opus.dll">
+  <ItemGroup Label="AudioCodecLibraries">
+    <Content Include="Audio\Codecs\Opus\Libs\32bit\opus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Audio\Codecs\Opus\Libs\64bit\opus.dll">
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+    <Content Include="Audio\Codecs\Opus\Libs\64bit\opus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
   </ItemGroup>
 
 </Project>
